@@ -4,7 +4,6 @@ about: 버그용 템플릿
 title: 명사형으로 제목 작성
 labels: ":bug: bug"
 assignees: ''
-
 ---
 
 ## 버그 내용

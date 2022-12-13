@@ -33,11 +33,11 @@ out/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
-.vscode/
-
 ### MAC ###
 .DS_Store
 
 ### local database setting ###
 src/main/resources/application-local.yml
+
+### VS Code ###
+.vscode/
