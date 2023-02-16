@@ -41,6 +41,8 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     //parameter store
     implementation("com.coveo:spring-boot-parameter-store-integration:1.1.2")
+    //oauth
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 }
 
 tasks.withType<KotlinCompile> {
