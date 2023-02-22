@@ -5,11 +5,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 @Component
-class OAuthServiceFactory(
-    private val restTemplate: RestTemplate,
-    private val objectMapper: ObjectMapper
-) {
+class OAuth2ServiceFactory {
     fun getOAuthService(): OAuth2Service{
-        return OAuth2ServiceImpl(restTemplate, objectMapper)
+        return OAuth2ServiceImpl(RestTemplate(), ObjectMapper())
     }
 }
