@@ -1,35 +1,39 @@
 package gg.match.controller.api
 
-import gg.match.domain.user.dto.SignUpRequestDTO
-import gg.match.domain.user.dto.SignUpResponseDTO
+import gg.match.common.jwt.util.JwtResolver
+import gg.match.domain.user.dto.*
 import gg.match.domain.user.service.AuthService
-import org.apache.coyote.Response
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 @RequestMapping("/api/user")
 class UserController(
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val jwtResolver: JwtResolver
 ) {
-    @GetMapping("/test")
-    fun test(): ResponseEntity<Any> {
-        return ResponseEntity.ok().body("success")
-    }
-
-    @GetMapping("/kakao")
-    fun kakaoCallback(@RequestParam code: String){
-        print(code)
-    }
-
     @PostMapping("/signup")
     fun signup(@RequestBody signUpRequestDTO: SignUpRequestDTO): ResponseEntity<SignUpResponseDTO> {
-        return try{
-            authService.signUp(signUpRequestDTO)
-            ResponseEntity.ok().body(null)
-        } catch (e: Exception) {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
-        }
+        return ResponseEntity.ok().body(authService.signUp(signUpRequestDTO))
+    }
+
+    @PostMapping("/signin")
+    fun signin(@RequestBody signInRequestDTO: SignInRequestDTO): ResponseEntity<JwtTokenDTO> {
+        return ResponseEntity.ok().body(authService.signin(signInRequestDTO))
+    }
+
+    @PostMapping("/refresh")
+    fun refresh(request: HttpServletRequest): ResponseEntity<JwtTokenDTO> {
+        val refreshToken = jwtResolver.resolveRefreshToken(request)
+        return ResponseEntity.ok().body(authService.refresh(refreshToken))
+    }
+
+    @PostMapping("/logout")
+    fun logout(request: HttpServletRequest): ResponseEntity<Any> {
+        val refreshToken = jwtResolver.resolveRefreshToken(request)
+        val accessToken = jwtResolver.resolveAccessToken(request)
+        authService.logout(refreshToken, accessToken)
+        return ResponseEntity.ok().body(null)
     }
 }

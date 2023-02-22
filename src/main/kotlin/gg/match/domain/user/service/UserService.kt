@@ -15,4 +15,7 @@ class UserService (
 
     fun existsByOauth2Id(oauth2Id: String)
     = userRepository.existsByOauth2Id(oauth2Id)
+
+    fun findByOauth2Id(oauth2Id: String)
+    = userRepository.findByOauth2Id(oauth2Id)
 }
