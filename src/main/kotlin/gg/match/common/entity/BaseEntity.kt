@@ -1,4 +1,4 @@
-package gg.match.controller.common.entity
+package gg.match.common.entity
 
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -11,6 +11,7 @@ import javax.persistence.MappedSuperclass
 @MappedSuperclass
 @EntityListeners(value = [AuditingEntityListener::class])
 abstract class BaseEntity {
+
     @CreatedDate
     @Column(name = "created", updatable = false)
     var created: LocalDateTime = LocalDateTime.now()
