@@ -1,6 +1,6 @@
-package gg.match.domain.Board.repository;
+package gg.match.domain.board.repository;
 
-import gg.match.domain.Board.dto.Board;
+import gg.match.domain.board.dto.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {

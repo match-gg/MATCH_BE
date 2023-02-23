@@ -1,4 +1,4 @@
-package gg.match.domain.Board.dto;
+package gg.match.domain.board.dto;
 
 import gg.match.controller.common.entity.BaseEntity;
 
@@ -40,17 +40,24 @@ public class Board extends BaseEntity {
         this.nickname = nickname;
     }
 
-    public String getContent() {return content;}
+    public String getContent() {
+        return content;
+    }
 
     public void setContent(String content) {
         this.content = content;
     }
 
     public LocalDateTime getCreatedDateTime(){ return createdDateTime; }
-    public void setCreatedDateTime(LocalDateTime updatedDateTime){ this.createdDateTime = createdDateTime; }
+    public void setCreatedDateTime(LocalDateTime updatedDateTime){
+        this.createdDateTime = createdDateTime;
+    }
 
-    public void setUpdatedDateTime(LocalDateTime createdDateTime){ this.updatedDateTime = updatedDateTime; }
+    public void setUpdatedDateTime(LocalDateTime createdDateTime){
+        this.updatedDateTime = updatedDateTime; }
 
-    public LocalDateTime getUpdatedDateTime(){ return updatedDateTime; }
 
+    public LocalDateTime getUpdatedDateTime(){
+        return updatedDateTime;
+    }
 }

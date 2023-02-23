@@ -1,8 +1,8 @@
-package gg.match.domain.Board.service;
+package gg.match.domain.board.service;
 
-import gg.match.domain.Board.dto.Board;
-import gg.match.domain.Board.dto.BoardDto;
-import gg.match.domain.Board.repository.BoardRepository;
+import gg.match.domain.board.dto.Board;
+import gg.match.domain.board.dto.BoardDto;
+import gg.match.domain.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;

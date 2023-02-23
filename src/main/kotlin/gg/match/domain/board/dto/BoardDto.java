@@ -1,6 +1,4 @@
-package gg.match.domain.Board.dto;
-
-import gg.match.domain.Board.dto.Board;
+package gg.match.domain.board.dto;
 
 import java.time.LocalDateTime;
 

@@ -1,6 +1,6 @@
-package gg.match.domain.Board.service;
+package gg.match.domain.board.service;
 
-import gg.match.domain.Board.dto.BoardDto;
+import gg.match.domain.board.dto.BoardDto;
 
 import java.util.List;
 

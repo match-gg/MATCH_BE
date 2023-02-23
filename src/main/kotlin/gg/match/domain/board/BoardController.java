@@ -1,12 +1,12 @@
-package gg.match.domain.Board;
+package gg.match.domain.board;
 
-import gg.match.domain.Board.dto.Board;
-import gg.match.domain.Board.repository.BoardService;
+import gg.match.domain.board.dto.Board;
+import gg.match.domain.board.repository.BoardService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/api")
+@RestController("/api/board")
 public class BoardController {
     private final BoardService boardService;
 
@@ -14,7 +14,7 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-    @PostMapping("/boards")
+    @PostMapping("/save")
     public Board save(@RequestBody Board board) {
         return boardService.save(board);
     }
