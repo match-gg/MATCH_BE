@@ -1,4 +1,4 @@
-package gg.match.domain.board.dto;
+package gg.match.domain.board.example.dto;
 
 public class BoardMapper {
     public static BoardDto toDto(Board board) {

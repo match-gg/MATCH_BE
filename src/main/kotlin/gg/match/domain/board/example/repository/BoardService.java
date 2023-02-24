@@ -1,6 +1,6 @@
-package gg.match.domain.board.repository;
+package gg.match.domain.board.example.repository;
 
-import gg.match.domain.board.dto.Board;
+import gg.match.domain.board.example.dto.Board;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;

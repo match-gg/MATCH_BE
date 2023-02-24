@@ -1,7 +1,7 @@
-package gg.match.domain.board;
+package gg.match.domain.board.example;
 
-import gg.match.domain.board.dto.Board;
-import gg.match.domain.board.repository.BoardService;
+import gg.match.domain.board.example.dto.Board;
+import gg.match.domain.board.example.repository.BoardService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
