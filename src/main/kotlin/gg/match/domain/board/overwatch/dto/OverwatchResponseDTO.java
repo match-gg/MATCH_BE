@@ -1,36 +1,28 @@
 package gg.match.domain.board.overwatch.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import gg.match.controller.common.entity.Expire;
-import gg.match.domain.board.overwatch.entity.Position;
-import gg.match.domain.board.overwatch.entity.Tier;
-import gg.match.domain.board.overwatch.entity.Type;
 
 import java.util.Date;
 
-public class OverwatchRequestDTO {
-    @JsonProperty("name")
+public class OverwatchResponseDTO {
+
+    private Long id;
     private String name;
-
-    @JsonProperty("tier")
     private String tier;
-
-    @JsonProperty("position")
     private String position;
-
-    @JsonProperty("voice")
     private Boolean voice;
-
-    @JsonProperty("content")
     private String content;
-
-    @JsonProperty("expire")
-    private String expire;
-
-    @JsonProperty("regdate")
+    private Expire expire;
     private Date regdate;
 
-    // Getter/Setter 메서드
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -71,11 +63,11 @@ public class OverwatchRequestDTO {
         this.content = content;
     }
 
-    public String getExpire() {
+    public Expire getExpire() {
         return expire;
     }
 
-    public void setExpire(String expire) {
+    public void setExpire(Expire expire) {
         this.expire = expire;
     }
 
