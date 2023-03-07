@@ -18,6 +18,7 @@ class OAuth2ServiceImpl(
     private val KAKAO_MY_INFO_API: String = "https://kapi.kakao.com/v2/user/me"
 
     override fun getOAuth2User(oAuth2AccessToken: String): Oauth2UserDTO {
+        println("여기까지옴")
         val userJson = getProfileInfoFromProvider(oAuth2AccessToken)
         return buildOAuth2User(userJson)
     }
