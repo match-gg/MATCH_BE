@@ -20,7 +20,7 @@ class AuthService(
     private val refreshService: RefreshService
 ) {
     @Transactional
-    fun signUp(signUpRequestDTO: SignUpRequestDTO): SignUpResponseDTO{
+    fun signUp(signUpRequestDTO: SignUpRequestDTO): JwtTokenDTO{
         val oAuth2User = oAuth2ServiceFactory
             .getOAuthService()
             .getOAuth2User(signUpRequestDTO.oauth2AccessToken)
@@ -30,16 +30,13 @@ class AuthService(
         }
 
         val savedUser: User = userService.saveUser(
-            User.of(oAuth2User)
+            User.of(oAuth2User, signUpRequestDTO)
         )
 
         val jwtToken = jwtService.issue(signUpRequestDTO.oauth2AccessToken)
         refreshService.storeRefresh(jwtToken, oAuth2User.oauth2Id)
 
-        return SignUpResponseDTO(
-            jwtToken = jwtToken,
-            oauth2Id =  savedUser.oauth2Id
-        )
+        return jwtToken
     }
 
     @Transactional
