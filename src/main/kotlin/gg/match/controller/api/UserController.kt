@@ -15,11 +15,10 @@ import javax.servlet.http.HttpServletRequest
 @RequestMapping("/api/user")
 class UserController(
     private val authService: AuthService,
-    private val jwtResolver: JwtResolver,
-    private val userService: UserService
+    private val jwtResolver: JwtResolver
 ) {
     @PostMapping("/signup")
-    fun signup(@RequestBody signUpRequestDTO: SignUpRequestDTO): ResponseEntity<SignUpResponseDTO> {
+    fun signup(@RequestBody signUpRequestDTO: SignUpRequestDTO): ResponseEntity<JwtTokenDTO> {
         return ResponseEntity.ok().body(authService.signUp(signUpRequestDTO))
     }
 
@@ -40,12 +39,5 @@ class UserController(
         val accessToken = jwtResolver.resolveAccessToken(request)
         authService.logout(refreshToken, accessToken)
         return ResponseEntity.ok().body(null)
-    }
-
-    @PostMapping("/register")
-    fun register(@RequestBody registerDTO: RegisterDTO): ResponseEntity<Any> {
-        print(user.nickname)
-        print(registerDTO)
-        return ResponseEntity.ok().body(userService.register(registerDTO, user))
     }
 }
