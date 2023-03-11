@@ -44,11 +44,6 @@ dependencies {
     implementation("com.coveo:spring-boot-parameter-store-integration:1.1.2")
     //oauth
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-    //Querydsl
-    implementation("com.querydsl:querydsl-jpa")
-    annotationProcessor("com.querydsl:querydsl-apt:5.0.0")
-    compileOnly("com.querydsl:querydsl-apt:5.0.0")
-
 }
 
 tasks.withType<KotlinCompile> {
