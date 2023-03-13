@@ -21,7 +21,7 @@ data class LoLRequestDTO(
     val position: Position,
 
     @JsonProperty("voice")
-    val voice: String,
+    var voice: String,
 
     @JsonProperty("content")
     val content: String,
