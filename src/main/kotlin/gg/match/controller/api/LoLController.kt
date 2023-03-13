@@ -28,6 +28,7 @@ class LoLController(
 
     @PostMapping
     fun saveBoard(@RequestBody loLRequestDTO: LoLRequestDTO): ResponseEntity<Any> {
+        loLRequestDTO.voice = voiceUpper(loLRequestDTO.voice)
         return try{
             ResponseEntity.ok().body(loLService.save(loLRequestDTO))
         } catch (e: Exception) {
@@ -38,6 +39,7 @@ class LoLController(
     @PutMapping("/{boardId}")
     fun updateBoard(@PathVariable boardId: Long,
                     @RequestBody loLRequestDTO: LoLRequestDTO): ResponseEntity<Any> {
+        loLRequestDTO.voice = voiceUpper(loLRequestDTO.voice)
         return try{
             ResponseEntity.ok(loLService.update(boardId, loLRequestDTO))
         } catch (e: Exception) {
@@ -49,5 +51,9 @@ class LoLController(
     fun delete(@PathVariable boardId: Long): ResponseEntity<Nothing> {
         loLService.delete(boardId)
         return ResponseEntity.ok().body(null)
+    }
+
+    fun voiceUpper(voice: String): String{
+        return voice.uppercase()
     }
 }
