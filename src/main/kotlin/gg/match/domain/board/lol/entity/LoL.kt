@@ -1,12 +1,10 @@
 package gg.match.domain.board.lol.entity
 
-import gg.match.controller.common.entity.BaseEntity
+import gg.match.common.entity.BaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.LoLRequestDTO
 import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
-import java.time.LocalDate
 import javax.persistence.*
-import kotlin.math.exp
 
 @Entity
 @Table(name = "lol")
