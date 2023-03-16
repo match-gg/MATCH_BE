@@ -1,15 +1,15 @@
 package gg.match.controller.api
 
+import gg.match.common.annotation.CurrentUser
 import gg.match.common.jwt.util.JwtResolver
 import gg.match.domain.user.dto.*
-import gg.match.domain.user.entity.Game
 import gg.match.domain.user.entity.User
 import gg.match.domain.user.service.AuthService
-import gg.match.domain.user.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import javax.servlet.http.HttpServletRequest
+import org.springframework.security.core.userdetails.UserDetails
 
 @RestController
 @RequestMapping("/api/user")
@@ -35,9 +35,16 @@ class UserController(
 
     @PostMapping("/logout")
     fun logout(request: HttpServletRequest): ResponseEntity<Any> {
-        val refreshToken = jwtResolver.resolveRefreshToken(request)
         val accessToken = jwtResolver.resolveAccessToken(request)
+        val refreshToken = jwtResolver.resolveRefreshToken(request)
         authService.logout(refreshToken, accessToken)
         return ResponseEntity.ok().body(null)
+    }
+
+    @GetMapping("/info")
+    fun myInfo(request: HttpServletRequest): ResponseEntity<Any> {
+        val user = jwtResolver.getFromSecurityContextHolder()
+        return ResponseEntity.ok().body(user.username)
+//        return ResponseEntity.ok().body(user.oauth2Id)
     }
 }
