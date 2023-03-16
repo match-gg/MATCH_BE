@@ -19,6 +19,8 @@ class User(
 
     var email: String?,
 
+    var imageUrl: String?,
+
     @Enumerated(EnumType.STRING)
     var representative: Game,
 
@@ -49,6 +51,7 @@ class User(
                 oauth2Id = oAuth2User.oauth2Id,
                 nickname = oAuth2User.nickname,
                 email = oAuth2User.email,
+                imageUrl = oAuth2User.imageUrl,
                 representative = signUpRequestDTO.representative,
                 lol = signUpRequestDTO.lol,
                 overwatch = signUpRequestDTO.overwatch,

@@ -7,11 +7,9 @@ import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.nio.charset.StandardCharsets

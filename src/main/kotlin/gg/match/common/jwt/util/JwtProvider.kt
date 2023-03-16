@@ -20,11 +20,12 @@ class JwtProvider(
     private val userService: UserService
 ) {
     private val key: Key = Keys.hmacShaKeyFor(secretKey.toByteArray(StandardCharsets.UTF_8))
-
     fun createAccessToken(oAuth2Id: String): String {
+        val user = userService.findByOauth2Id(oAuth2Id)
         val claims: Claims = Jwts.claims().setSubject(oAuth2Id)
         claims["oAuth2Id"] = oAuth2Id
-        claims["nickname"] = userService.findByOauth2Id(oAuth2Id)?.nickname
+        claims["nickname"] = user?.nickname
+        claims["imageUrl"] = user?.imageUrl
         val now = Date()
         return Jwts.builder()
             .setClaims(claims)
