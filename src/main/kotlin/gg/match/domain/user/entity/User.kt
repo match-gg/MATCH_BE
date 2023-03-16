@@ -19,6 +19,8 @@ class User(
 
     var email: String?,
 
+    var imageUrl: String?,
+
     @Enumerated(EnumType.STRING)
     var representative: Game,
 
@@ -32,6 +34,12 @@ class User(
 
     var lostark: String?,
 
+    var likeCount: Long = 0,
+
+    var dislikeCount: Long = 0,
+
+    var matchCount: Long = 0,
+
     @CreatedDate
     @Column(name = "created", updatable = false)
     var regdate: LocalDate
@@ -43,6 +51,7 @@ class User(
                 oauth2Id = oAuth2User.oauth2Id,
                 nickname = oAuth2User.nickname,
                 email = oAuth2User.email,
+                imageUrl = oAuth2User.imageUrl,
                 representative = signUpRequestDTO.representative,
                 lol = signUpRequestDTO.lol,
                 overwatch = signUpRequestDTO.overwatch,

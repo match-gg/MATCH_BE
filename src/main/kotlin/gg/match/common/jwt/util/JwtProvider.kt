@@ -1,5 +1,6 @@
 package gg.match.common.jwt.util
 
+import gg.match.domain.user.service.UserService
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -15,12 +16,16 @@ import java.util.*
 class JwtProvider(
     @Value("\${jwt.secret}") private val secretKey: String,
     @Value("\${jwt.access-token-expiry}") private val accessTokenValidTime: Int,
-    @Value("\${jwt.refresh-token-expiry}") private val refreshTokenValidTime: Long
+    @Value("\${jwt.refresh-token-expiry}") private val refreshTokenValidTime: Long,
+    private val userService: UserService
 ) {
     private val key: Key = Keys.hmacShaKeyFor(secretKey.toByteArray(StandardCharsets.UTF_8))
-
     fun createAccessToken(oAuth2Id: String): String {
+        val user = userService.findByOauth2Id(oAuth2Id)
         val claims: Claims = Jwts.claims().setSubject(oAuth2Id)
+        claims["oAuth2Id"] = oAuth2Id
+        claims["nickname"] = user?.nickname
+        claims["imageUrl"] = user?.imageUrl
         val now = Date()
         return Jwts.builder()
             .setClaims(claims)

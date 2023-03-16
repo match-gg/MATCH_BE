@@ -29,9 +29,7 @@ class AuthService(
             throw BusinessException(ErrorCode.USER_DUPLICATED)
         }
 
-        val savedUser: User = userService.saveUser(
-            User.of(oAuth2User, signUpRequestDTO)
-        )
+        userService.saveUser(User.of(oAuth2User, signUpRequestDTO))
 
         val jwtToken = jwtService.issue(signUpRequestDTO.oauth2AccessToken)
         refreshService.storeRefresh(jwtToken, oAuth2User.oauth2Id)

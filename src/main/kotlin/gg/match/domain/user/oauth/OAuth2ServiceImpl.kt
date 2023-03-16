@@ -55,11 +55,15 @@ class OAuth2ServiceImpl(
             .get("nickname")
             .asText()
         val email = kakao_account.get("email").asText()
+        val imageUrl = kakao_account
+            .get("profile")
+            .get("thumbnail_image_url").asText()
 
         return Oauth2UserDTO(
             oauth2Id = "kakao$oAuth2Id",
             nickname = nickname,
-            email = email
+            email = email,
+            imageUrl = imageUrl
         )
     }
 }
