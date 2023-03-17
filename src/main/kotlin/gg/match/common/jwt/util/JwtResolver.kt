@@ -34,7 +34,6 @@ class JwtResolver (
 
     fun getFromSecurityContextHolder(): UserDetailsImpl {
         return SecurityContextHolder.getContext().authentication.principal as UserDetailsImpl
-
     }
 
     fun resolveAccessToken(request: HttpServletRequest): String {

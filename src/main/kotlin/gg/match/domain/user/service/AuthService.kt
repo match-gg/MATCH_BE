@@ -1,6 +1,7 @@
 package gg.match.domain.user.service
 
 import gg.match.common.jwt.service.JwtService
+import gg.match.common.jwt.util.JwtResolver
 import gg.match.common.util.Constants.Companion.REFRESH_TOKEN_PREFIX
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
@@ -17,7 +18,8 @@ class AuthService(
     private val userService: UserService,
     private val oAuth2ServiceFactory: OAuth2ServiceFactory,
     private val jwtService: JwtService,
-    private val refreshService: RefreshService
+    private val refreshService: RefreshService,
+    private val jwtResolver: JwtResolver
 ) {
     @Transactional
     fun signUp(signUpRequestDTO: SignUpRequestDTO): JwtTokenDTO{
@@ -43,7 +45,6 @@ class AuthService(
         val oAuth2User = oAuth2ServiceFactory
             .getOAuthService()
             .getOAuth2User(signInRequestDTO.oauth2AccessToken)
-
         refreshService.storeRefresh(jwtToken, oAuth2User.oauth2Id)
         return jwtToken
     }
