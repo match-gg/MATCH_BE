@@ -3,6 +3,7 @@ package gg.match.common.config
 import gg.match.common.jwt.filter.JwtAuthenticationFilter
 import gg.match.common.jwt.util.JwtResolver
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -12,7 +13,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.CorsConfigurationSource
+import org.springframework.web.cors.CorsUtils
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
+
+@Configuration
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtResolver: JwtResolver
@@ -20,7 +27,8 @@ class SecurityConfig(
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
-            web.ignoring().antMatchers("/", "/**")
+            web.ignoring().antMatchers("/api/user/signin", "/api/user/signup", "/api/user/refresh",
+            "/css/**", "/js/**", "/images/**")
         }
     }
 
@@ -34,12 +42,28 @@ class SecurityConfig(
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
             .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh").permitAll()
             .anyRequest().authenticated()
+            .and()
+            .cors()
             .and()
             .addFilterBefore(JwtAuthenticationFilter(jwtResolver), UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
+    }
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource? {
+        val configuration = CorsConfiguration()
+        configuration.addAllowedOrigin("http://localhost:3000")
+        configuration.addAllowedMethod("*")
+        configuration.addAllowedHeader("*")
+        configuration.allowCredentials = true
+        configuration.maxAge = 3600L
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", configuration)
+        return source
     }
 
     @Bean

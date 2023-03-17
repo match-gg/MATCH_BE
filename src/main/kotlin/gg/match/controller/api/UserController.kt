@@ -42,9 +42,7 @@ class UserController(
     }
 
     @GetMapping("/info")
-    fun myInfo(request: HttpServletRequest): ResponseEntity<Any> {
-        val user = jwtResolver.getFromSecurityContextHolder()
-        return ResponseEntity.ok().body(user.username)
-//        return ResponseEntity.ok().body(user.oauth2Id)
+    fun myInfo(request: HttpServletRequest, @CurrentUser user: User): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(user)
     }
 }
