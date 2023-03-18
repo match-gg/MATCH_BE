@@ -5,10 +5,12 @@ import gg.match.domain.board.lol.repository.LoLRepository
 import gg.match.domain.board.lol.dto.LoLRequestDTO
 import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
 import gg.match.domain.board.lol.entity.LoL
+import gg.match.domain.board.lol.entity.Position
+import gg.match.domain.board.lol.entity.Tier
+import gg.match.domain.board.lol.entity.Type
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -17,8 +19,12 @@ import org.springframework.transaction.annotation.Transactional
 class LoLService(
     private val loLRepository: LoLRepository
 ) {
-    fun getBoards(pageable: Pageable): PageResult<ReadLoLBoardDTO> {
-        val boards = loLRepository.findAll(pageable)
+    fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
+        val boards = if(type == Type.valueOf("ALL")){
+            loLRepository.findByPositionAndTier(pageable, position, tier)
+        } else{
+            loLRepository.findByPositionAndTypeAndTier(pageable, position, type, tier)
+        }
         return PageResult.ok(boards.map { it.toReadLoLBoardDTO() })
     }
 
