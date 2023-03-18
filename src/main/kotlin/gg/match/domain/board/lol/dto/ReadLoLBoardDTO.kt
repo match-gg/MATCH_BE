@@ -5,7 +5,7 @@ import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.entity.Position
 import gg.match.domain.board.lol.entity.Tier
 import gg.match.domain.board.lol.entity.Type
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 class ReadLoLBoardDTO(
     @JsonProperty("id")
@@ -30,5 +30,8 @@ class ReadLoLBoardDTO(
     var content: String,
 
     @JsonProperty("expire")
-    var expire: Expire
+    var expire: Expire,
+
+    @JsonProperty("created")
+    var created: LocalDateTime
 )
