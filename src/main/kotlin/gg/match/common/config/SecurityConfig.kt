@@ -28,7 +28,7 @@ class SecurityConfig(
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
             web.ignoring().antMatchers("/api/user/signin", "/api/user/signup", "/api/user/refresh",
-            "/css/**", "/js/**", "/images/**")
+            "/css/**", "/js/**", "/images/**", "/api/lol/**")
         }
     }
 
@@ -43,7 +43,7 @@ class SecurityConfig(
             .and()
             .authorizeRequests()
             .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh").permitAll()
+            .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh", "/api/lol/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .cors()

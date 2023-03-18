@@ -6,10 +6,8 @@ import gg.match.domain.user.dto.*
 import gg.match.domain.user.entity.User
 import gg.match.domain.user.service.AuthService
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import javax.servlet.http.HttpServletRequest
-import org.springframework.security.core.userdetails.UserDetails
 
 @RestController
 @RequestMapping("/api/user")

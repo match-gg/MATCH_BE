@@ -42,7 +42,8 @@ class LoL(
             position = position,
             voice = voice,
             content = content,
-            expire = expire
+            expire = expire,
+            created = created
         )
     }
 
