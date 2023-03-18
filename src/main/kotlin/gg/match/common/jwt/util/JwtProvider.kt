@@ -26,6 +26,7 @@ class JwtProvider(
         claims["oAuth2Id"] = oAuth2Id
         claims["nickname"] = user?.nickname
         claims["imageUrl"] = user?.imageUrl
+        claims["representative"] = user?.representative
         val now = Date()
         return Jwts.builder()
             .setClaims(claims)
