@@ -4,19 +4,23 @@ import gg.match.controller.common.dto.PageResult
 import gg.match.domain.board.lol.repository.LoLRepository
 import gg.match.domain.board.lol.dto.LoLRequestDTO
 import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
-import gg.match.domain.board.lol.entity.LoL
 import gg.match.domain.board.lol.entity.Position
 import gg.match.domain.board.lol.entity.Tier
 import gg.match.domain.board.lol.entity.Type
-import org.springframework.data.domain.Page
+import org.apache.http.HttpResponse
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.HttpClientBuilder
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.net.http.HttpClient
 
 @Service
 @Transactional(readOnly = true)
 class LoLService(
+    @Value("\${lol.mykey}") private val lolApiKey: String,
     private val loLRepository: LoLRepository
 ) {
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
@@ -54,5 +58,29 @@ class LoLService(
             ?: throw Exception("not found")
 
         loLRepository.delete(board)
+    }
+
+    fun getUserIsExist(nickname: String): Boolean {
+        val response = getUserInfoByRiotApi(nickname) ?: return false
+        if(response.statusLine.statusCode != 200){
+            return false
+        }
+        return true
+    }
+
+    @Transactional
+    fun saveUserInfoByRiotApi(nickname: String) {
+        return
+    }
+
+    fun getUserInfoByRiotApi(nickname: String): HttpResponse? {
+        val serverUrl = "https://kr.api.riotgames.com"
+        return try {
+            val request = HttpGet("$serverUrl/lol/summoner/v4/summoners/by-name/$nickname?api_key=$lolApiKey")
+            HttpClientBuilder.create().build().execute(request)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }

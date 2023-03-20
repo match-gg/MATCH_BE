@@ -1,7 +1,6 @@
 package gg.match.controller.api
 
 import gg.match.controller.common.dto.PageResult
-import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.LoLRequestDTO
 import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
 import gg.match.domain.board.lol.entity.Position
@@ -15,11 +14,11 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/lol/board")
+@RequestMapping("/api/lol")
 class LoLController(
     private val loLService: LoLService
 ) {
-    @GetMapping()
+    @GetMapping("/board")
     fun getBoards(
         @PageableDefault(size=10) pageable: Pageable,
         @RequestParam(required = false, defaultValue = "ALL") position: Position,
@@ -29,13 +28,13 @@ class LoLController(
         return loLService.getBoards(pageable, position, type, tier)
     }
 
-    @GetMapping("/{boardId}")
+    @GetMapping("/board/{boardId}")
     fun getBoard(@PathVariable boardId: Long): ResponseEntity<Any> {
         return ResponseEntity.ok(loLService.getBoard(boardId))
     }
 
 
-    @PostMapping
+    @PostMapping("/board")
     fun saveBoard(@RequestBody loLRequestDTO: LoLRequestDTO): ResponseEntity<Any> {
         loLRequestDTO.voice = voiceUpper(loLRequestDTO.voice)
         return try{
@@ -45,7 +44,7 @@ class LoLController(
         }
     }
 
-    @PutMapping("/{boardId}")
+    @PutMapping("/board/{boardId}")
     fun updateBoard(@PathVariable boardId: Long,
                     @RequestBody loLRequestDTO: LoLRequestDTO): ResponseEntity<Any> {
         loLRequestDTO.voice = voiceUpper(loLRequestDTO.voice)
@@ -56,10 +55,15 @@ class LoLController(
         }
     }
 
-    @DeleteMapping("/{boardId}")
+    @DeleteMapping("/board/{boardId}")
     fun delete(@PathVariable boardId: Long): ResponseEntity<Nothing> {
         loLService.delete(boardId)
         return ResponseEntity.ok().body(null)
+    }
+
+    @GetMapping("/user/exist/{nickname}")
+    fun userExist(@PathVariable nickname: String): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(loLService.getUserIsExist(nickname))
     }
 
     fun voiceUpper(voice: String): String{
