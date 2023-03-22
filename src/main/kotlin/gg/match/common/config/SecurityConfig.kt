@@ -18,7 +18,6 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.CorsUtils
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
-
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
@@ -52,19 +51,20 @@ class SecurityConfig(
 
         return http.build()
     }
-
-    @Bean
-    fun corsConfigurationSource(): CorsConfigurationSource? {
-        val configuration = CorsConfiguration()
-        configuration.addAllowedOrigin("http://localhost:3000")
-        configuration.addAllowedMethod("*")
-        configuration.addAllowedHeader("*")
-        configuration.allowCredentials = true
-        configuration.maxAge = 3600L
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", configuration)
-        return source
-    }
+//    에러 해결 Bean 등록이나 없어도 잘 동작하는것 확인, 캐시에러가 아닐 경우 재 추가를 위한 주석처리
+//
+//    @Bean
+//    fun corsConfigurationSource(): CorsConfigurationSource? {
+//        val configuration = CorsConfiguration()
+//        configuration.addAllowedOrigin("http://localhost:3000")
+//        configuration.addAllowedMethod("*")
+//        configuration.addAllowedHeader("*")
+//        configuration.allowCredentials = true
+//        configuration.maxAge = 3600L
+//        val source = UrlBasedCorsConfigurationSource()
+//        source.registerCorsConfiguration("/**", configuration)
+//        return source
+//    }
 
     @Bean
     fun encoder(): PasswordEncoder = BCryptPasswordEncoder()
