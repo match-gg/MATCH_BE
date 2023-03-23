@@ -3,7 +3,7 @@ package gg.match.domain.user.entity
 import gg.match.domain.user.dto.Oauth2UserDTO
 import gg.match.domain.user.dto.SignUpRequestDTO
 import org.springframework.data.annotation.CreatedDate
-import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -42,7 +42,7 @@ class User(
 
     @CreatedDate
     @Column(name = "created", updatable = false)
-    var regdate: LocalDate
+    var created: LocalDateTime = LocalDateTime.now()
 
 ) {
     companion object {
@@ -57,8 +57,7 @@ class User(
                 overwatch = signUpRequestDTO.overwatch,
                 pubg = signUpRequestDTO.pubg,
                 maplestory = signUpRequestDTO.maplestory,
-                lostark = signUpRequestDTO.lostark,
-                regdate = LocalDate.now()
+                lostark = signUpRequestDTO.lostark
             )
         }
     }
