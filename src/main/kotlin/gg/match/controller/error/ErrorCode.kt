@@ -15,5 +15,7 @@ enum class ErrorCode(
     OAUTH2_FAIL_EXCEPTION(HttpStatus.UNAUTHORIZED, "유효하지 않은 엑세스 토큰입니다."),
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
-    LOGOUT_TOKEN(HttpStatus.UNAUTHORIZED, "로그아웃한 회원입니다.")
+    LOGOUT_TOKEN(HttpStatus.UNAUTHORIZED, "로그아웃한 회원입니다."),
+    //LOL
+    USER_NOT_RANKED(HttpStatus.NOT_FOUND, "아직 랭크정보를 보유하고 있지 않습니다.")
 }

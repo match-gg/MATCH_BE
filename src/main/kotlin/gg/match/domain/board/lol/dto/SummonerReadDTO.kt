@@ -1,23 +1,32 @@
 package gg.match.domain.board.lol.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import gg.match.domain.board.lol.entity.Tier
+import gg.match.domain.board.lol.entity.Summoner
 
 class SummonerReadDTO (
     @JsonProperty("id")
     var id: Long,
 
-    @JsonProperty("name")
-    var nickname: String,
+    @JsonProperty("leagueId")
+    var leagueId: String,
+
+    @JsonProperty("summonerId")
+    var summonerId: String,
+
+    @JsonProperty("summonerName")
+    var summonerName: String,
+
+    @JsonProperty("queueType")
+    var queueType: String,
 
     @JsonProperty("tier")
-    var tier: Tier,
+    var tier: String,
 
     @JsonProperty("rank")
-    var rank: Int,
+    var rank: String,
 
-    @JsonProperty("leaguePoint")
-    var leaguePoint: Int,
+    @JsonProperty("leaguePoints")
+    var leaguePoints: Int,
 
     @JsonProperty("wins")
     var wins: Int,
@@ -25,12 +34,27 @@ class SummonerReadDTO (
     @JsonProperty("losses")
     var losses: Int,
 
-    @JsonProperty("most1Champion")
-    var most1Champion: String,
+    @JsonProperty("hotStreak")
+    var hotStreak: Boolean,
 
-    @JsonProperty("most2Champion")
-    var most2Champion: String,
+    @JsonProperty("veteran")
+    var veteran: Boolean,
 
-    @JsonProperty("most3Champion")
-    var most3Champion: String
-)
+    @JsonProperty("freshBlood")
+    var freshBlood: Boolean,
+
+    @JsonProperty("inactive")
+    var inactive: Boolean
+) {
+    fun toEntity(): Summoner{
+        return Summoner(
+            queueType = queueType,
+            summonerName = summonerName,
+            tier = tier,
+            rank = rank,
+            leaguePoints = leaguePoints,
+            wins = wins,
+            losses = losses
+        )
+    }
+}

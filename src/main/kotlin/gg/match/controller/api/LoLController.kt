@@ -63,7 +63,12 @@ class LoLController(
 
     @GetMapping("/user/exist/{nickname}")
     fun userExist(@PathVariable nickname: String): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(loLService.getUserIsExist(nickname))
+        return ResponseEntity.ok().body(loLService.getUserInfoByRiotApi(nickname))
+    }
+
+    @GetMapping("/user/{nickname}")
+    fun saveUserByRiot(@PathVariable nickname: String): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(loLService.saveUserInfoByRiotApi(nickname.trim().replace(" ", "")))
     }
 
     fun voiceUpper(voice: String): String{
