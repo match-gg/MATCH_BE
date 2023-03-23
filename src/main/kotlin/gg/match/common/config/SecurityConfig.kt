@@ -13,10 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-import org.springframework.web.cors.CorsConfiguration
-import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.CorsUtils
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebSecurity
@@ -27,7 +24,7 @@ class SecurityConfig(
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
             web.ignoring().antMatchers("/api/user/signin", "/api/user/signup", "/api/user/refresh",
-            "/css/**", "/js/**", "/images/**", "/api/lol/**")
+            "/css/**", "/js/**", "/images/**", "/api/lol/user/**", "/api/lol/**")
         }
     }
 
@@ -42,7 +39,8 @@ class SecurityConfig(
             .and()
             .authorizeRequests()
             .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh", "/api/lol/**").permitAll()
+            .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh", "/api/lol/**",
+                "/api/lol/user/**", "/api/lol/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .cors()
@@ -51,20 +49,6 @@ class SecurityConfig(
 
         return http.build()
     }
-//    에러 해결 Bean 등록이나 없어도 잘 동작하는것 확인, 캐시에러가 아닐 경우 재 추가를 위한 주석처리
-//
-//    @Bean
-//    fun corsConfigurationSource(): CorsConfigurationSource? {
-//        val configuration = CorsConfiguration()
-//        configuration.addAllowedOrigin("http://localhost:3000")
-//        configuration.addAllowedMethod("*")
-//        configuration.addAllowedHeader("*")
-//        configuration.allowCredentials = true
-//        configuration.maxAge = 3600L
-//        val source = UrlBasedCorsConfigurationSource()
-//        source.registerCorsConfiguration("/**", configuration)
-//        return source
-//    }
 
     @Bean
     fun encoder(): PasswordEncoder = BCryptPasswordEncoder()
