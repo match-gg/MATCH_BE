@@ -33,5 +33,8 @@ class ReadLoLBoardDTO(
     var expire: Expire,
 
     @JsonProperty("created")
-    var created: LocalDateTime
+    var created: LocalDateTime,
+
+    @JsonProperty("author")
+    var author: SummonerResponseDTO
 )

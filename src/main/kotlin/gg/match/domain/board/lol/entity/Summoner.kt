@@ -1,5 +1,6 @@
 package gg.match.domain.board.lol.entity
 
+import gg.match.domain.board.lol.dto.SummonerResponseDTO
 import javax.persistence.*
 
 @Entity
@@ -28,4 +29,17 @@ class Summoner(
     var most2Champion: String = "galio",
 
     var most3Champion: String = "lux"
-)
+) {
+    fun toSummonerResponseDTO(): SummonerResponseDTO{
+        return SummonerResponseDTO(
+            queueType = queueType,
+            summonerName = summonerName,
+            tier = tier,
+            rank = rank,
+            leaguePoints = leaguePoints,
+            wins = wins,
+            losses = losses,
+            mostChampion = listOf(most1Champion, most2Champion, most3Champion)
+        )
+    }
+}
