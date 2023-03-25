@@ -22,6 +22,9 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 @Service
 @Transactional(readOnly = true)
@@ -32,10 +35,16 @@ class LoLService(
     private val objectMapper: ObjectMapper
 ) {
     private val serverUrl = "https://kr.api.riotgames.com"
+    private val asiaServerUrl = "https://asia.api.riotgames.com"
     val parser = JSONParser()
-    var summonerName: String = "수유욱"
-    lateinit var summoner: Summoner
+    lateinit var puuid: String
     lateinit var result: PageResult<ReadLoLBoardDTO>
+
+    //init <- 관리자로 초기화
+    var summonerName: String = "수유욱"
+    var summoner: Summoner = summonerRepository.findBySummonerNameAndQueueType(summonerName, "RANKED_SOLO_5x5")
+    var summonerByName: Summoner = summoner
+
 
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
         val boards = if(type == Type.valueOf("ALL")){
@@ -44,9 +53,6 @@ class LoLService(
             loLRepository.findByPositionAndTypeAndTier(pageable, position, type, tier)
         }
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-
-        //init <-관리자로 초기화
-        summoner = summonerRepository.findBySummonerNameAndQueueType(summonerName, "RANKED_SOLO_5x5")
         result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summoner) })
 
         for(i in 0 until boards.content.size){
@@ -87,6 +93,7 @@ class LoLService(
     fun saveUserInfoByRiotApi(nickname: String) {
         val parser = JSONParser()
         val responseUser = getUserInfoByRiotApi(nickname)
+        val championList: List<Pair<String, Int>>
         if (responseUser != null) {
             isNicknameExist(nickname)
             val request = HttpGet("$serverUrl/lol/league/v4/entries/by-summoner/$responseUser?api_key=$lolApiKey")
@@ -100,11 +107,27 @@ class LoLService(
                     summonerRepository.save(objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity())
                 }
             }
+            championList = getMostChampions(nickname)
+            println(championList)
+            when(summonerRepository.countBySummonerName(nickname)){
+                0L -> return
+                1L -> summonerByName = summonerRepository.findBySummonerName(nickname)
+                2L -> {
+                    summonerByName = summonerRepository.findBySummonerNameAndQueueType(nickname, "RANKED_FLEX_SR")
+                    summoner = summonerRepository.findBySummonerNameAndQueueType(nickname, "RANKED_SOLO_5x5")
+                }
+            }
+            if(summonerByName != null){
+                summonerByName.update(championList[0].first, championList[1].first, championList[2].first)
+            }
+            if(summoner != null){
+                summoner.update(championList[0].first, championList[1].first, championList[2].first)
+            }
         }
     }
 
     fun getUserInfoByRiotApi(nickname: String): Any? {
-        val request = HttpGet("$serverUrl/lol/summoner/v4/summoners/by-name/$nickname?api_key=$lolApiKey")
+        val request = HttpGet("$serverUrl/lol/summoner/v4/summoners/by-name/${nickname.trim().replace(" ", "")}?api_key=$lolApiKey")
         val riotUser = HttpClientBuilder.create().build().execute(request)
         if(riotUser.statusLine.statusCode == 404){
             throw BusinessException(ErrorCode.USER_NOT_FOUND)
@@ -113,6 +136,8 @@ class LoLService(
             throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         val riotUserJson = parser.parse(EntityUtils.toString(riotUser.entity, "UTF-8")) as JSONObject
+        puuid = riotUserJson["puuid"] as String
+        summonerName = riotUserJson["name"] as String
         return riotUserJson["id"]
     }
 
@@ -127,5 +152,51 @@ class LoLService(
             summonerRepository.findBySummonerNameAndQueueType(summonerName, "RANKED_FLEX_SR")
         }
         else summonerRepository.findBySummonerNameAndQueueType(summonerName, "RANKED_SOLO_5x5")
+    }
+
+    fun getMostChampions(summonerName: String): List<Pair<String, Int>> {
+        val matchListJson = getMatchList(summonerName)
+        var usingChampionList = mutableListOf<String>()
+        var map = mutableMapOf<String, Int>()
+
+        for(i in 0 until matchListJson.size){
+            getChampionInMatchBySummonerName(matchListJson[i] as String, usingChampionList)
+        }
+
+        var set: Set<String> = HashSet<String>(usingChampionList)
+
+        for(str: String in set){
+            map[str] = Collections.frequency(usingChampionList, str)
+        }
+        //map to list
+        val mapToList = map.toList()
+        return mapToList.sortedByDescending { it.second }
+    }
+
+    fun getMatchList(summonerName: String): JSONArray{
+        val request = HttpGet("$asiaServerUrl/lol/match/v5/matches/by-puuid/$puuid/ids?start=0&count=30&api_key=$lolApiKey")
+        val matchList = HttpClientBuilder.create().build().execute(request)
+        if(matchList.statusLine.statusCode != 200){
+            throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+        return parser.parse(EntityUtils.toString(matchList.entity, "UTF-8")) as JSONArray
+    }
+
+    fun getChampionInMatchBySummonerName(matchId: String, usingChampionList: MutableList<String>){
+        println(matchId)
+        val request = HttpGet("$asiaServerUrl/lol/match/v5/matches/$matchId?api_key=$lolApiKey")
+        val response = HttpClientBuilder.create().build().execute(request)
+        if(response.statusLine.statusCode != 200){
+            throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+        var match = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
+        var matchInfo = match["info"] as JSONObject
+        var matchInfoArray = matchInfo["participants"] as JSONArray
+        for(i in 0 until matchInfoArray.size){
+            var jsonInMatchInfoArray = matchInfoArray[i] as JSONObject
+            if(jsonInMatchInfoArray["summonerName"] == summonerName){
+                usingChampionList.add(jsonInMatchInfoArray["championName"] as String)
+            }
+        }
     }
 }

@@ -42,4 +42,10 @@ class Summoner(
             mostChampion = listOf(most1Champion, most2Champion, most3Champion)
         )
     }
+
+    fun update(most1Champion: String, most2Champion: String, most3Champion: String){
+        this.most1Champion = most1Champion
+        this.most2Champion = most2Champion
+        this.most3Champion = most3Champion
+    }
 }
