@@ -30,10 +30,10 @@ class LoL(
     var content: String,
 
     @Enumerated(EnumType.STRING)
-    var expire: Expire
+    var expire: Expire,
 
 ): BaseEntity(){
-    fun toReadLoLBoardDTO(): ReadLoLBoardDTO{
+    fun toReadLoLBoardDTO(summoner: Summoner): ReadLoLBoardDTO{
         return ReadLoLBoardDTO(
             id = id,
             name = name,
@@ -43,7 +43,8 @@ class LoL(
             voice = voice,
             content = content,
             expire = expire,
-            created = created
+            created = created,
+            author = summoner.toSummonerResponseDTO()
         )
     }
 
