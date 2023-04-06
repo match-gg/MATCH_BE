@@ -6,6 +6,7 @@ import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.lol.repository.LoLRepository
 import gg.match.domain.board.lol.dto.LoLRequestDTO
+import gg.match.domain.board.lol.dto.MatchDTO
 import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
 import gg.match.domain.board.lol.dto.SummonerReadDTO
 import gg.match.domain.board.lol.entity.*
@@ -23,8 +24,8 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
-import kotlin.collections.HashMap
 import kotlin.collections.HashSet
+import com.google.gson.Gson
 
 @Service
 @Transactional(readOnly = true)
@@ -158,7 +159,6 @@ class LoLService(
         val matchListJson = getMatchList(summonerName)
         var usingChampionList = mutableListOf<String>()
         var map = mutableMapOf<String, Int>()
-
         for(i in 0 until matchListJson.size){
             getChampionInMatchBySummonerName(matchListJson[i] as String, usingChampionList)
         }
@@ -182,21 +182,18 @@ class LoLService(
         return parser.parse(EntityUtils.toString(matchList.entity, "UTF-8")) as JSONArray
     }
 
-    fun getChampionInMatchBySummonerName(matchId: String, usingChampionList: MutableList<String>){
-        println(matchId)
+    fun getChampionInMatchBySummonerName(matchId: String, usingChampionList: MutableList<String>) {
         val request = HttpGet("$asiaServerUrl/lol/match/v5/matches/$matchId?api_key=$lolApiKey")
         val response = HttpClientBuilder.create().build().execute(request)
         if(response.statusLine.statusCode != 200){
             throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
-        var match = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
-        var matchInfo = match["info"] as JSONObject
-        var matchInfoArray = matchInfo["participants"] as JSONArray
-        for(i in 0 until matchInfoArray.size){
-            var jsonInMatchInfoArray = matchInfoArray[i] as JSONObject
-            if(jsonInMatchInfoArray["summonerName"] == summonerName){
-                usingChampionList.add(jsonInMatchInfoArray["championName"] as String)
-            }
-        }
+        val jsonString = EntityUtils.toString(response.entity, "UTF-8")
+        var gson = Gson()
+        var sample = gson.fromJson(jsonString, MatchDTO::class.java)
+        println(sample.info.gameMode)
+        if(sample.info.gameMode == "ARAM")  return
+        println(sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0])
+        usingChampionList.add(sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0])
     }
 }
