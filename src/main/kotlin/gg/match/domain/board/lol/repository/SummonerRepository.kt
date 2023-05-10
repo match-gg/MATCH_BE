@@ -7,4 +7,6 @@ interface SummonerRepository: JpaRepository<Summoner, Long> {
     fun existsBySummonerName(nickname: String): Boolean
     fun deleteBySummonerName(nickname: String)
     fun findBySummonerNameAndQueueType(summonerName: String, queueType: String): Summoner
+    fun countBySummonerName(summonerName: String): Long
+    fun findBySummonerName(summonerName: String): Summoner
 }

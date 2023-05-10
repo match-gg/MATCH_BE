@@ -68,7 +68,7 @@ class LoLController(
 
     @GetMapping("/user/{nickname}")
     fun saveUserByRiot(@PathVariable nickname: String): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(loLService.saveUserInfoByRiotApi(nickname.trim().replace(" ", "")))
+        return ResponseEntity.ok().body(loLService.saveUserInfoByRiotApi(nickname))
     }
 
     fun voiceUpper(voice: String): String{

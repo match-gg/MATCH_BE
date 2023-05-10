@@ -54,6 +54,7 @@ dependencies {
     //localdate
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.google.code.gson:gson:2.8.5")
 }
 
 tasks.withType<KotlinCompile> {

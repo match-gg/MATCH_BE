@@ -1,17 +1,13 @@
 package gg.match.domain.board.lol.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import gg.match.domain.board.lol.entity.Summoner
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class SummonerReadDTO (
     @JsonProperty("id")
     var id: Long,
-
-    @JsonProperty("leagueId")
-    var leagueId: String,
-
-    @JsonProperty("summonerId")
-    var summonerId: String,
 
     @JsonProperty("summonerName")
     var summonerName: String,
@@ -33,18 +29,6 @@ class SummonerReadDTO (
 
     @JsonProperty("losses")
     var losses: Int,
-
-    @JsonProperty("hotStreak")
-    var hotStreak: Boolean,
-
-    @JsonProperty("veteran")
-    var veteran: Boolean,
-
-    @JsonProperty("freshBlood")
-    var freshBlood: Boolean,
-
-    @JsonProperty("inactive")
-    var inactive: Boolean
 ) {
     fun toEntity(): Summoner{
         return Summoner(

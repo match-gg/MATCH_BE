@@ -19,7 +19,7 @@ class UserController(
     private val jwtResolver: JwtResolver
 ) {
     @PostMapping("/signup")
-    fun signup(@RequestBody signUpRequestDTO: SignUpRequestDTO): ResponseEntity<JwtTokenDTO> {
+    fun signup(@RequestBody signUpRequestDTO: SignUpRequestDTO): ResponseEntity<Any> {
         signUpRequestDTO.lol?.let { loLService.saveUserInfoByRiotApi(it) }
         return ResponseEntity.ok().body(authService.signUp(signUpRequestDTO))
     }
