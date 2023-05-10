@@ -5,10 +5,6 @@ import gg.match.controller.common.dto.PageResult
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.lol.repository.LoLRepository
-import gg.match.domain.board.lol.dto.LoLRequestDTO
-import gg.match.domain.board.lol.dto.MatchDTO
-import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
-import gg.match.domain.board.lol.dto.SummonerReadDTO
 import gg.match.domain.board.lol.entity.*
 import gg.match.domain.board.lol.repository.SummonerRepository
 import org.apache.http.HttpResponse
@@ -26,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.collections.HashSet
 import com.google.gson.Gson
+import gg.match.domain.board.lol.dto.*
+import gg.match.domain.board.lol.repository.ChampionByMatchRepository
 
 @Service
 @Transactional(readOnly = true)
@@ -33,6 +31,7 @@ class LoLService(
     @Value("\${lol.mykey}") private val lolApiKey: String,
     private val loLRepository: LoLRepository,
     private val summonerRepository: SummonerRepository,
+    private val championByMatchRepository: ChampionByMatchRepository,
     private val objectMapper: ObjectMapper
 ) {
     private val serverUrl = "https://kr.api.riotgames.com"
@@ -105,7 +104,9 @@ class LoLService(
             }
             else{
                 for(i in 0 until userJson.size){
-                    summonerRepository.save(objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity())
+                    var summonerReadDTO: Summoner = objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity()
+                    if("TFT" in summonerReadDTO.queueType) continue
+                    summonerRepository.save(summonerReadDTO)
                 }
             }
             championList = getMostChampions(nickname)
@@ -119,16 +120,16 @@ class LoLService(
                 }
             }
             if(summonerByName != null){
-                summonerByName.update(championList[0].first, championList[1].first, championList[2].first)
+                summonerByName.update(championList)
             }
             if(summoner != null){
-                summoner.update(championList[0].first, championList[1].first, championList[2].first)
+                summoner.update(championList)
             }
         }
     }
 
     fun getUserInfoByRiotApi(nickname: String): Any? {
-        val request = HttpGet("$serverUrl/lol/summoner/v4/summoners/by-name/${nickname.trim().replace(" ", "")}?api_key=$lolApiKey")
+        val request = HttpGet("$serverUrl/lol/summoner/v4/summoners/by-name/${nickname.trim().replace(" ", "+")}?api_key=$lolApiKey")
         val riotUser = HttpClientBuilder.create().build().execute(request)
         if(riotUser.statusLine.statusCode == 404){
             throw BusinessException(ErrorCode.USER_NOT_FOUND)
@@ -160,9 +161,13 @@ class LoLService(
         var usingChampionList = mutableListOf<String>()
         var map = mutableMapOf<String, Int>()
         for(i in 0 until matchListJson.size){
-            getChampionInMatchBySummonerName(matchListJson[i] as String, usingChampionList)
+            if(championByMatchRepository.existsByMatchIdAndSummonerName(matchListJson[i] as String, summonerName)) continue
+            getChampionInMatchBySummonerName(matchListJson[i] as String)
         }
-
+        var championList: List<Champion> = championByMatchRepository.findAllBySummonerName(summonerName)
+        for(element in championList){
+            usingChampionList.add(element.champion)
+        }
         var set: Set<String> = HashSet<String>(usingChampionList)
 
         for(str: String in set){
@@ -182,7 +187,8 @@ class LoLService(
         return parser.parse(EntityUtils.toString(matchList.entity, "UTF-8")) as JSONArray
     }
 
-    fun getChampionInMatchBySummonerName(matchId: String, usingChampionList: MutableList<String>) {
+    @Transactional
+    fun getChampionInMatchBySummonerName(matchId: String) {
         val request = HttpGet("$asiaServerUrl/lol/match/v5/matches/$matchId?api_key=$lolApiKey")
         val response = HttpClientBuilder.create().build().execute(request)
         if(response.statusLine.statusCode != 200){
@@ -191,9 +197,12 @@ class LoLService(
         val jsonString = EntityUtils.toString(response.entity, "UTF-8")
         var gson = Gson()
         var sample = gson.fromJson(jsonString, MatchDTO::class.java)
-        println(sample.info.gameMode)
         if(sample.info.gameMode == "ARAM")  return
-        println(sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0])
-        usingChampionList.add(sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0])
+        var championByMatch = ChampionByMatchDTO(
+            summonerName,
+            sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0],
+            matchId
+        ).toEntity()
+        championByMatchRepository.save(championByMatch)
     }
 }

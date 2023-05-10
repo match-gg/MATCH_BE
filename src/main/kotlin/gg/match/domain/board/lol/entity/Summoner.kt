@@ -24,11 +24,11 @@ class Summoner(
 
     var losses: Int,
 
-    var most1Champion: String = "garen",
+    var most1Champion: String = "poro",
 
-    var most2Champion: String = "galio",
+    var most2Champion: String = "poro",
 
-    var most3Champion: String = "lux"
+    var most3Champion: String = "poro"
 ) {
     fun toSummonerResponseDTO(): SummonerResponseDTO{
         return SummonerResponseDTO(
@@ -43,9 +43,28 @@ class Summoner(
         )
     }
 
-    fun update(most1Champion: String, most2Champion: String, most3Champion: String){
-        this.most1Champion = most1Champion
-        this.most2Champion = most2Champion
-        this.most3Champion = most3Champion
+    fun update(mostChampionList: List<Pair<String, Int>>){
+        when(mostChampionList.size){
+            0 -> {
+                most1Champion = "poro"
+                most2Champion = "poro"
+                most3Champion = "poro"
+            }
+            1 -> {
+                most1Champion = mostChampionList[0].first
+                most2Champion = "poro"
+                most3Champion = "poro"
+            }
+            2 -> {
+                most1Champion = mostChampionList[0].first
+                most2Champion = mostChampionList[1].first
+                most3Champion = "poro"
+            }
+            3 -> {
+                most1Champion = mostChampionList[0].first
+                most2Champion = mostChampionList[1].first
+                most3Champion = mostChampionList[2].first
+            }
+        }
     }
 }
