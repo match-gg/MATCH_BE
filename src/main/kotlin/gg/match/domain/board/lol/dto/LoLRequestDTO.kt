@@ -29,15 +29,17 @@ data class LoLRequestDTO(
     @JsonProperty("expire")
     val expire: Expire
 ) {
-    fun toEntity(): LoL {
+    fun toEntity(oauth2Id: String): LoL {
         return LoL(
+            oauth2Id = oauth2Id,
             name = name,
             type = type,
             tier = tier,
             position = position,
             voice = voice,
             content = content,
-            expire = expire
+            expire = expire,
+            chatRoomId = "1234"
         )
     }
 }

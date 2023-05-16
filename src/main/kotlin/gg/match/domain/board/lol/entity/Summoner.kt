@@ -60,7 +60,7 @@ class Summoner(
                 most2Champion = mostChampionList[1].first
                 most3Champion = "poro"
             }
-            3 -> {
+            else -> {
                 most1Champion = mostChampionList[0].first
                 most2Champion = mostChampionList[1].first
                 most3Champion = mostChampionList[2].first

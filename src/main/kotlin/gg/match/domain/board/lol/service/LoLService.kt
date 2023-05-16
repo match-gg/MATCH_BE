@@ -24,12 +24,15 @@ import kotlin.collections.HashSet
 import com.google.gson.Gson
 import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
+import gg.match.domain.chat.repository.ChatRepository
+import gg.match.domain.user.entity.User
 
 @Service
 @Transactional(readOnly = true)
 class LoLService(
     @Value("\${lol.mykey}") private val lolApiKey: String,
     private val loLRepository: LoLRepository,
+    private val chatRepository: ChatRepository,
     private val summonerRepository: SummonerRepository,
     private val championByMatchRepository: ChampionByMatchRepository,
     private val objectMapper: ObjectMapper
@@ -38,7 +41,7 @@ class LoLService(
     private val asiaServerUrl = "https://asia.api.riotgames.com"
     val parser = JSONParser()
     lateinit var puuid: String
-    lateinit var result: PageResult<ReadLoLBoardDTO>
+    lateinit var result: PageResult<ReadLoLListBoardDTO>
 
     //init <- 관리자로 초기화
     var summonerName: String = "수유욱"
@@ -46,14 +49,14 @@ class LoLService(
     var summonerByName: Summoner = summoner
 
 
-    fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
+    fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLListBoardDTO> {
         val boards = if(type == Type.valueOf("ALL")){
             loLRepository.findByPositionAndTier(pageable, position, tier)
         } else{
             loLRepository.findByPositionAndTypeAndTier(pageable, position, type, tier)
         }
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-        result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summoner) })
+        result = PageResult.ok(boards.map { it.toReadLoLListBoardDTO(summoner) })
 
         for(i in 0 until boards.content.size){
             summonerName = boards.content[i].name
@@ -64,12 +67,12 @@ class LoLService(
 
     fun getBoard(boardId: Long): ReadLoLBoardDTO {
         val board = loLRepository.findById(boardId)
-        return board.get().toReadLoLBoardDTO(getSummonerByType(board.get().name, board.get().type))
+        return board.get().toReadLoLBoardDTO(getSummonerByType(board.get().name, board.get().type), getMemberList(boardId))
     }
 
     @Transactional
-    fun save(loLRequestDTO: LoLRequestDTO): Long? {
-        val board = loLRepository.save(loLRequestDTO.toEntity())
+    fun save(loLRequestDTO: LoLRequestDTO, user: User): Long? {
+        val board = loLRepository.save(loLRequestDTO.toEntity(user.oauth2Id))
         return board.id
     }
 
@@ -110,7 +113,6 @@ class LoLService(
                 }
             }
             championList = getMostChampions(nickname)
-            println(championList)
             when(summonerRepository.countBySummonerName(nickname)){
                 0L -> return
                 1L -> summonerByName = summonerRepository.findBySummonerName(nickname)
@@ -204,5 +206,15 @@ class LoLService(
             matchId
         ).toEntity()
         championByMatchRepository.save(championByMatch)
+    }
+
+    fun getMemberList(boardId: Long): List<String>{
+        val board = loLRepository.findById(boardId)
+        val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
+        var memberList = mutableListOf<String>()
+        for(element in chatRooms){
+            element.nickname?.let { memberList.add(it) }
+        }
+        return memberList
     }
 }

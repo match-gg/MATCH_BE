@@ -1,12 +1,13 @@
 package gg.match.controller.api
 
+import gg.match.common.annotation.CurrentUser
 import gg.match.controller.common.dto.PageResult
-import gg.match.domain.board.lol.dto.LoLRequestDTO
-import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
+import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.entity.Position
 import gg.match.domain.board.lol.entity.Tier
 import gg.match.domain.board.lol.entity.Type
 import gg.match.domain.board.lol.service.LoLService
+import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -18,27 +19,27 @@ import org.springframework.web.bind.annotation.*
 class LoLController(
     private val loLService: LoLService
 ) {
-    @GetMapping("/board")
+    @GetMapping("/boards")
     fun getBoards(
         @PageableDefault(size=10) pageable: Pageable,
         @RequestParam(required = false, defaultValue = "ALL") position: Position,
         @RequestParam(required = false, defaultValue = "ALL") type: Type,
         @RequestParam(required = false, defaultValue = "ALL") tier: Tier
-    ): PageResult<ReadLoLBoardDTO> {
+    ): PageResult<ReadLoLListBoardDTO> {
         return loLService.getBoards(pageable, position, type, tier)
     }
 
-    @GetMapping("/board/{boardId}")
+    @GetMapping("/boards/{boardId}")
     fun getBoard(@PathVariable boardId: Long): ResponseEntity<Any> {
         return ResponseEntity.ok(loLService.getBoard(boardId))
     }
 
 
     @PostMapping("/board")
-    fun saveBoard(@RequestBody loLRequestDTO: LoLRequestDTO): ResponseEntity<Any> {
+    fun saveBoard(@CurrentUser user: User, @RequestBody loLRequestDTO: LoLRequestDTO): ResponseEntity<Any> {
         loLRequestDTO.voice = voiceUpper(loLRequestDTO.voice)
         return try{
-            ResponseEntity.ok().body(loLService.save(loLRequestDTO))
+            ResponseEntity.ok().body(loLService.save(loLRequestDTO, user))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null)
         }
@@ -68,7 +69,16 @@ class LoLController(
 
     @GetMapping("/user/{nickname}")
     fun saveUserByRiot(@PathVariable nickname: String): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(loLService.saveUserInfoByRiotApi(nickname))
+        loLService.saveUserInfoByRiotApi(nickname)
+        return ResponseEntity.ok().body(null)
+    }
+
+    @GetMapping("/summoner/{nickname}/{type}")
+    fun getSummonerInfo(@PathVariable nickname: String, @PathVariable type: String): ResponseEntity<SummonerResponseDTO> {
+
+        println(nickname)
+        println(Type.valueOf(type.uppercase()))
+        return ResponseEntity.ok().body(loLService.getSummonerByType(nickname, Type.valueOf(type.uppercase())).toSummonerResponseDTO())
     }
 
     fun voiceUpper(voice: String): String{
