@@ -7,7 +7,7 @@ import gg.match.domain.board.lol.entity.Tier
 import gg.match.domain.board.lol.entity.Type
 import java.time.LocalDateTime
 
-class ReadLoLBoardDTO(
+class ReadLoLListBoardDTO(
     @JsonProperty("id")
     var id: Long,
 
@@ -42,8 +42,5 @@ class ReadLoLBoardDTO(
     var author: SummonerResponseDTO,
 
     @JsonProperty("chatRoomId")
-    var chatRoomId: String,
-
-    @JsonProperty("memberList")
-    var memberList: List<String>
+    var chatRoomId: String
 )
