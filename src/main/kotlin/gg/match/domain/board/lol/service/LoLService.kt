@@ -26,6 +26,7 @@ import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
+import org.springframework.data.domain.Page
 
 @Service
 @Transactional(readOnly = true)
@@ -41,7 +42,7 @@ class LoLService(
     private val asiaServerUrl = "https://asia.api.riotgames.com"
     val parser = JSONParser()
     lateinit var puuid: String
-    lateinit var result: PageResult<ReadLoLListBoardDTO>
+    lateinit var result: PageResult<ReadLoLBoardDTO>
 
     //init <- 관리자로 초기화
     var summonerName: String = "수유욱"
@@ -49,14 +50,32 @@ class LoLService(
     var summonerByName: Summoner = summoner
 
 
-    fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLListBoardDTO> {
-        val boards = if(type == Type.valueOf("ALL")){
-            loLRepository.findByPositionAndTier(pageable, position, tier)
-        } else{
-            loLRepository.findByPositionAndTypeAndTier(pageable, position, type, tier)
+    fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
+        val boards: Page<LoL>
+        //filtering
+        if(position == Position.valueOf("ALL") && type == Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
+            boards = loLRepository.findAll(pageable)
         }
+        else if(position == Position.valueOf("ALL")){
+            boards = if(type == Type.valueOf("ALL") && tier != Tier.valueOf("ALL")){
+                loLRepository.findAllByTier(pageable, tier)
+            } else if(type != Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
+                loLRepository.findAllByType(pageable, type)
+            } else loLRepository.findAllByTypeAndTier(pageable, type, tier)
+        }
+        else if(type == Type.valueOf("ALL")){
+            boards = if(tier == Tier.valueOf("ALL")){
+                loLRepository.findAllByPosition(pageable, position)
+            } else  loLRepository.findAllByPositionAndTier(pageable, position, tier)
+        }
+        else{
+            boards = if(tier == Tier.valueOf("ALL")){
+                loLRepository.findAllByPositionAndType(pageable, position, type)
+            } else  loLRepository.findAllByPositionAndTypeAndTier(pageable, position, type, tier)
+        }
+        // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-        result = PageResult.ok(boards.map { it.toReadLoLListBoardDTO(summoner) })
+        result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summoner, getMemberList(it.id)) })
 
         for(i in 0 until boards.content.size){
             summonerName = boards.content[i].name
@@ -122,10 +141,10 @@ class LoLService(
                 }
             }
             if(summonerByName != null){
-                summonerByName.update(championList)
+                summonerByName.updateChampion(championList)
             }
             if(summoner != null){
-                summoner.update(championList)
+                summoner.updateChampion(championList)
             }
         }
     }
@@ -161,7 +180,9 @@ class LoLService(
     fun getMostChampions(summonerName: String): List<Pair<String, Int>> {
         val matchListJson = getMatchList(summonerName)
         var usingChampionList = mutableListOf<String>()
-        var map = mutableMapOf<String, Int>()
+        var mostLane = mutableListOf<String>()
+        var championMap = mutableMapOf<String, Int>()
+        var laneMap = mutableMapOf<String, Int>()
         for(i in 0 until matchListJson.size){
             if(championByMatchRepository.existsByMatchIdAndSummonerName(matchListJson[i] as String, summonerName)) continue
             getChampionInMatchBySummonerName(matchListJson[i] as String)
@@ -169,15 +190,27 @@ class LoLService(
         var championList: List<Champion> = championByMatchRepository.findAllBySummonerName(summonerName)
         for(element in championList){
             usingChampionList.add(element.champion)
+            mostLane.add(element.lane)
         }
-        var set: Set<String> = HashSet<String>(usingChampionList)
+        var championSet: Set<String> = HashSet<String>(usingChampionList)
+        var laneSet: Set<String> = HashSet<String>(mostLane)
 
-        for(str: String in set){
-            map[str] = Collections.frequency(usingChampionList, str)
-        }
+        for(str: String in championSet)
+            championMap[str] = Collections.frequency(usingChampionList, str)
+        for(str: String in laneSet)
+            laneMap[str] = Collections.frequency(laneSet, str)
+
         //map to list
-        val mapToList = map.toList()
-        return mapToList.sortedByDescending { it.second }
+        val championMapToList = championMap.toList()
+        val laneMapToList = laneMap.toList()
+        championMapToList.sortedByDescending { it.second }
+        laneMapToList.sortedByDescending { it.second }
+        //save most lane in summoner
+        var summonerList = summonerRepository.findAllBySummonerName(summonerName)
+        for(element in summonerList) {
+            element.updateLane(laneMapToList[0].first)
+        }
+        return championMapToList
     }
 
     fun getMatchList(summonerName: String): JSONArray{
@@ -203,8 +236,10 @@ class LoLService(
         var championByMatch = ChampionByMatchDTO(
             summonerName,
             sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0],
-            matchId
+            matchId,
+            sample.info.participants.filter { it.summonerName == summonerName }.map { it.lane }[0]
         ).toEntity()
+        println(sample.info.participants.filter { it.summonerName == summonerName }.map { it.lane }[0])
         championByMatchRepository.save(championByMatch)
     }
 

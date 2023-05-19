@@ -25,5 +25,8 @@ data class SummonerResponseDTO(
     val losses: Int,
 
     @JsonProperty("mostChampion")
-    var mostChampion: List<String>
+    var mostChampion: List<String>,
+
+    @JsonProperty("lane")
+    var lane: String
 )

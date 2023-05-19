@@ -9,4 +9,5 @@ interface SummonerRepository: JpaRepository<Summoner, Long> {
     fun findBySummonerNameAndQueueType(summonerName: String, queueType: String): Summoner
     fun countBySummonerName(summonerName: String): Long
     fun findBySummonerName(summonerName: String): Summoner
+    fun findAllBySummonerName(summonerName: String): List<Summoner>
 }

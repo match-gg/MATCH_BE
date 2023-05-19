@@ -25,7 +25,7 @@ class LoLController(
         @RequestParam(required = false, defaultValue = "ALL") position: Position,
         @RequestParam(required = false, defaultValue = "ALL") type: Type,
         @RequestParam(required = false, defaultValue = "ALL") tier: Tier
-    ): PageResult<ReadLoLListBoardDTO> {
+    ): PageResult<ReadLoLBoardDTO> {
         return loLService.getBoards(pageable, position, type, tier)
     }
 

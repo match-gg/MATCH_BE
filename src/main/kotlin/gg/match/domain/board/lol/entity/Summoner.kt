@@ -28,7 +28,9 @@ class Summoner(
 
     var most2Champion: String = "poro",
 
-    var most3Champion: String = "poro"
+    var most3Champion: String = "poro",
+
+    var lane: String = "none"
 ) {
     fun toSummonerResponseDTO(): SummonerResponseDTO{
         return SummonerResponseDTO(
@@ -39,11 +41,16 @@ class Summoner(
             leaguePoints = leaguePoints,
             wins = wins,
             losses = losses,
-            mostChampion = listOf(most1Champion, most2Champion, most3Champion)
+            mostChampion = listOf(most1Champion, most2Champion, most3Champion),
+            lane = lane
         )
     }
 
-    fun update(mostChampionList: List<Pair<String, Int>>){
+    fun updateLane(lane: String){
+        this.lane = lane
+    }
+
+    fun updateChampion(mostChampionList: List<Pair<String, Int>>){
         when(mostChampionList.size){
             0 -> {
                 most1Champion = "poro"

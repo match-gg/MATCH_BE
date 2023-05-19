@@ -13,5 +13,7 @@ class ChampionByMatch(
 
     var champion: String,
 
-    var matchId: String
+    var matchId: String,
+
+    var lane: String
 )
