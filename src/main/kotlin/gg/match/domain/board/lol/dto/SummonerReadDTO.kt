@@ -28,7 +28,7 @@ class SummonerReadDTO (
     var wins: Int,
 
     @JsonProperty("losses")
-    var losses: Int,
+    var losses: Int
 ) {
     fun toEntity(): Summoner{
         return Summoner(

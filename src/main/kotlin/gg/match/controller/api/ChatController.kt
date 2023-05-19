@@ -29,13 +29,18 @@ class ChatController(
         return ResponseEntity.ok(chatService.increaseMember(Game.valueOf(game.uppercase()), id, user))
     }
 
-    @DeleteMapping("/{game}/{id}/member")
-    fun decreaseMember(@PathVariable game: String, @PathVariable id: Long, @CurrentUser user: User): ResponseEntity<Any>{
-        return ResponseEntity.ok(chatService.decreaseMember(Game.valueOf(game.uppercase()), id, user))
+    @PostMapping("/{game}/{id}/{nickname}")
+    fun addMember(@PathVariable game: String, @PathVariable id: Long, @PathVariable nickname: String): ResponseEntity<Any>{
+        return ResponseEntity.ok(chatService.addMember(Game.valueOf(game.uppercase()), id, nickname))
     }
 
-    @DeleteMapping("/{game}/{id}/{oauth2Id}")
-    fun kickMember(@PathVariable game: String, @PathVariable id: Long, @PathVariable oauth2Id: String): ResponseEntity<Any>{
-        return ResponseEntity.ok(chatService.kickMember(Game.valueOf(game.uppercase()), id, oauth2Id))
+    @DeleteMapping("/{game}/{id}/member")
+    fun decreaseMember(@PathVariable game: String, @PathVariable id: Long, @CurrentUser user: User): ResponseEntity<Any>{
+        return ResponseEntity.ok(chatService.decreaseMember(Game.valueOf(game.uppercase()), id, user.oauth2Id))
+    }
+
+    @DeleteMapping("/{game}/{id}/{nickname}")
+    fun kickMember(@PathVariable game: String, @PathVariable id: Long, @PathVariable nickname: String): ResponseEntity<Any>{
+        return ResponseEntity.ok(chatService.decreaseMember(Game.valueOf(game.uppercase()), id, nickname))
     }
 }
