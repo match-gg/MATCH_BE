@@ -47,9 +47,4 @@ class UserController(
     fun myInfo(request: HttpServletRequest, @CurrentUser user: User): ResponseEntity<Any> {
         return ResponseEntity.ok().body(user)
     }
-
-    @GetMapping("/test")
-    fun test(): ResponseEntity<Any>{
-        return ResponseEntity.ok().body(LocalDateTime.now())
-    }
 }

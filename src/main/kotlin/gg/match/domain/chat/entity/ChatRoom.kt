@@ -1,5 +1,6 @@
 package gg.match.domain.chat.entity
 
+import gg.match.domain.chat.dto.ChatRoomDTO
 import javax.persistence.*
 
 @Entity
@@ -14,4 +15,10 @@ class ChatRoom(
     var nickname: String? = null,
 
     var oauth2Id: String
-)
+){
+    fun update(chatRoomDTO: ChatRoomDTO){
+        chatRoomId = chatRoomDTO.chatRoomId
+        nickname = chatRoomDTO.nickname
+        oauth2Id = "banned"
+    }
+}

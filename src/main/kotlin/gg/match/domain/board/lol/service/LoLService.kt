@@ -75,7 +75,7 @@ class LoLService(
         }
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-        result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summoner, getMemberList(it.id)) })
+        result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summoner, getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
             summonerName = boards.content[i].name
@@ -86,7 +86,7 @@ class LoLService(
 
     fun getBoard(boardId: Long): ReadLoLBoardDTO {
         val board = loLRepository.findById(boardId)
-        return board.get().toReadLoLBoardDTO(getSummonerByType(board.get().name, board.get().type), getMemberList(boardId))
+        return board.get().toReadLoLBoardDTO(getSummonerByType(board.get().name, board.get().type), getMemberList(boardId), getBanList(boardId))
     }
 
     @Transactional
@@ -251,5 +251,15 @@ class LoLService(
             element.nickname?.let { memberList.add(it) }
         }
         return memberList
+    }
+
+    fun getBanList(boardId: Long): List<String>{
+        val board = loLRepository.findById(boardId)
+        val chatRooms = chatRepository.findAllByChatRoomIdAndOauth2Id(board.get().chatRoomId, "banned")
+        var banList = mutableListOf<String>()
+        for(element in chatRooms){
+            element.nickname?.let { banList.add(it) }
+        }
+        return banList
     }
 }
