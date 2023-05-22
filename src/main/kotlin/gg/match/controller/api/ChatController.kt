@@ -43,4 +43,9 @@ class ChatController(
     fun kickMember(@PathVariable game: String, @PathVariable id: Long, @PathVariable nickname: String): ResponseEntity<Any>{
         return ResponseEntity.ok(chatService.decreaseMember(Game.valueOf(game.uppercase()), id, nickname))
     }
+
+    @DeleteMapping("/{game}/{id}/{nickname}/ban")
+    fun banMember(@PathVariable game: String, @PathVariable id: Long, @PathVariable nickname: String): ResponseEntity<Any> {
+        return ResponseEntity.ok(chatService.banMember(Game.valueOf(game.uppercase()), id, nickname))
+    }
 }

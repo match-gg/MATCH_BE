@@ -90,12 +90,25 @@ class ChatService (
                     var user = userRepository.findByOauth2Id(oauth2Id) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
                     user.lol.toString()
                 } else oauth2Id
-                if(validateMemberByChatRoom(game, board.chatRoomId, nickname))
-                    throw BusinessException(ErrorCode.USER_DUPLICATED)
+                if(!validateMemberByChatRoom(game, board.chatRoomId, nickname))
+                    throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
                 chatRepository.deleteByChatRoomIdAndNickname(board.chatRoomId, nickname)
                 board.nowUser -= 1
                 loLRepository.save(board)
                 return
+            }
+            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    @Transactional
+    fun banMember(game: Game, id: Long, nickname: String){
+        when(game){
+            Game.valueOf("LOL") -> {
+                val board = loLRepository.findByIdOrNull(id)
+                    ?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+                var user = chatRepository.findByChatRoomIdAndAndNickname(board.chatRoomId, nickname)
+                user.update(ChatRoomDTO(user.chatRoomId, user.nickname, user.oauth2Id))
             }
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }

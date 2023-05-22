@@ -4,7 +4,6 @@ import gg.match.common.entity.BaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.LoLRequestDTO
 import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
-import gg.match.domain.board.lol.dto.ReadLoLListBoardDTO
 import javax.persistence.*
 
 @Entity
@@ -42,7 +41,7 @@ class LoL(
     var nowUser: Int = 1
 
 ): BaseEntity(){
-    fun toReadLoLBoardDTO(summoner: Summoner, memberList: List<String>): ReadLoLBoardDTO{
+    fun toReadLoLBoardDTO(summoner: Summoner, memberList: List<String>, banList: List<String>): ReadLoLBoardDTO{
         return ReadLoLBoardDTO(
             id = id,
             oauth2Id = oauth2Id,
@@ -56,24 +55,8 @@ class LoL(
             created = created,
             author = summoner.toSummonerResponseDTO(),
             chatRoomId = chatRoomId,
-            memberList = memberList
-        )
-    }
-
-    fun toReadLoLListBoardDTO(summoner: Summoner): ReadLoLListBoardDTO{
-        return ReadLoLListBoardDTO(
-            id = id,
-            oauth2Id = oauth2Id,
-            name = name,
-            type = type,
-            tier = tier,
-            position = position,
-            voice = voice,
-            content = content,
-            expire = expire,
-            created = created,
-            author = summoner.toSummonerResponseDTO(),
-            chatRoomId = chatRoomId
+            memberList = memberList,
+            banList = banList
         )
     }
 

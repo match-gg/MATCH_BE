@@ -45,5 +45,8 @@ class ReadLoLBoardDTO(
     var chatRoomId: String,
 
     @JsonProperty("memberList")
-    var memberList: List<String>
+    var memberList: List<String>,
+
+    @JsonProperty("banList")
+    var banList: List<String>
 )
