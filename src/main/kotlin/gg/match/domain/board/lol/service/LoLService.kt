@@ -75,7 +75,7 @@ class LoLService(
         }
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-        result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summoner, getMemberList(it.id), getBanList(it.id))})
+        result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summonerRepository.findBySummonerNameAndQueueType(it.name, "RANKED_SOLO_5x5"), getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
             summonerName = boards.content[i].name
