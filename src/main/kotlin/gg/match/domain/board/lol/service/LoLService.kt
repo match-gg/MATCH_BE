@@ -46,8 +46,6 @@ class LoLService(
 
     //init <- 관리자로 초기화
     lateinit var summonerName: String
-    lateinit var summoner: Summoner
-    lateinit var summonerByName: Summoner
 
 
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
@@ -121,6 +119,8 @@ class LoLService(
         val responseUserId = responseUser["id"] as String
         val responseUserName = responseUser["name"] as String
         val championList: List<Pair<String, Int>>
+        var summoner: Summoner
+        var summonerByName: Summoner
         if (responseUserId != null) {
             isNicknameExist(responseUserName)
             val request = HttpGet("$serverUrl/lol/league/v4/entries/by-summoner/$responseUserId?api_key=$lolApiKey")
@@ -137,19 +137,27 @@ class LoLService(
                 }
             }
             championList = getMostChampions(responseUserName)
-            when(summonerRepository.countBySummonerName(responseUserName)){
+            println("여기까지 옴")
+            println(summonerRepository.countBySummonerName(responseUserName))
+            when(summonerRepository.countBySummonerName(responseUserName)) {
                 0L -> return
-                1L -> summonerByName = summonerRepository.findBySummonerName(responseUserName)
+                1L -> {
+                    summonerByName = summonerRepository.findBySummonerName(responseUserName)
+                    if (summonerByName != null) {
+                        summonerByName.updateChampion(championList)
+                    }
+                }
                 2L -> {
+                    println("2L에 들어옴")
                     summonerByName = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_FLEX_SR")
                     summoner = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_SOLO_5x5")
+                    if(summonerByName != null){
+                        summonerByName.updateChampion(championList)
+                    }
+                    if(summoner != null){
+                        summoner.updateChampion(championList)
+                    }
                 }
-            }
-            if(summonerByName != null){
-                summonerByName.updateChampion(championList)
-            }
-            if(summoner != null){
-                summoner.updateChampion(championList)
             }
         }
     }
