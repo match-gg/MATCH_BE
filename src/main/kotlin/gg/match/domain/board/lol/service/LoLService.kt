@@ -45,33 +45,33 @@ class LoLService(
     lateinit var result: PageResult<ReadLoLBoardDTO>
 
     //init <- 관리자로 초기화
-    var summonerName: String = "수유욱"
-    var summoner: Summoner = summonerRepository.findBySummonerNameAndQueueType(summonerName, "RANKED_SOLO_5x5")
-    var summonerByName: Summoner = summoner
+    lateinit var summonerName: String// = "수유욱"
+    lateinit var summoner: Summoner // = summonerRepository.findBySummonerNameAndQueueType(summonerName, "RANKED_SOLO_5x5")
+    lateinit var summonerByName: Summoner //= summoner
 
 
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
         val boards: Page<LoL>
         //filtering
         if(position == Position.valueOf("ALL") && type == Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-            boards = loLRepository.findAll(pageable)
+            boards = loLRepository.findAllByOrderByIdDesc(pageable)
         }
         else if(position == Position.valueOf("ALL")){
             boards = if(type == Type.valueOf("ALL") && tier != Tier.valueOf("ALL")){
-                loLRepository.findAllByTier(pageable, tier)
+                loLRepository.findAllByTierOrderByIdDesc(pageable, tier)
             } else if(type != Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-                loLRepository.findAllByType(pageable, type)
-            } else loLRepository.findAllByTypeAndTier(pageable, type, tier)
+                loLRepository.findAllByTypeOrderByIdDesc(pageable, type)
+            } else loLRepository.findAllByTypeAndTierOrderByIdDesc(pageable, type, tier)
         }
         else if(type == Type.valueOf("ALL")){
             boards = if(tier == Tier.valueOf("ALL")){
-                loLRepository.findAllByPosition(pageable, position)
-            } else  loLRepository.findAllByPositionAndTier(pageable, position, tier)
+                loLRepository.findAllByPositionOrderByIdDesc(pageable, position)
+            } else  loLRepository.findAllByPositionAndTierOrderByIdDesc(pageable, position, tier)
         }
         else{
             boards = if(tier == Tier.valueOf("ALL")){
-                loLRepository.findAllByPositionAndType(pageable, position, type)
-            } else  loLRepository.findAllByPositionAndTypeAndTier(pageable, position, type, tier)
+                loLRepository.findAllByPositionAndTypeOrderByIdDesc(pageable, position, type)
+            } else  loLRepository.findAllByPositionAndTypeAndTierOrderByIdDesc(pageable, position, type, tier)
         }
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
@@ -108,17 +108,22 @@ class LoLService(
     fun delete(boardId: Long) {
         val board = loLRepository.findByIdOrNull(boardId)
             ?: throw Exception("not found")
+        val chat = chatRepository.findAllByChatRoomId(board.chatRoomId)
         loLRepository.delete(board)
+        for(element in chat)
+            chatRepository.delete(element)
     }
 
     @Transactional
     fun saveUserInfoByRiotApi(nickname: String) {
         val parser = JSONParser()
         val responseUser = getUserInfoByRiotApi(nickname)
+        val responseUserId = responseUser["id"] as String
+        val responseUserName = responseUser["name"] as String
         val championList: List<Pair<String, Int>>
-        if (responseUser != null) {
-            isNicknameExist(nickname)
-            val request = HttpGet("$serverUrl/lol/league/v4/entries/by-summoner/$responseUser?api_key=$lolApiKey")
+        if (responseUserId != null) {
+            isNicknameExist(responseUserName)
+            val request = HttpGet("$serverUrl/lol/league/v4/entries/by-summoner/$responseUserId?api_key=$lolApiKey")
             val responseSummoner: HttpResponse = HttpClientBuilder.create().build().execute(request)
             var userJson = parser.parse(EntityUtils.toString(responseSummoner.entity, "UTF-8")) as JSONArray
             if(userJson.isEmpty()){
@@ -131,13 +136,14 @@ class LoLService(
                     summonerRepository.save(summonerReadDTO)
                 }
             }
-            championList = getMostChampions(nickname)
-            when(summonerRepository.countBySummonerName(nickname)){
+            println("정보 저장 완료")
+            championList = getMostChampions(responseUserName)
+            when(summonerRepository.countBySummonerName(responseUserName)){
                 0L -> return
-                1L -> summonerByName = summonerRepository.findBySummonerName(nickname)
+                1L -> summonerByName = summonerRepository.findBySummonerName(responseUserName)
                 2L -> {
-                    summonerByName = summonerRepository.findBySummonerNameAndQueueType(nickname, "RANKED_FLEX_SR")
-                    summoner = summonerRepository.findBySummonerNameAndQueueType(nickname, "RANKED_SOLO_5x5")
+                    summonerByName = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_FLEX_SR")
+                    summoner = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_SOLO_5x5")
                 }
             }
             if(summonerByName != null){
@@ -149,7 +155,7 @@ class LoLService(
         }
     }
 
-    fun getUserInfoByRiotApi(nickname: String): Any? {
+    fun getUserInfoByRiotApi(nickname: String): JSONObject {
         val request = HttpGet("$serverUrl/lol/summoner/v4/summoners/by-name/${nickname.trim().replace(" ", "+")}?api_key=$lolApiKey")
         val riotUser = HttpClientBuilder.create().build().execute(request)
         if(riotUser.statusLine.statusCode == 404){
@@ -161,12 +167,12 @@ class LoLService(
         val riotUserJson = parser.parse(EntityUtils.toString(riotUser.entity, "UTF-8")) as JSONObject
         puuid = riotUserJson["puuid"] as String
         summonerName = riotUserJson["name"] as String
-        return riotUserJson["id"]
+        return riotUserJson
     }
 
-    fun isNicknameExist(nickname: String){
-        if(summonerRepository.existsBySummonerName(nickname)){
-            summonerRepository.deleteBySummonerName(nickname)
+    fun isNicknameExist(responseUserName: String){
+        if(summonerRepository.existsBySummonerName(responseUserName)){
+            summonerRepository.deleteAllBySummonerName(responseUserName)
         }
     }
 
@@ -188,23 +194,25 @@ class LoLService(
             getChampionInMatchBySummonerName(matchListJson[i] as String)
         }
         var championList: List<Champion> = championByMatchRepository.findAllBySummonerName(summonerName)
+        if(championList.isEmpty()){
+            return listOf(Pair("poro", 1))
+        }
         for(element in championList){
             usingChampionList.add(element.champion)
-            mostLane.add(element.lane)
+            mostLane.add(element.mostLane)
         }
         var championSet: Set<String> = HashSet<String>(usingChampionList)
         var laneSet: Set<String> = HashSet<String>(mostLane)
 
-        for(str: String in championSet)
-            championMap[str] = Collections.frequency(usingChampionList, str)
-        for(str: String in laneSet)
-            laneMap[str] = Collections.frequency(laneSet, str)
+        for(championName: String in championSet)
+            championMap[championName] = Collections.frequency(usingChampionList, championName)
+        for(lane: String in laneSet)
+            laneMap[lane] = Collections.frequency(mostLane, lane)
 
         //map to list
-        val championMapToList = championMap.toList()
-        val laneMapToList = laneMap.toList()
-        championMapToList.sortedByDescending { it.second }
-        laneMapToList.sortedByDescending { it.second }
+        val championMapToList = championMap.toList().sortedByDescending { it.second }
+        val laneMapToList = laneMap.toList().sortedByDescending { it.second }
+
         //save most lane in summoner
         var summonerList = summonerRepository.findAllBySummonerName(summonerName)
         for(element in summonerList) {
@@ -237,9 +245,8 @@ class LoLService(
             summonerName,
             sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0],
             matchId,
-            sample.info.participants.filter { it.summonerName == summonerName }.map { it.lane }[0]
+            sample.info.participants.filter { it.summonerName == summonerName }.map { it.teamPosition }[0]
         ).toEntity()
-        println(sample.info.participants.filter { it.summonerName == summonerName }.map { it.lane }[0])
         championByMatchRepository.save(championByMatch)
     }
 
@@ -248,6 +255,7 @@ class LoLService(
         val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
         var memberList = mutableListOf<String>()
         for(element in chatRooms){
+            if(element.oauth2Id == "banned")   continue
             element.nickname?.let { memberList.add(it) }
         }
         return memberList

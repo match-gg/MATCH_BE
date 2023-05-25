@@ -16,14 +16,14 @@ class ChampionByMatchDTO (
     var matchId: String,
 
     @JsonProperty
-    var lane: String
+    var mostLane: String
 ) {
     fun toEntity(): ChampionByMatch{
         return ChampionByMatch(
             summonerName = summonerName,
             champion = champion,
             matchId = matchId,
-            lane = lane
+            mostLane = mostLane
         )
     }
 }

@@ -8,6 +8,7 @@ import gg.match.domain.board.lol.entity.Tier
 import gg.match.domain.board.lol.entity.Type
 import gg.match.domain.board.lol.service.LoLService
 import gg.match.domain.user.entity.User
+import org.json.simple.JSONObject
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -64,7 +65,8 @@ class LoLController(
 
     @GetMapping("/user/exist/{nickname}")
     fun userExist(@PathVariable nickname: String): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(loLService.getUserInfoByRiotApi(nickname))
+        val userName: JSONObject = loLService.getUserInfoByRiotApi(nickname)
+        return ResponseEntity.ok().body(userName["name"])
     }
 
     @GetMapping("/user/{nickname}")
@@ -75,9 +77,6 @@ class LoLController(
 
     @GetMapping("/summoner/{nickname}/{type}")
     fun getSummonerInfo(@PathVariable nickname: String, @PathVariable type: String): ResponseEntity<SummonerResponseDTO> {
-
-        println(nickname)
-        println(Type.valueOf(type.uppercase()))
         return ResponseEntity.ok().body(loLService.getSummonerByType(nickname, Type.valueOf(type.uppercase())).toSummonerResponseDTO())
     }
 

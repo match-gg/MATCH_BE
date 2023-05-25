@@ -15,5 +15,5 @@ class ChampionByMatch(
 
     var matchId: String,
 
-    var lane: String
+    var mostLane: String
 )
