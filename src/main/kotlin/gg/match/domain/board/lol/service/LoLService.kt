@@ -45,9 +45,9 @@ class LoLService(
     lateinit var result: PageResult<ReadLoLBoardDTO>
 
     //init <- 관리자로 초기화
-    lateinit var summonerName: String// = "수유욱"
-    lateinit var summoner: Summoner // = summonerRepository.findBySummonerNameAndQueueType(summonerName, "RANKED_SOLO_5x5")
-    lateinit var summonerByName: Summoner //= summoner
+    lateinit var summonerName: String
+    lateinit var summoner: Summoner
+    lateinit var summonerByName: Summoner
 
 
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
@@ -136,7 +136,6 @@ class LoLService(
                     summonerRepository.save(summonerReadDTO)
                 }
             }
-            println("정보 저장 완료")
             championList = getMostChampions(responseUserName)
             when(summonerRepository.countBySummonerName(responseUserName)){
                 0L -> return
