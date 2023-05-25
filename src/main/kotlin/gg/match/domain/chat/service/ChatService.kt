@@ -30,7 +30,7 @@ class ChatService (
                     ?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
 
                 board.update(chatRoomRequestDTO.chatRoomId, chatRoomRequestDTO.totalUser)
-                ChatRoomDTO(chatRoomRequestDTO.chatRoomId, user.lol, user.oauth2Id).toEntity()
+                ChatRoomDTO(chatRoomRequestDTO.chatRoomId, board.name, user.oauth2Id).toEntity()
                     ?.let { chatRepository.save(it) }
                 return board
             }

@@ -30,7 +30,7 @@ class Summoner(
 
     var most3Champion: String = "poro",
 
-    var lane: String = "none"
+    var mostLane: String = "NONE"
 ) {
     fun toSummonerResponseDTO(): SummonerResponseDTO{
         return SummonerResponseDTO(
@@ -42,12 +42,12 @@ class Summoner(
             wins = wins,
             losses = losses,
             mostChampion = listOf(most1Champion, most2Champion, most3Champion),
-            lane = lane
+            mostLane = mostLane
         )
     }
 
-    fun updateLane(lane: String){
-        this.lane = lane
+    fun updateLane(mostLane: String){
+        this.mostLane = mostLane
     }
 
     fun updateChampion(mostChampionList: List<Pair<String, Int>>){

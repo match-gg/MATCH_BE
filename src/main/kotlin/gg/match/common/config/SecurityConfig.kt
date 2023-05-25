@@ -24,7 +24,7 @@ class SecurityConfig(
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
             web.ignoring().antMatchers("/api/user/signin", "/api/user/signup", "/api/user/refresh",
-            "/css/**", "/js/**", "/images/**", "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**")
+            "/css/**", "/js/**", "/images/**", "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**", "/api/lol/summoner/**/**")
         }
     }
 
@@ -39,7 +39,8 @@ class SecurityConfig(
             .and()
             .authorizeRequests()
             .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh", "/api/lol/**", "/api/lol/user/**", "/api/lol/user/exist/**", "/api/lol/boards/**").permitAll()
+            .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh", "/api/lol/**", "/api/lol/user/**",
+                "/api/lol/user/exist/**", "/api/lol/boards/**", "/api/lol/summoner/**/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .cors()

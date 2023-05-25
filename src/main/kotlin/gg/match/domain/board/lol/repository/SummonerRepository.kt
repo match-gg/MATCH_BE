@@ -4,8 +4,8 @@ import gg.match.domain.board.lol.entity.Summoner
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface SummonerRepository: JpaRepository<Summoner, Long> {
-    fun existsBySummonerName(nickname: String): Boolean
-    fun deleteBySummonerName(nickname: String)
+    fun existsBySummonerName(summonerName: String): Boolean
+    fun deleteAllBySummonerName(summonerName: String)
     fun findBySummonerNameAndQueueType(summonerName: String, queueType: String): Summoner
     fun countBySummonerName(summonerName: String): Long
     fun findBySummonerName(summonerName: String): Summoner
