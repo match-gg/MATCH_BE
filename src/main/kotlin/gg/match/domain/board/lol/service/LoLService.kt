@@ -28,6 +28,7 @@ import gg.match.domain.board.lol.repository.ChampionByMatchRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Page
+import org.springframework.data.jpa.repository.Query
 import java.time.LocalDateTime
 
 @Service
@@ -48,11 +49,10 @@ class LoLService(
 
     lateinit var summonerName: String
 
-
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
         val boards: Page<LoL>
         //update expired
-        checkExpire()
+        updateExpired()
         //filtering
         if(position == Position.valueOf("ALL") && type == Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
             boards = loLRepository.findAllByOrderByIdDesc(pageable)
@@ -280,11 +280,12 @@ class LoLService(
     }
 
     @Transactional
-    fun checkExpire(){
+    fun updateExpired(){
         val boards = loLRepository.findAll()
         var expiredTime: LocalDateTime
+        val now = LocalDateTime.now().plusHours(9)
         for(i in 0 until boards.size){
-            if(boards[i].isExpired == "true") continue
+            if(boards[i].expired == "true") continue
             expiredTime = when(boards[i].expire){
                 Expire.FIFTEEN_M -> boards[i].created.plusMinutes(15)
                 Expire.THIRTY_M -> boards[i].created.plusMinutes(30)
@@ -295,8 +296,9 @@ class LoLService(
                 Expire.TWELVE_H -> boards[i].created.plusHours(12)
                 Expire.TWENTY_FOUR_H -> boards[i].created.plusDays(1)
             }
-            if(expiredTime <= LocalDateTime.now())
-                boards[i].isExpiredUpdate("true")
+            if(expiredTime.isBefore(now)) {
+                boards[i].update("true")
+            }
         }
     }
 }

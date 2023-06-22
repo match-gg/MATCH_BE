@@ -3,6 +3,7 @@ package gg.match.controller.api
 import gg.match.common.annotation.CurrentUser
 import gg.match.controller.common.dto.PageResult
 import gg.match.domain.board.lol.dto.*
+import gg.match.domain.board.lol.entity.LoL
 import gg.match.domain.board.lol.entity.Position
 import gg.match.domain.board.lol.entity.Tier
 import gg.match.domain.board.lol.entity.Type
@@ -22,7 +23,7 @@ class LoLController(
 ) {
     @GetMapping("/boards")
     fun getBoards(
-        @PageableDefault(size=10) pageable: Pageable,
+        @PageableDefault(size = 10) pageable: Pageable,
         @RequestParam(required = false, defaultValue = "ALL") position: Position,
         @RequestParam(required = false, defaultValue = "ALL") type: Type,
         @RequestParam(required = false, defaultValue = "ALL") tier: Tier
