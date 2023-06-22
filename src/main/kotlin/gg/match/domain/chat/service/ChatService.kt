@@ -44,6 +44,7 @@ class ChatService (
 
     @Transactional
     fun increaseMember(game: Game, id: Long, user: User){
+        checkMemberCount(game, id)
         when(game){
             Game.valueOf("LOL") -> {
                 val board = loLRepository.findByIdOrNull(id)
@@ -63,6 +64,7 @@ class ChatService (
 
     @Transactional
     fun addMember(game: Game, id: Long, nickname: String){
+        checkMemberCount(game, id)
         when(game){
             Game.valueOf("LOL") -> {
                 val board = loLRepository.findByIdOrNull(id)
@@ -81,6 +83,7 @@ class ChatService (
 
     @Transactional
     fun decreaseMember(game: Game, id: Long, oauth2Id: String){
+        checkMemberCount(game, id)
         var nickname: String
         when(game){
             Game.valueOf("LOL") -> {
@@ -103,6 +106,7 @@ class ChatService (
 
     @Transactional
     fun banMember(game: Game, id: Long, nickname: String){
+        checkMemberCount(game, id)
         when(game){
             Game.valueOf("LOL") -> {
                 val board = loLRepository.findByIdOrNull(id)
@@ -118,6 +122,18 @@ class ChatService (
         when(game){
             Game.valueOf("LOL") -> {
                 return chatRepository.existsByChatRoomIdAndNickname(chatRoomId, nickname)
+            }
+            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    fun checkMemberCount(game: Game, id: Long) {
+        when (game) {
+            Game.valueOf("LOL") -> {
+                val board = loLRepository.findByIdOrNull(id)
+                    ?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+                if(board.totalUser == board.nowUser || board.nowUser == 0)
+                    throw BusinessException(ErrorCode.MEMBER)
             }
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
