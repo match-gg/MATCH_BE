@@ -137,8 +137,6 @@ class LoLService(
                 }
             }
             championList = getMostChampions(responseUserName)
-            println("여기까지 옴")
-            println(summonerRepository.countBySummonerName(responseUserName))
             when(summonerRepository.countBySummonerName(responseUserName)) {
                 0L -> return
                 1L -> {
