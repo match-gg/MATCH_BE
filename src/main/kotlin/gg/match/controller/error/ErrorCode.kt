@@ -19,5 +19,7 @@ enum class ErrorCode(
     //COMMON
     NO_BOARD_FOUND(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."),
     //LOL
-    USER_NOT_RANKED(HttpStatus.NOT_FOUND, "아직 랭크정보를 보유하고 있지 않습니다.")
+    USER_NOT_RANKED(HttpStatus.NOT_FOUND, "아직 랭크정보를 보유하고 있지 않습니다."),
+    //CHAT
+    MEMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다.")
 }
