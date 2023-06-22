@@ -34,7 +34,7 @@ class LoL(
     @Enumerated(EnumType.STRING)
     var expire: Expire,
 
-    var isExpired: String,
+    var expired: String = "false",
 
     var chatRoomId: String,
 
@@ -54,7 +54,7 @@ class LoL(
             voice = voice,
             content = content,
             expire = expire,
-            isExpired = isExpired,
+            expired = expired,
             created = created,
             author = summoner.toSummonerResponseDTO(),
             chatRoomId = chatRoomId,
@@ -73,8 +73,8 @@ class LoL(
         expire = lolRequestDTO.expire
     }
 
-    fun isExpiredUpdate(expired: String){
-        this.isExpired = isExpired
+    fun update(expired: String){
+        this.expired = expired
     }
 
     fun update(chatRoomId: String, totalUser: Int) {

@@ -14,9 +14,9 @@ abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "created", updatable = false)
-    var created: LocalDateTime = LocalDateTime.now()
+    var created: LocalDateTime = LocalDateTime.now().plusHours(9)
 
     @LastModifiedDate
     @Column(name = "updated")
-    var updated: LocalDateTime = LocalDateTime.now()
+    var updated: LocalDateTime = LocalDateTime.now().plusHours(9)
 }

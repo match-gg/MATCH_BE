@@ -35,8 +35,8 @@ class ReadLoLBoardDTO(
     @JsonProperty("expire")
     var expire: Expire,
 
-    @JsonProperty("isExpired")
-    var isExpired: String,
+    @JsonProperty("expired")
+    var expired: String,
 
     @JsonProperty("created")
     var created: LocalDateTime,
