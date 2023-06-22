@@ -22,11 +22,13 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.collections.HashSet
 import com.google.gson.Gson
+import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Page
+import java.time.LocalDateTime
 
 @Service
 @Transactional(readOnly = true)
@@ -44,7 +46,6 @@ class LoLService(
     lateinit var puuid: String
     lateinit var result: PageResult<ReadLoLBoardDTO>
 
-    //init <- 관리자로 초기화
     lateinit var summonerName: String
     lateinit var summoner: Summoner
     lateinit var summonerByName: Summoner
@@ -52,6 +53,8 @@ class LoLService(
 
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
         val boards: Page<LoL>
+        //update expired
+        checkExpire()
         //filtering
         if(position == Position.valueOf("ALL") && type == Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
             boards = loLRepository.findAllByOrderByIdDesc(pageable)
@@ -75,6 +78,7 @@ class LoLService(
         }
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+
         result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summoner, getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
@@ -268,5 +272,26 @@ class LoLService(
             element.nickname?.let { banList.add(it) }
         }
         return banList
+    }
+
+    @Transactional
+    fun checkExpire(){
+        val boards = loLRepository.findAll()
+        var expiredTime: LocalDateTime
+        for(i in 0 until boards.size){
+            if(boards[i].isExpired == "true") continue
+            expiredTime = when(boards[i].expire){
+                Expire.FIFTEEN_M -> boards[i].created.plusMinutes(15)
+                Expire.THIRTY_M -> boards[i].created.plusMinutes(30)
+                Expire.ONE_H -> boards[i].created.plusHours(1)
+                Expire.TWO_H -> boards[i].created.plusHours(2)
+                Expire.THREE_H -> boards[i].created.plusHours(3)
+                Expire.SIX_H -> boards[i].created.plusHours(6)
+                Expire.TWELVE_H -> boards[i].created.plusHours(12)
+                Expire.TWENTY_FOUR_H -> boards[i].created.plusDays(1)
+            }
+            if(expiredTime <= LocalDateTime.now())
+                boards[i].isExpiredUpdate("true")
+        }
     }
 }
