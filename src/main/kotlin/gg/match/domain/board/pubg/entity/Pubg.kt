@@ -2,9 +2,9 @@ package gg.match.domain.board.pubg.entity
 
 import gg.match.common.entity.BaseEntity
 import gg.match.controller.common.entity.Expire
-import gg.match.domain.board.lol.entity.Tier
-import gg.match.domain.board.lol.entity.Type
-import gg.match.domain.board.pubg.dto.Platform
+import gg.match.domain.board.pubg.dto.ReadPubgBoardDTO
+import gg.match.domain.board.pubg.entity.Tier
+import gg.match.domain.board.pubg.entity.Type
 import javax.persistence.*
 
 @Entity
@@ -44,4 +44,27 @@ class Pubg(
     var nowUser: Int = 1
 
 ): BaseEntity(){
+    fun toReadPubgBoardDTO(player: Player, memberList: List<String>, banList: List<String>): ReadPubgBoardDTO {
+        return ReadPubgBoardDTO(
+            id = id,
+            oauth2Id = oauth2Id,
+            name = name,
+            type = type,
+            tier = tier,
+            platform = platform,
+            voice = voice,
+            content = content,
+            expire = expire,
+            expired = expired,
+            created = created,
+            author = player.toPlayerResponseDTO(),
+            chatRoomId = chatRoomId,
+            memberList = memberList,
+            banList = banList
+        )
+    }
+
+    fun update(expired: String){
+        this.expired = expired
+    }
 }
