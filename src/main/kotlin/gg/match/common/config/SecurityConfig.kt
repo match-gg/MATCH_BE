@@ -31,8 +31,7 @@ class SecurityConfig(
                 //lol
                 "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**", "/api/lol/summoner/**/**",
                 //pubg
-                "/api/pubg/boards/**",
-                "/api/pubg/**"
+                "/api/pubg/user/**/**", "/api/pubg/user/exist/**/**","/api/pubg/boards/**", "/api/pubg/player/**/**/**"
             )
         }
     }
