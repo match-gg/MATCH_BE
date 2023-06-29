@@ -71,12 +71,11 @@ class PubgService(
         }
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-//        result = PageResult.ok(boards.map { it.toReadPubgBoardDTO(playerRepository.findByIdAndTier(0, Tier.valueOf("DIAMOND")), getMemberList(it.id), getBanList(it.id))})
-
-        result = PageResult.ok(boards.map { it.toReadPubgBoardDTO(playerRepository.findById(0).get().toPlayerResponseDTO(), getMemberList(it.id), getBanList(it.id))})
+        result = PageResult.ok(boards.map { it.toReadPubgBoardDTO(playerRepository.findByNameAndPlatformAndType(it.name, it.platform, it.type), getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
-            result.content[i].author = getPlayerByPlatformAndType("Dsquad2", Platform.STEAM, Type.DUO)
+            var playername = boards.content[i].name
+            result.content[i].author = getPlayerByPlatformAndType(playername, boards.content[i].platform, boards.content[i].type)
         }
         return result
     }
