@@ -49,6 +49,7 @@ class LoLService(
 
     lateinit var summonerName: String
 
+    @Transactional
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {
         val boards: Page<LoL>
         //update expired
@@ -149,7 +150,6 @@ class LoLService(
                     }
                 }
                 2L -> {
-                    println("2L에 들어옴")
                     summonerByName = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_FLEX_SR")
                     summoner = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_SOLO_5x5")
                     if(summonerByName != null){
@@ -285,7 +285,10 @@ class LoLService(
         var expiredTime: LocalDateTime
         val now = LocalDateTime.now().plusHours(9)
         for(i in 0 until boards.size){
-            if(boards[i].expired == "true") continue
+
+            if(boards[i].expired == "true")
+                continue
+
             expiredTime = when(boards[i].expire){
                 Expire.FIFTEEN_M -> boards[i].created.plusMinutes(15)
                 Expire.THIRTY_M -> boards[i].created.plusMinutes(30)
@@ -296,6 +299,7 @@ class LoLService(
                 Expire.TWELVE_H -> boards[i].created.plusHours(12)
                 Expire.TWENTY_FOUR_H -> boards[i].created.plusDays(1)
             }
+
             if(expiredTime.isBefore(now)) {
                 boards[i].update("true")
             }

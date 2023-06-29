@@ -23,8 +23,17 @@ class SecurityConfig(
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
-            web.ignoring().antMatchers("/api/user/signin", "/api/user/signup", "/api/user/refresh",
-            "/css/**", "/js/**", "/images/**", "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**", "/api/lol/summoner/**/**")
+            web.ignoring().antMatchers(
+                //user
+                "/api/user/signin", "/api/user/signup", "/api/user/refresh",
+                //setting
+                "/css/**", "/js/**", "/images/**",
+                //lol
+                "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**", "/api/lol/summoner/**/**",
+                //pubg
+                "/api/pubg/boards/**",
+                "/api/pubg/**"
+            )
         }
     }
 
