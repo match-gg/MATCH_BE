@@ -47,8 +47,15 @@ class SecurityConfig(
             .and()
             .authorizeRequests()
             .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .antMatchers("/api/user/signup", "/api/user/signin", "/api/user/refresh", "/api/lol/**", "/api/lol/user/**",
-                "/api/lol/user/exist/**", "/api/lol/boards/**", "/api/lol/summoner/**/**").permitAll()
+            .antMatchers(
+                //user
+                "/api/user/signin", "/api/user/signup", "/api/user/refresh",
+                //setting
+                "/css/**", "/js/**", "/images/**",
+                //lol
+                "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**", "/api/lol/summoner/**/**",
+                //pubg
+                "/api/pubg/user/**/**", "/api/pubg/user/exist/**/**","/api/pubg/boards/**", "/api/pubg/player/**/**/**").permitAll()
             .anyRequest().authenticated()
             .and()
             .cors()

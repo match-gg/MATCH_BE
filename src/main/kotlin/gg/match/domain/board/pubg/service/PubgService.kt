@@ -5,9 +5,6 @@ import gg.match.controller.common.dto.PageResult
 import gg.match.controller.common.entity.Expire
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
-import gg.match.domain.board.lol.dto.LoLRequestDTO
-import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
-import gg.match.domain.board.lol.entity.LoL
 import gg.match.domain.board.pubg.dto.PlayerReadDTO
 import gg.match.domain.board.pubg.dto.PlayerResponseDTO
 import gg.match.domain.board.pubg.dto.PubgRequestDTO
