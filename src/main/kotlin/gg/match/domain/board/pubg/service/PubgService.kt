@@ -67,7 +67,7 @@ class PubgService(
             } else  pubgRepository.findAllByPlatformAndTypeAndTierOrderByIdDesc(pageable, platform, type, tier)
         }
         // boards not found
-        if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+        if(boards.isEmpty)  throw BusinessException(ErrorCode.NO_BOARD_FOUND)
         result = PageResult.ok(boards.map { it.toReadPubgBoardDTO(playerRepository.findByNameAndPlatformAndType(it.name, it.platform, it.type), getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
