@@ -150,7 +150,6 @@ class LoLService(
                     }
                 }
                 2L -> {
-                    println("2L에 들어옴")
                     summonerByName = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_FLEX_SR")
                     summoner = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_SOLO_5x5")
                     if(summonerByName != null){

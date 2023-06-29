@@ -2,9 +2,9 @@ package gg.match.domain.board.pubg.entity
 
 import gg.match.common.entity.BaseEntity
 import gg.match.controller.common.entity.Expire
+import gg.match.domain.board.pubg.dto.PlayerResponseDTO
+import gg.match.domain.board.pubg.dto.PubgRequestDTO
 import gg.match.domain.board.pubg.dto.ReadPubgBoardDTO
-import gg.match.domain.board.pubg.entity.Tier
-import gg.match.domain.board.pubg.entity.Type
 import javax.persistence.*
 
 @Entity
@@ -44,7 +44,7 @@ class Pubg(
     var nowUser: Int = 1
 
 ): BaseEntity(){
-    fun toReadPubgBoardDTO(player: Player, memberList: List<String>, banList: List<String>): ReadPubgBoardDTO {
+    fun toReadPubgBoardDTO(player: PlayerResponseDTO, memberList: List<String>, banList: List<String>): ReadPubgBoardDTO {
         return ReadPubgBoardDTO(
             id = id,
             oauth2Id = oauth2Id,
@@ -57,14 +57,30 @@ class Pubg(
             expire = expire,
             expired = expired,
             created = created,
-            author = player.toPlayerResponseDTO(),
+            author = player,
             chatRoomId = chatRoomId,
             memberList = memberList,
             banList = banList
         )
     }
 
+    fun update(pubgRequestDTO: PubgRequestDTO){
+        name = pubgRequestDTO.name
+        type = pubgRequestDTO.type
+        tier = pubgRequestDTO.tier
+        platform = pubgRequestDTO.platform
+        voice = pubgRequestDTO.voice
+        content = pubgRequestDTO.content
+        expire = pubgRequestDTO.expire
+    }
+
     fun update(expired: String){
         this.expired = expired
+    }
+
+    fun update(chatRoomId: String, totalUser: Int) {
+        this.chatRoomId = chatRoomId
+        this.totalUser = totalUser
+        this.nowUser = 1
     }
 }
