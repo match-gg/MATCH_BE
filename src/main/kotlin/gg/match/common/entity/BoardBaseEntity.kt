@@ -10,7 +10,17 @@ import javax.persistence.MappedSuperclass
 
 @MappedSuperclass
 @EntityListeners(value = [AuditingEntityListener::class])
-abstract class BaseEntity {
+abstract class BoardBaseEntity {
+
+    @Column(name = "chatRoomId")
+    var chatRoomId: String = ""
+
+    @Column(name = "totalUser")
+    var totalUser: Int = 0
+
+    @Column(name = "nowUser")
+    var nowUser: Int = 1
+
     @CreatedDate
     @Column(name = "created", updatable = false)
     var created: LocalDateTime = LocalDateTime.now().plusHours(9)
@@ -18,4 +28,10 @@ abstract class BaseEntity {
     @LastModifiedDate
     @Column(name = "updated")
     var updated: LocalDateTime = LocalDateTime.now().plusHours(9)
+
+    fun update(chatRoomId: String, totalUser: Int) {
+        this.chatRoomId = chatRoomId
+        this.totalUser = totalUser
+        this.nowUser = 1
+    }
 }
