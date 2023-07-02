@@ -1,6 +1,7 @@
 package gg.match.domain.board.lol.entity
 
 import gg.match.common.entity.BaseEntity
+import gg.match.common.entity.BoardBaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.LoLRequestDTO
 import gg.match.domain.board.lol.dto.ReadLoLBoardDTO
@@ -34,15 +35,9 @@ class LoL(
     @Enumerated(EnumType.STRING)
     var expire: Expire,
 
-    var expired: String = "false",
+    var expired: String = "false"
 
-    var chatRoomId: String,
-
-    var totalUser: Int = 0,
-
-    var nowUser: Int = 1
-
-): BaseEntity(){
+): BoardBaseEntity(){
     fun toReadLoLBoardDTO(summoner: Summoner, memberList: List<String>, banList: List<String>): ReadLoLBoardDTO{
         return ReadLoLBoardDTO(
             id = id,
@@ -59,7 +54,7 @@ class LoL(
             author = summoner.toSummonerResponseDTO(),
             chatRoomId = chatRoomId,
             memberList = memberList,
-            banList = banList
+            banList = banList,
         )
     }
 
@@ -73,13 +68,7 @@ class LoL(
         expire = lolRequestDTO.expire
     }
 
-    fun update(expired: String){
+    fun update(expired: String) {
         this.expired = expired
-    }
-
-    fun update(chatRoomId: String, totalUser: Int) {
-        this.chatRoomId = chatRoomId
-        this.totalUser = totalUser
-        this.nowUser = 1
     }
 }

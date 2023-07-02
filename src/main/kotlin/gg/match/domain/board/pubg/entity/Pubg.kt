@@ -1,6 +1,7 @@
 package gg.match.domain.board.pubg.entity
 
 import gg.match.common.entity.BaseEntity
+import gg.match.common.entity.BoardBaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.pubg.dto.PlayerResponseDTO
 import gg.match.domain.board.pubg.dto.PubgRequestDTO
@@ -35,15 +36,9 @@ class Pubg(
     @Enumerated(EnumType.STRING)
     var expire: Expire,
 
-    var expired: String = "false",
+    var expired: String = "false"
 
-    var chatRoomId: String,
-
-    var totalUser: Int = 0,
-
-    var nowUser: Int = 1
-
-): BaseEntity(){
+): BoardBaseEntity(){
     fun toReadPubgBoardDTO(player: PlayerResponseDTO, memberList: List<String>, banList: List<String>): ReadPubgBoardDTO {
         return ReadPubgBoardDTO(
             id = id,
@@ -76,11 +71,5 @@ class Pubg(
 
     fun update(expired: String){
         this.expired = expired
-    }
-
-    fun update(chatRoomId: String, totalUser: Int) {
-        this.chatRoomId = chatRoomId
-        this.totalUser = totalUser
-        this.nowUser = 1
     }
 }
