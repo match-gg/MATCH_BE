@@ -38,8 +38,7 @@ data class PubgRequestDTO(
             platform = platform,
             voice = voice,
             content = content,
-            expire = expire,
-            chatRoomId = "1234"
+            expire = expire
         )
     }
 }

@@ -38,8 +38,7 @@ data class LoLRequestDTO(
             position = position,
             voice = voice,
             content = content,
-            expire = expire,
-            chatRoomId = "1234"
+            expire = expire
         )
     }
 }
