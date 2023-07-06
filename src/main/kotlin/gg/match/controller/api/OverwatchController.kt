@@ -2,13 +2,11 @@ package gg.match.controller.api
 
 import gg.match.common.annotation.CurrentUser
 import gg.match.controller.common.dto.PageResult
-import gg.match.domain.board.pubg.dto.PlayerResponseDTO
-import gg.match.domain.board.pubg.dto.PubgRequestDTO
-import gg.match.domain.board.pubg.entity.Tier
-import gg.match.domain.board.pubg.entity.Type
-import gg.match.domain.board.pubg.dto.ReadPubgBoardDTO
-import gg.match.domain.board.pubg.entity.Platform
-import gg.match.domain.board.pubg.service.PubgService
+import gg.match.domain.board.overwatch.dto.HeroResponseDTO
+import gg.match.domain.board.overwatch.dto.OverwatchRequestDTO
+import gg.match.domain.board.overwatch.dto.ReadOverwatchBoardDTO
+import gg.match.domain.board.overwatch.entity.*
+import gg.match.domain.board.overwatch.service.OverwatchService
 import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -24,23 +22,23 @@ class OverwatchController (
     @GetMapping("/boards")
     fun getBoards(
         @PageableDefault(size = 10) pageable: Pageable,
-        @RequestParam(required = false, defaultValue = "ALL") platform: Platform,
+        @RequestParam(required = false, defaultValue = "ALL") position: Position,
         @RequestParam(required = false, defaultValue = "ALL") type: Type,
         @RequestParam(required = false, defaultValue = "ALL") tier: Tier
-    ): PageResult<ReadPubgBoardDTO> {
-        return pubgService.getBoards(pageable, platform, type, tier)
+    ): PageResult<ReadOverwatchBoardDTO> {
+        return overwatchService.getBoards(pageable, position, type, tier)
     }
 
     @GetMapping("/boards/{boardId}")
     fun getBoard(@PathVariable boardId: Long): ResponseEntity<Any> {
-        return ResponseEntity.ok(pubgService.getBoard(boardId))
+        return ResponseEntity.ok(overwatchService.getBoard(boardId))
     }
 
     @PostMapping("/board")
-    fun saveBoard(@CurrentUser user: User, @RequestBody pubgRequestDTO: PubgRequestDTO): ResponseEntity<Any> {
-        pubgRequestDTO.voice = voiceUpper(pubgRequestDTO.voice)
+    fun saveBoard(@CurrentUser user: User, @RequestBody overwatchRequestDTO: OverwatchRequestDTO): ResponseEntity<Any> {
+        overwatchRequestDTO.voice = voiceUpper(overwatchRequestDTO.voice)
         return try{
-            ResponseEntity.ok().body(pubgService.save(pubgRequestDTO, user))
+            ResponseEntity.ok().body(overwatchService.save(overwatchRequestDTO, user))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null)
         }
@@ -48,11 +46,11 @@ class OverwatchController (
 
     @PutMapping("/board/{boardId}")
     fun updateBoard(@PathVariable boardId: Long,
-                    @RequestBody pubgRequestDTO: PubgRequestDTO
+                    @RequestBody overwatchRequestDTO: OverwatchRequestDTO
     ): ResponseEntity<Any> {
-        pubgRequestDTO.voice = voiceUpper(pubgRequestDTO.voice)
+        overwatchRequestDTO.voice = voiceUpper(overwatchRequestDTO.voice)
         return try{
-            ResponseEntity.ok(pubgService.update(boardId, pubgRequestDTO))
+            ResponseEntity.ok(overwatchService.update(boardId, overwatchRequestDTO))
         } catch (e: Exception) {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null)
         }
@@ -60,25 +58,24 @@ class OverwatchController (
 
     @DeleteMapping("/board/{boardId}")
     fun delete(@PathVariable boardId: Long): ResponseEntity<Nothing> {
-        pubgService.delete(boardId)
+        overwatchService.delete(boardId)
         return ResponseEntity.ok().body(null)
     }
 
-    @GetMapping("/user/exist/{nickname}/{platform}")
-    fun userExist(@PathVariable nickname: String, @PathVariable platform: String): ResponseEntity<Any> {
-        val account = pubgService.getPlayerAccountId(nickname, Platform.valueOf(platform.uppercase()))
-        return ResponseEntity.ok().body(account)
+    @GetMapping("/user/exist/{nickname}/{battletag}")
+    fun userExist(@PathVariable nickname: String, @PathVariable battletag: Int): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(overwatchService.getHeroIsExist(nickname, battletag))
     }
 
-    @GetMapping("/user/{nickname}/{platform}")
-    fun savePlayer(@PathVariable nickname: String, @PathVariable platform: String): ResponseEntity<Any> {
-        pubgService.getPlayerInfoByPubgApi(nickname, Platform.valueOf(platform.uppercase()))
+    @GetMapping("/user/{nickname}/{battletag}")
+    fun saveHero(@PathVariable nickname: String, @PathVariable battletag: Int): ResponseEntity<Any> {
+        overwatchService.saveHeroInfoByBattleNetApi(nickname, battletag)
         return ResponseEntity.ok().body(null)
     }
 
-    @GetMapping("/player/{nickname}/{platform}/{type}")
-    fun getPlayerInfo(@PathVariable nickname: String, @PathVariable platform: String, @PathVariable type: String): ResponseEntity<PlayerResponseDTO> {
-        return ResponseEntity.ok().body(pubgService.getPlayerByPlatformAndType(nickname, Platform.valueOf(platform.uppercase()), Type.valueOf(type.uppercase())))
+    @GetMapping("/player/{nickname}/{battletag}/{type}")
+    fun getHeroInfo(@PathVariable nickname: String, @PathVariable platform: String, @PathVariable battletag: Int, @PathVariable type: Type): ResponseEntity<HeroResponseDTO> {
+        return ResponseEntity.ok().body(overwatchService.getHeroInfo(nickname, battletag, type))
     }
 
     fun voiceUpper(voice: String): String{
