@@ -16,8 +16,6 @@ class LoL(
 
     var oauth2Id: String,
 
-    var name: String,
-
     @Enumerated(EnumType.STRING)
     var type: Type,
 
@@ -59,7 +57,6 @@ class LoL(
     }
 
     fun update(lolRequestDTO: LoLRequestDTO){
-        name = lolRequestDTO.name
         type = lolRequestDTO.type
         tier = lolRequestDTO.tier
         position = lolRequestDTO.position

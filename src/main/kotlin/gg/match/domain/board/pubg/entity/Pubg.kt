@@ -17,8 +17,6 @@ class Pubg(
 
     var oauth2Id: String,
 
-    var name: String,
-
     @Enumerated(EnumType.STRING)
     var type: Type,
 
@@ -60,7 +58,6 @@ class Pubg(
     }
 
     fun update(pubgRequestDTO: PubgRequestDTO){
-        name = pubgRequestDTO.name
         type = pubgRequestDTO.type
         tier = pubgRequestDTO.tier
         platform = pubgRequestDTO.platform

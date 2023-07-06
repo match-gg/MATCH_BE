@@ -34,13 +34,8 @@ class ChatService (
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
 
-        var name: String = when(game){
-            Game.LOL-> user.lol.toString()
-            Game.PUBG -> user.pubg.toString()
-            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
-        }
         board.update(chatRoomRequestDTO.chatRoomId, chatRoomRequestDTO.totalUser)
-        ChatRoomDTO(chatRoomRequestDTO.chatRoomId, name, user.oauth2Id).toEntity()
+        ChatRoomDTO(chatRoomRequestDTO.chatRoomId, board.name, user.oauth2Id).toEntity()
             ?.let { chatRepository.save(it) }
         return board
     }

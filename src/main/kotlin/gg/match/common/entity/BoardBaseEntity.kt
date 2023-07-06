@@ -12,6 +12,9 @@ import javax.persistence.MappedSuperclass
 @EntityListeners(value = [AuditingEntityListener::class])
 abstract class BoardBaseEntity {
 
+    @Column(name = "name")
+    var name: String = ""
+
     @Column(name = "chatRoomId")
     var chatRoomId: String = ""
 

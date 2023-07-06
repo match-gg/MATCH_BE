@@ -8,8 +8,6 @@ import gg.match.domain.board.pubg.entity.Tier
 import gg.match.domain.board.pubg.entity.Type
 
 data class PubgRequestDTO(
-    @JsonProperty("name")
-    val name: String,
 
     @JsonProperty("type")
     val type: Type,
@@ -32,7 +30,6 @@ data class PubgRequestDTO(
     fun toEntity(oauth2Id: String): Pubg {
         return Pubg(
             oauth2Id = oauth2Id,
-            name = name,
             type = type,
             tier = tier,
             platform = platform,
