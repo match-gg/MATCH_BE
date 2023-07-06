@@ -8,8 +8,6 @@ import gg.match.domain.board.lol.entity.Tier
 import gg.match.domain.board.lol.entity.Type
 
 data class LoLRequestDTO(
-    @JsonProperty("name")
-    val name: String,
 
     @JsonProperty("type")
     val type: Type,
@@ -32,7 +30,6 @@ data class LoLRequestDTO(
     fun toEntity(oauth2Id: String): LoL {
         return LoL(
             oauth2Id = oauth2Id,
-            name = name,
             type = type,
             tier = tier,
             position = position,
