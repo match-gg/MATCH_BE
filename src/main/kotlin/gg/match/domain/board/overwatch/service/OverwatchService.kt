@@ -35,11 +35,9 @@ import java.time.LocalDateTime
 class OverwatchService(
     private val overwatchRepository: OverwatchRepository,
     private val chatRepository: ChatRepository,
-    private val heroRepository: HeroRepository,
-    private val objectMapper: ObjectMapper
+    private val heroRepository: HeroRepository
 ) {
     private val serverUrl = "https://ow-api.com/v1/stats/pc/asia/"
-    val parser = JSONParser()
 
     @Transactional
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadOverwatchBoardDTO> {
@@ -71,11 +69,11 @@ class OverwatchService(
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
 
-        var result = PageResult.ok(boards.map { it.toReadOverwatchBoardDTO(HeroRepository.findByName(it.name), getMemberList(it.id), getBanList(it.id))})
+        var result = PageResult.ok(boards.map { it.toReadOverwatchBoardDTO(heroRepository.findByName(it.name).toHeroResponseDTO(), getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
             name = boards.content[i].name
-            result.content[i].author = getHeroByName(name).toHeroResponseDTO()
+            result.content[i].author = getHeroByName(name)
         }
         return result
     }
@@ -108,6 +106,14 @@ class OverwatchService(
         overwatchRepository.delete(board)
         for(element in chat)
             chatRepository.delete(element)
+    }
+
+    fun getHeroByName(name: String): HeroResponseDTO{
+        return try{
+            heroRepository.findByName(name).toHeroResponseDTO()
+        } catch (e: Exception){
+            throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
     }
 
     fun getHeroInfo(name: String, battletag: Int, type: Type): HeroResponseDTO{
