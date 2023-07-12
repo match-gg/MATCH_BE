@@ -1,5 +1,9 @@
 package gg.match.domain.user.service
 
+import gg.match.controller.error.BusinessException
+import gg.match.controller.error.ErrorCode
+import gg.match.domain.user.dto.LikeRequestDTO
+import gg.match.domain.user.entity.Game
 import gg.match.domain.user.entity.User
 import gg.match.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
@@ -18,4 +22,28 @@ class UserService (
 
     fun findByOauth2Id(oauth2Id: String)
     = userRepository.findByOauth2Id(oauth2Id)
+
+    @Transactional
+    fun increaseLike(likeRequestDTO: LikeRequestDTO): Long?{
+        var user = getUserByGame(likeRequestDTO)
+        user?.likeCount?.plus(1)
+        return user?.id
+    }
+
+    @Transactional
+    fun increaseDislike(likeRequestDTO: LikeRequestDTO): Long?{
+        var user = getUserByGame(likeRequestDTO)
+        user?.dislikeCount?.plus(1)
+        return user?.id
+    }
+
+    fun getUserByGame(likeRequestDTO: LikeRequestDTO): User?{
+        var user: User? = when(likeRequestDTO.game){
+            Game.LOL -> userRepository.findByLol(likeRequestDTO.nickname)
+            Game.PUBG -> userRepository.findByPubg(likeRequestDTO.nickname)
+            Game.OVERWATCH -> userRepository.findByOverwatch(likeRequestDTO.nickname)
+            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        } ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        return user
+    }
 }
