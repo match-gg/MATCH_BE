@@ -51,7 +51,7 @@ class UserController(
         return ResponseEntity.ok().body(userService.increaseLike(likeRequestDTO))
     }
 
-    @PostMapping("/like")
+    @PostMapping("/dislike")
     fun increaseDislike(@RequestBody likeRequestDTO: LikeRequestDTO): ResponseEntity<Long> {
         return ResponseEntity.ok().body(userService.increaseDislike(likeRequestDTO))
     }
