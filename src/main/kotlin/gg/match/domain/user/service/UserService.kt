@@ -38,7 +38,7 @@ class UserService (
     }
 
     fun getUserByGame(likeRequestDTO: LikeRequestDTO): User?{
-        var user: User? = when(likeRequestDTO.game){
+        var user: User? = when(Game.valueOf(likeRequestDTO.game.uppercase())){
             Game.LOL -> userRepository.findByLol(likeRequestDTO.nickname)
             Game.PUBG -> userRepository.findByPubg(likeRequestDTO.nickname)
             Game.OVERWATCH -> userRepository.findByOverwatch(likeRequestDTO.nickname)
