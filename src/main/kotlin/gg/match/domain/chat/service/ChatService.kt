@@ -49,7 +49,7 @@ class ChatService (
 
     @Transactional
     fun increaseMember(game: Game, id: Long, user: User){
-        checkMemberCount(game, id)
+        checkIncreaseMemberCount(game, id)
         var board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
@@ -79,7 +79,7 @@ class ChatService (
 
     @Transactional
     fun addMember(game: Game, id: Long, nickname: String){
-        checkMemberCount(game, id)
+        checkIncreaseMemberCount(game, id)
         var board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
@@ -102,7 +102,7 @@ class ChatService (
 
     @Transactional
     fun decreaseMember(game: Game, id: Long, oauth2Id: String){
-        checkMemberCount(game, id)
+        checkDecreaseMemberCount(game, id)
         var board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
@@ -133,7 +133,7 @@ class ChatService (
 
     @Transactional
     fun banMember(game: Game, id: Long, nickname: String){
-        checkMemberCount(game, id)
+        checkDecreaseMemberCount(game, id)
         var board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
@@ -148,15 +148,28 @@ class ChatService (
         return chatRepository.existsByChatRoomIdAndNickname(chatRoomId, nickname)
     }
 
-    fun checkMemberCount(game: Game, id: Long) {
+    fun checkIncreaseMemberCount(game: Game, id: Long) {
         var board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
-        if(board.totalUser == board.nowUser || board.nowUser == 0)
+        if(board.totalUser == board.nowUser) {
             throw BusinessException(ErrorCode.MEMBER)
+        }
+    }
+
+    fun checkDecreaseMemberCount(game: Game, id: Long) {
+        var board = when(game){
+            Game.LOL -> getBoardByGame(game, id) as LoL
+            Game.PUBG -> getBoardByGame(game, id) as Pubg
+            Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+        if(board.nowUser == 0) {
+            throw BusinessException(ErrorCode.MEMBER)
+        }
     }
 
     fun getBoardByGame(game: Game, id: Long): Any{
