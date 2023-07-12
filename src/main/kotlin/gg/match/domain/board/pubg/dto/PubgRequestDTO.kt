@@ -15,6 +15,9 @@ data class PubgRequestDTO(
     @JsonProperty("tier")
     val tier: Tier,
 
+    @JsonProperty("name")
+    val name: String,
+
     @JsonProperty("platform")
     val platform: Platform,
 

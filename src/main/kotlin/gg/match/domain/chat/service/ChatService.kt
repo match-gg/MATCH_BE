@@ -11,7 +11,6 @@ import gg.match.domain.board.pubg.repository.PubgRepository
 import gg.match.domain.chat.dto.ChatRoomDTO
 import gg.match.domain.chat.dto.ChatRoomListDTO
 import gg.match.domain.chat.dto.ChatRoomRequestDTO
-import gg.match.domain.chat.entity.ChatRoom
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.Game
 import gg.match.domain.user.entity.User
