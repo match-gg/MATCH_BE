@@ -86,6 +86,7 @@ class OverwatchService(
     @Transactional
     fun save(overwatchRequestDTO: OverwatchRequestDTO, user: User): Long? {
         val board = overwatchRepository.save(overwatchRequestDTO.toEntity(user.oauth2Id))
+        board.name = overwatchRequestDTO.name
         return board.id
     }
 

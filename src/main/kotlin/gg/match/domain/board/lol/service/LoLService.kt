@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.collections.HashSet
 import com.google.gson.Gson
+import gg.match.common.entity.BoardBaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
@@ -29,6 +30,7 @@ import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.Query
+import org.springframework.util.ReflectionUtils
 import java.time.LocalDateTime
 
 @Service
@@ -94,6 +96,7 @@ class LoLService(
     @Transactional
     fun save(loLRequestDTO: LoLRequestDTO, user: User): Long? {
         val board = loLRepository.save(loLRequestDTO.toEntity(user.oauth2Id))
+        board.name = loLRequestDTO.name
         return board.id
     }
 

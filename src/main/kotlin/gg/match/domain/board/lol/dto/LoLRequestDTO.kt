@@ -15,6 +15,9 @@ data class LoLRequestDTO(
     @JsonProperty("tier")
     val tier: Tier,
 
+    @JsonProperty("name")
+    val name: String,
+
     @JsonProperty("position")
     val position: Position,
 

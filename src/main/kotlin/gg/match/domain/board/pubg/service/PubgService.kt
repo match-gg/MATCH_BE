@@ -85,6 +85,7 @@ class PubgService(
     @Transactional
     fun save(pubgRequestDTO: PubgRequestDTO, user: User): Long? {
         val board = pubgRepository.save(pubgRequestDTO.toEntity(user.oauth2Id))
+        board.name = pubgRequestDTO.name
         return board.id
     }
 
