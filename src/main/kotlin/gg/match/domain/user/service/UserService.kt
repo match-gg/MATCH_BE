@@ -26,15 +26,25 @@ class UserService (
     @Transactional
     fun increaseLike(likeRequestDTO: LikeRequestDTO): Long?{
         var user = getUserByGame(likeRequestDTO)
-        user?.likeCount?.plus(1)
-        return user?.id
+        return if(user == null){
+            null
+        } else {
+            user.likeCount.plus(1)
+            userRepository.save(user)
+            user.id
+        }
     }
 
     @Transactional
     fun increaseDislike(likeRequestDTO: LikeRequestDTO): Long?{
         var user = getUserByGame(likeRequestDTO)
-        user?.dislikeCount?.plus(1)
-        return user?.id
+        return if(user == null){
+            null
+        } else {
+            user.dislikeCount.plus(1)
+            userRepository.save(user)
+            user.id
+        }
     }
 
     fun getUserByGame(likeRequestDTO: LikeRequestDTO): User?{
