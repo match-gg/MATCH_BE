@@ -29,7 +29,7 @@ class UserService (
         return if(user == null){
             null
         } else {
-            user.likeCount.plus(1)
+            user.likeCount.plus(1L)
             userRepository.save(user)
             user.id
         }
@@ -41,7 +41,7 @@ class UserService (
         return if(user == null){
             null
         } else {
-            user.dislikeCount.plus(1)
+            user.dislikeCount.plus(1L)
             userRepository.save(user)
             user.id
         }
