@@ -17,6 +17,11 @@ class UserController(
     private val userService: UserService,
     private val jwtResolver: JwtResolver
 ) {
+    @GetMapping("/health")
+    fun healthCheck(): ResponseEntity<Any>{
+        return ResponseEntity.ok().body(null)
+    }
+
     @PostMapping("/signup")
     fun signup(@RequestBody signUpRequestDTO: SignUpRequestDTO): ResponseEntity<Any> {
         return ResponseEntity.ok().body(authService.signUp(signUpRequestDTO))
@@ -54,5 +59,10 @@ class UserController(
     @PostMapping("/dislike")
     fun increaseDislike(@RequestBody likeRequestDTO: LikeRequestDTO): ResponseEntity<Long> {
         return ResponseEntity.ok().body(userService.increaseDislike(likeRequestDTO))
+    }
+
+    @PostMapping("/finished")
+    fun finishedBoard(): ResponseEntity<Any>{
+        return ResponseEntity.ok().body(userService.finishedBoard())
     }
 }
