@@ -23,6 +23,7 @@ class SecurityConfig(
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
+//            web.ignoring().antMatchers()
             web.ignoring().antMatchers(
                 //user
                 "/api/user/signin", "/api/user/signup", "/api/user/refresh",
@@ -49,18 +50,18 @@ class SecurityConfig(
             .and()
             .authorizeRequests()
             .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-            .antMatchers(
-                //user
-                "/api/user/signin", "/api/user/signup", "/api/user/refresh",
-                //setting
-                "/css/**", "/js/**", "/images/**",
-                //lol
-                "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**", "/api/lol/summoner/**/**",
-                //pubg
-                "/api/pubg/user/**/**", "/api/pubg/user/exist/**/**","/api/pubg/boards/**", "/api/pubg/player/**/**/**",
-                //overwatch
-                "/api/overwatch/user/**/**", "/api/overwatch/user/exist/**/**","/api/overwatch/boards/**", "/api/overwatch/player/**/**/**"
-            ).permitAll()
+//            .antMatchers(
+//                //user
+//                "/api/user/signin", "/api/user/signup", "/api/user/refresh",
+//                //setting
+//                "/css/**", "/js/**", "/images/**",
+//                //lol
+//                "/api/lol/user/**", "/api/lol/user/exist/**","/api/lol/boards/**", "/api/lol/summoner/**/**",
+//                //pubg
+//                "/api/pubg/user/**/**", "/api/pubg/user/exist/**/**","/api/pubg/boards/**", "/api/pubg/player/**/**/**",
+//                //overwatch
+//                "/api/overwatch/user/**/**", "/api/overwatch/user/exist/**/**","/api/overwatch/boards/**", "/api/overwatch/player/**/**/**"
+//            ).permitAll()
             .anyRequest().authenticated()
             .and()
             .cors()
