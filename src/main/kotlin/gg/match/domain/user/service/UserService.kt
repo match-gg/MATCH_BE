@@ -24,6 +24,11 @@ class UserService (
     = userRepository.findByOauth2Id(oauth2Id)
 
     @Transactional
+    fun finishedBoard(): String{
+        return ""
+    }
+
+    @Transactional
     fun increaseLike(likeRequestDTO: LikeRequestDTO): Long?{
         var user = getUserByGame(likeRequestDTO)
         return if(user == null) null
