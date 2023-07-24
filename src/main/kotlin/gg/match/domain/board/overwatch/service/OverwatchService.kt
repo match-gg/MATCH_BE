@@ -1,11 +1,9 @@
 package gg.match.domain.board.overwatch.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import gg.match.controller.common.dto.PageResult
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.overwatch.entity.*
-import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.util.EntityUtils
@@ -16,11 +14,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
-import kotlin.collections.HashSet
-import com.google.gson.Gson
 import gg.match.controller.common.entity.Expire
-import gg.match.domain.board.lol.dto.Champion
 import gg.match.domain.board.overwatch.dto.*
 import gg.match.domain.board.overwatch.dto.ReadOverwatchBoardDTO
 import gg.match.domain.board.overwatch.repository.HeroRepository
@@ -129,7 +123,7 @@ class OverwatchService(
     fun saveHeroInfoByBattleNetApi(name: String, battletag: Int) {
         val parser = JSONParser()
         var mostHeroList: List<Pair<String, String>>
-        val request = HttpGet("$serverUrl$name/$battletag/complete")
+        val request = HttpGet("$serverUrl$name-$battletag/complete")
         val response = HttpClientBuilder.create().build().execute(request)
         var responseJson = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
         var rankedJson = responseJson["competitiveStats"] as JSONObject
@@ -225,7 +219,7 @@ class OverwatchService(
     }
 
     fun getHeroIsExist(name: String, battletag: Int): Boolean {
-        val request = HttpGet("$serverUrl$name/$battletag/complete")
+        val request = HttpGet("$serverUrl$name-$battletag/complete")
         val battleNetUser = HttpClientBuilder.create().build().execute(request)
         if(battleNetUser.statusLine.statusCode == 404){
             throw BusinessException(ErrorCode.USER_NOT_FOUND)

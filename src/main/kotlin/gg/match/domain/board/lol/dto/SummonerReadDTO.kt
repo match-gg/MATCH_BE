@@ -16,7 +16,7 @@ class SummonerReadDTO (
     var queueType: String,
 
     @JsonProperty("tier")
-    var tier: String,
+    var tier: String = "",
 
     @JsonProperty("rank")
     var rank: String,

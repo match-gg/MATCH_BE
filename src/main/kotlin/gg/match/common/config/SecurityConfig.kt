@@ -23,7 +23,6 @@ class SecurityConfig(
     @Bean
     fun webSecurityCustomizer(): WebSecurityCustomizer? {
         return WebSecurityCustomizer { web: WebSecurity ->
-//            web.ignoring().antMatchers()
             web.ignoring().antMatchers(
                 //user
                 "/api/user/signin", "/api/user/signup", "/api/user/refresh", "/api/user/health",

@@ -140,6 +140,7 @@ class LoLService(
                 for(i in 0 until userJson.size){
                     var summonerReadDTO: Summoner = objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity()
                     if("TFT" in summonerReadDTO.queueType) continue
+                    if("CHERRY" in summonerReadDTO.queueType) continue
                     summonerRepository.save(summonerReadDTO)
                 }
             }

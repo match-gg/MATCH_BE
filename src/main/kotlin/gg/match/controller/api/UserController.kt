@@ -61,7 +61,7 @@ class UserController(
         return ResponseEntity.ok().body(userService.increaseDislike(likeRequestDTO))
     }
 
-    @PostMapping("/finished")
+    @PostMapping("/finished/{boardId}")
     fun finishedBoard(): ResponseEntity<Any>{
         return ResponseEntity.ok().body(userService.finishedBoard())
     }

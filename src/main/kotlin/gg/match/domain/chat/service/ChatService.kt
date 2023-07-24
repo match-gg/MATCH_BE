@@ -63,7 +63,7 @@ class ChatService (
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         if(nickname?.let { validateMemberByChatRoom(game, board.chatRoomId, it) } == true){
-            throw BusinessException(ErrorCode.USER_DUPLICATED)
+            throw BusinessException(ErrorCode.BAD_REQUEST)
         }
         board.nowUser += 1
         when(game){
@@ -87,7 +87,7 @@ class ChatService (
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         if(validateMemberByChatRoom(game, board.chatRoomId, nickname))
-            throw BusinessException(ErrorCode.USER_DUPLICATED)
+            throw BusinessException(ErrorCode.BAD_REQUEST)
         ChatRoomDTO(board.chatRoomId, nickname, "guest").toEntity()
             ?.let { chatRepository.save(it) }
         board.nowUser += 1
