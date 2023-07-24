@@ -137,10 +137,11 @@ class LoLService(
                 throw BusinessException(ErrorCode.USER_NOT_RANKED)
             }
             else{
+
                 for(i in 0 until userJson.size){
+                    if("TFT" in userJson[i].toString()) continue
+                    if("CHERRY" in userJson[i].toString()) continue
                     var summonerReadDTO: Summoner = objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity()
-                    if("TFT" in summonerReadDTO.queueType) continue
-                    if("CHERRY" in summonerReadDTO.queueType) continue
                     summonerRepository.save(summonerReadDTO)
                 }
             }
