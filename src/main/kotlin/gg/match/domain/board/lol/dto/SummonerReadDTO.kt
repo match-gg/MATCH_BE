@@ -29,7 +29,7 @@ class SummonerReadDTO (
 ) {
     fun makeUnRankedSummoner(): Summoner{
         return Summoner(
-            queueType = "None",
+            queueType = queueType,
             summonerName = summonerName,
             tier = "UNRANKED",
             rank = "UNRANKED",
