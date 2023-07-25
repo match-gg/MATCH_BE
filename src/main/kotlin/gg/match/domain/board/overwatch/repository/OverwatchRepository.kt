@@ -9,12 +9,12 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface OverwatchRepository: JpaRepository<Overwatch, Long> {
-    fun findAllByOrderByIdDesc(pageable: Pageable): Page<Overwatch>
-    fun findAllByPositionOrderByIdDesc(pageable: Pageable, position: Position): Page<Overwatch>
-    fun findAllByTypeOrderByIdDesc(pageable: Pageable, type: Type): Page<Overwatch>
-    fun findAllByTierOrderByIdDesc(pageable: Pageable, tier: Tier): Page<Overwatch>
-    fun findAllByPositionAndTypeOrderByIdDesc(pageable: Pageable, position: Position, type: Type): Page<Overwatch>
-    fun findAllByTypeAndTierOrderByIdDesc(pageable: Pageable, type: Type, tier: Tier): Page<Overwatch>
-    fun findAllByPositionAndTierOrderByIdDesc(pageable: Pageable, position: Position, tier: Tier): Page<Overwatch>
-    fun findAllByPositionAndTypeAndTierOrderByIdDesc(pageable: Pageable, position: Position, type: Type, tier: Tier): Page<Overwatch>
+    fun findAllByOrderByExpiredAscIdDesc(pageable: Pageable): Page<Overwatch>
+    fun findAllByPositionOrderByExpiredAscIdDesc(pageable: Pageable, position: Position): Page<Overwatch>
+    fun findAllByTypeOrderByExpiredAscIdDesc(pageable: Pageable, type: Type): Page<Overwatch>
+    fun findAllByTierOrderByExpiredAscIdDesc(pageable: Pageable, tier: Tier): Page<Overwatch>
+    fun findAllByPositionAndTypeOrderByExpiredAscIdDesc(pageable: Pageable, position: Position, type: Type): Page<Overwatch>
+    fun findAllByTypeAndTierOrderByExpiredAscIdDesc(pageable: Pageable, type: Type, tier: Tier): Page<Overwatch>
+    fun findAllByPositionAndTierOrderByExpiredAscIdDesc(pageable: Pageable, position: Position, tier: Tier): Page<Overwatch>
+    fun findAllByPositionAndTypeAndTierOrderByExpiredAscIdDesc(pageable: Pageable, position: Position, type: Type, tier: Tier): Page<Overwatch>
 }

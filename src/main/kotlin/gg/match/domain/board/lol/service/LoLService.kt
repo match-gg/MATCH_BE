@@ -55,24 +55,24 @@ class LoLService(
         updateExpired()
         //filtering
         if(position == Position.valueOf("ALL") && type == Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-            boards = loLRepository.findAllByOrderByIdDesc(pageable)
+            boards = loLRepository.findAllByOrderByExpiredAscIdDesc(pageable)
         }
         else if(position == Position.valueOf("ALL")){
             boards = if(type == Type.valueOf("ALL") && tier != Tier.valueOf("ALL")){
-                loLRepository.findAllByTierOrderByIdDesc(pageable, tier)
+                loLRepository.findAllByTierOrderByExpiredAscIdDesc(pageable, tier)
             } else if(type != Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-                loLRepository.findAllByTypeOrderByIdDesc(pageable, type)
-            } else loLRepository.findAllByTypeAndTierOrderByIdDesc(pageable, type, tier)
+                loLRepository.findAllByTypeOrderByExpiredAscIdDesc(pageable, type)
+            } else loLRepository.findAllByTypeAndTierOrderByExpiredAscIdDesc(pageable, type, tier)
         }
         else if(type == Type.valueOf("ALL")){
             boards = if(tier == Tier.valueOf("ALL")){
-                loLRepository.findAllByPositionOrderByIdDesc(pageable, position)
-            } else  loLRepository.findAllByPositionAndTierOrderByIdDesc(pageable, position, tier)
+                loLRepository.findAllByPositionOrderByExpiredAscIdDesc(pageable, position)
+            } else  loLRepository.findAllByPositionAndTierOrderByExpiredAscIdDesc(pageable, position, tier)
         }
         else{
             boards = if(tier == Tier.valueOf("ALL")){
-                loLRepository.findAllByPositionAndTypeOrderByIdDesc(pageable, position, type)
-            } else  loLRepository.findAllByPositionAndTypeAndTierOrderByIdDesc(pageable, position, type, tier)
+                loLRepository.findAllByPositionAndTypeOrderByExpiredAscIdDesc(pageable, position, type)
+            } else  loLRepository.findAllByPositionAndTypeAndTierOrderByExpiredAscIdDesc(pageable, position, type, tier)
         }
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)

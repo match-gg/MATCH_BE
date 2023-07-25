@@ -47,24 +47,24 @@ class PubgService(
         updateExpired()
         //filtering
         if(platform == Platform.valueOf("ALL") && type == Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-            boards = pubgRepository.findAllByOrderByIdDesc(pageable)
+            boards = pubgRepository.findAllByOrderByExpiredAscIdDesc(pageable)
         }
         else if(platform == Platform.valueOf("ALL")){
             boards = if(type == Type.valueOf("ALL") && tier != Tier.valueOf("ALL")){
-                pubgRepository.findAllByTierOrderByIdDesc(pageable, tier)
+                pubgRepository.findAllByTierOrderByExpiredAscIdDesc(pageable, tier)
             } else if(type != Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-                pubgRepository.findAllByTypeOrderByIdDesc(pageable, type)
-            } else pubgRepository.findAllByTypeAndTierOrderByIdDesc(pageable, type, tier)
+                pubgRepository.findAllByTypeOrderByExpiredAscIdDesc(pageable, type)
+            } else pubgRepository.findAllByTypeAndTierOrderByExpiredAscIdDesc(pageable, type, tier)
         }
         else if(type == Type.valueOf("ALL")){
             boards = if(tier == Tier.valueOf("ALL")){
-                pubgRepository.findAllByPlatformOrderByIdDesc(pageable, platform)
-            } else  pubgRepository.findAllByPlatformAndTierOrderByIdDesc(pageable, platform, tier)
+                pubgRepository.findAllByPlatformOrderByExpiredAscIdDesc(pageable, platform)
+            } else  pubgRepository.findAllByPlatformAndTierOrderByExpiredAscIdDesc(pageable, platform, tier)
         }
         else{
             boards = if(tier == Tier.valueOf("ALL")){
-                pubgRepository.findAllByPlatformAndTypeOrderByIdDesc(pageable, platform, type)
-            } else  pubgRepository.findAllByPlatformAndTypeAndTierOrderByIdDesc(pageable, platform, type, tier)
+                pubgRepository.findAllByPlatformAndTypeOrderByExpiredAscIdDesc(pageable, platform, type)
+            } else  pubgRepository.findAllByPlatformAndTypeAndTierOrderByExpiredAscIdDesc(pageable, platform, type, tier)
         }
         // boards not found
         if(boards.isEmpty)  throw BusinessException(ErrorCode.NO_BOARD_FOUND)

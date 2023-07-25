@@ -35,6 +35,9 @@ class ReadOverwatchBoardDTO(
     @JsonProperty("expired")
     var expired: String,
 
+    @JsonProperty("finished")
+    var finished: String,
+
     @JsonProperty("created")
     var created: LocalDateTime,
 

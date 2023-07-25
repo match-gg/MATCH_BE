@@ -49,6 +49,7 @@ class Pubg(
             content = content,
             expire = expire,
             expired = expired,
+            finished = finished,
             created = created,
             author = player,
             chatRoomId = chatRoomId,

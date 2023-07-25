@@ -47,6 +47,7 @@ class Overwatch(
             content = content,
             expire = expire,
             expired = expired,
+            finished = finished,
             created = created,
             author = hero,
             chatRoomId = chatRoomId,

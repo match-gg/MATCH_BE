@@ -41,24 +41,24 @@ class OverwatchService(
         updateExpired()
         //filtering
         if(position == Position.valueOf("ALL") && type == Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-            boards = overwatchRepository.findAllByOrderByIdDesc(pageable)
+            boards = overwatchRepository.findAllByOrderByExpiredAscIdDesc(pageable)
         }
         else if(position == Position.valueOf("ALL")){
             boards = if(type == Type.valueOf("ALL") && tier != Tier.valueOf("ALL")){
-                overwatchRepository.findAllByTierOrderByIdDesc(pageable, tier)
+                overwatchRepository.findAllByTierOrderByExpiredAscIdDesc(pageable, tier)
             } else if(type != Type.valueOf("ALL") && tier == Tier.valueOf("ALL")){
-                overwatchRepository.findAllByTypeOrderByIdDesc(pageable, type)
-            } else overwatchRepository.findAllByTypeAndTierOrderByIdDesc(pageable, type, tier)
+                overwatchRepository.findAllByTypeOrderByExpiredAscIdDesc(pageable, type)
+            } else overwatchRepository.findAllByTypeAndTierOrderByExpiredAscIdDesc(pageable, type, tier)
         }
         else if(type == Type.valueOf("ALL")){
             boards = if(tier == Tier.valueOf("ALL")){
-                overwatchRepository.findAllByPositionOrderByIdDesc(pageable, position)
-            } else  overwatchRepository.findAllByPositionAndTierOrderByIdDesc(pageable, position, tier)
+                overwatchRepository.findAllByPositionOrderByExpiredAscIdDesc(pageable, position)
+            } else  overwatchRepository.findAllByPositionAndTierOrderByExpiredAscIdDesc(pageable, position, tier)
         }
         else{
             boards = if(tier == Tier.valueOf("ALL")){
-                overwatchRepository.findAllByPositionAndTypeOrderByIdDesc(pageable, position, type)
-            } else  overwatchRepository.findAllByPositionAndTypeAndTierOrderByIdDesc(pageable, position, type, tier)
+                overwatchRepository.findAllByPositionAndTypeOrderByExpiredAscIdDesc(pageable, position, type)
+            } else  overwatchRepository.findAllByPositionAndTypeAndTierOrderByExpiredAscIdDesc(pageable, position, type, tier)
         }
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
