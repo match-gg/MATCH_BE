@@ -22,15 +22,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.collections.HashSet
 import com.google.gson.Gson
-import gg.match.common.entity.BoardBaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Page
-import org.springframework.data.jpa.repository.Query
-import org.springframework.util.ReflectionUtils
 import java.time.LocalDateTime
 
 @Service
@@ -134,10 +131,10 @@ class LoLService(
             val responseSummoner: HttpResponse = HttpClientBuilder.create().build().execute(request)
             var userJson = parser.parse(EntityUtils.toString(responseSummoner.entity, "UTF-8")) as JSONArray
             if(userJson.isEmpty()){
-                throw BusinessException(ErrorCode.USER_NOT_RANKED)
+                var unRankedSummoner = SummonerReadDTO(nickname, "", "", "", 0, 0, 0)
+                summonerRepository.save(unRankedSummoner.makeUnRankedSummoner())
             }
             else{
-
                 for(i in 0 until userJson.size){
                     if("TFT" in userJson[i].toString()) continue
                     if("CHERRY" in userJson[i].toString()) continue

@@ -1,6 +1,7 @@
 package gg.match.controller.api
 
 import gg.match.common.annotation.CurrentUser
+import gg.match.common.dto.TotalUserRequestDTO
 import gg.match.domain.chat.dto.ChatRoomListDTO
 import gg.match.domain.chat.dto.ChatRoomRequestDTO
 import gg.match.domain.chat.service.ChatService
@@ -45,7 +46,17 @@ class ChatController(
     }
 
     @DeleteMapping("/{game}/{id}/{nickname}/ban")
-    fun banMember(@PathVariable game: String, @PathVariable id: Long, @PathVariable nickname: String): ResponseEntity<Any> {
+    fun banMember(@PathVariable game: String, @PathVariable id: Long, @PathVariable nickname: String): ResponseEntity<Any>{
         return ResponseEntity.ok(chatService.banMember(Game.valueOf(game.uppercase()), id, nickname))
+    }
+
+    @PutMapping("/{game}/{id}")
+    fun changeTotalUser(@PathVariable game: String, @PathVariable id: Long, @RequestBody totalUserRequestDTO: TotalUserRequestDTO): ResponseEntity<Any>{
+        return ResponseEntity.ok(chatService.changeTotalUser(Game.valueOf(game.uppercase()), id, totalUserRequestDTO.totalUser))
+    }
+
+    @PostMapping("/{game}/{id}/finish")
+    fun startGame(@PathVariable game: String, @PathVariable id: Long): ResponseEntity<Any>{
+        return ResponseEntity.ok(chatService.startGame(Game.valueOf(game.uppercase()), id))
     }
 }

@@ -121,6 +121,7 @@ class OverwatchService(
 
     @Transactional
     fun saveHeroInfoByBattleNetApi(name: String, battletag: Long) {
+        deleteOldHero(name, battletag)
         val parser = JSONParser()
         var mostHeroList: List<Pair<String, String>>
         val request = HttpGet("$serverUrl$name-$battletag/complete")
@@ -183,7 +184,7 @@ class OverwatchService(
         normalHero.losses = (playNormalGames["played"] as Long) - normalHero.wins
         normalHero.kills = normalCombat["eliminations"] as Long
         normalHero.deaths = normalCombat["deaths"] as Long
-        
+
         //most Hero 추출 by normal
         mostHeroList = getMostHeroes(normalCareerStats)
         normalHero.most1Hero = mostHeroList[0].first
@@ -194,7 +195,6 @@ class OverwatchService(
     }
 
     fun getMostHeroes(careerStats: JSONObject): List<Pair<String, String>> {
-        var heroList = mutableListOf<String>()
         var returnData = mutableListOf<Pair<String, String>>()
         var pair: Pair<String, String>
         var hero: JSONObject
@@ -270,6 +270,13 @@ class OverwatchService(
             if(expiredTime.isBefore(now)) {
                 boards[i].update("true")
             }
+        }
+    }
+
+    @Transactional
+    fun deleteOldHero(name: String, battletag: Long){
+        if(heroRepository.existsByNameAndBattletag(name, battletag)){
+            heroRepository.deleteByNameAndBattletag(name, battletag)
         }
     }
 }

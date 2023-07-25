@@ -6,9 +6,6 @@ import gg.match.domain.board.lol.entity.Summoner
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class SummonerReadDTO (
-    @JsonProperty("id")
-    var id: Long,
-
     @JsonProperty("summonerName")
     var summonerName: String,
 
@@ -30,6 +27,17 @@ class SummonerReadDTO (
     @JsonProperty("losses")
     var losses: Int
 ) {
+    fun makeUnRankedSummoner(): Summoner{
+        return Summoner(
+            queueType = "None",
+            summonerName = summonerName,
+            tier = "UNRANKED",
+            rank = "UNRANKED",
+            leaguePoints = 0,
+            wins = 0,
+            losses = 0
+        )
+    }
     fun toEntity(): Summoner{
         return Summoner(
             queueType = queueType,

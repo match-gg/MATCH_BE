@@ -140,8 +140,31 @@ class ChatService (
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
+        board.nowUser -= 1
         var user = chatRepository.findByChatRoomIdAndAndNickname(board.chatRoomId, nickname)
         user.update(ChatRoomDTO(user.chatRoomId, user.nickname, user.oauth2Id))
+    }
+
+    @Transactional
+    fun startGame(game: Game, id: Long){
+        var board = when(game){
+            Game.LOL -> getBoardByGame(game, id) as LoL
+            Game.PUBG -> getBoardByGame(game, id) as Pubg
+            Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+        board.finished = "true"
+    }
+
+    @Transactional
+    fun changeTotalUser(game: Game, id: Long, totalUser: Int){
+        var board = when(game){
+            Game.LOL -> getBoardByGame(game, id) as LoL
+            Game.PUBG -> getBoardByGame(game, id) as Pubg
+            Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+        board.totalUser = totalUser
     }
 
     fun validateMemberByChatRoom(game: Game, chatRoomId: String, nickname: String): Boolean{
