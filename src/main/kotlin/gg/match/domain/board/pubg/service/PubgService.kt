@@ -143,7 +143,7 @@ class PubgService(
 
     @Transactional
     fun savePlayerInfo(nickname: String, account: String, platform: Platform) {
-        val request = HttpGet("https://api.pubg.com/shards/${platform.toString().lowercase()}/players/$account/seasons/division.bro.official.pc-2018-19")
+        val request = HttpGet("https://api.pubg.com/shards/${platform.toString().lowercase()}/players/$account/seasons/division.bro.official.pc-2018-24")
         val responseJson = getResponse(request)
         val dataJson = responseJson["data"] as JSONObject
         val attributes = dataJson["attributes"] as JSONObject
@@ -178,7 +178,7 @@ class PubgService(
 
     @Transactional
     fun saveRankedSquadInfo(nickname: String, account: String, platform: Platform){
-        val request = HttpGet("https://api.pubg.com/shards/${platform.toString().lowercase()}/players/$account/seasons/division.bro.official.pc-2018-19/ranked")
+        val request = HttpGet("https://api.pubg.com/shards/${platform.toString().lowercase()}/players/$account/seasons/division.bro.official.pc-2018-24/ranked")
         val responseJson = getResponse(request)
         val dataJson = responseJson["data"] as JSONObject
         val attributes = dataJson["attributes"] as JSONObject
