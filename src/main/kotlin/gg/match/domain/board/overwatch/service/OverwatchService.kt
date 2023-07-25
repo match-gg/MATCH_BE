@@ -138,7 +138,6 @@ class OverwatchService(
         val rankedCombat = rankedAllHeroes["combat"] as JSONObject
         val normalCombat = normalAllHeroes["combat"] as JSONObject
         val ratings = responseJson["ratings"] as JSONArray
-
         val i = ratings.size
 
         val rankedHero = Hero(
@@ -151,6 +150,18 @@ class OverwatchService(
             kills = rankedCombat["eliminations"] as Long,
             deaths = rankedCombat["deaths"] as Long
         )
+
+        val normalHero = Hero(
+            0,
+            responseJson["name"] as String,
+            battletag,
+            Type.NORMAL,
+            wins = playNormalGames["won"] as Long,
+            losses = (playNormalGames["played"] as Long) - (playNormalGames["won"] as Long),
+            kills = normalCombat["eliminations"] as Long,
+            deaths = normalCombat["deaths"] as Long
+        )
+
         //position별 tier 분류
         for (j in 0 until i) {
             val rating = ratings[j] as JSONObject
@@ -178,18 +189,18 @@ class OverwatchService(
 
         heroRepository.save(rankedHero)
 
-        rankedHero.wins = playNormalGames["won"] as Long
-        rankedHero.losses = (playNormalGames["played"] as Long) - rankedHero.wins
-        rankedHero.kills = normalCombat["eliminations"] as Long
-        rankedHero.deaths = normalCombat["deaths"] as Long
+        normalHero.wins = playNormalGames["won"] as Long
+        normalHero.losses = (playNormalGames["played"] as Long) - rankedHero.wins
+        normalHero.kills = normalCombat["eliminations"] as Long
+        normalHero.deaths = normalCombat["deaths"] as Long
 
         //most Hero 추출 by normal
         mostHeroList = getMostHeroes(normalCareerStats)
-        rankedHero.most1Hero = mostHeroList[0].first
-        rankedHero.most2Hero = mostHeroList[1].first
-        rankedHero.most3Hero = mostHeroList[2].first
+        normalHero.most1Hero = mostHeroList[0].first
+        normalHero.most2Hero = mostHeroList[1].first
+        normalHero.most3Hero = mostHeroList[2].first
 
-        heroRepository.save(rankedHero)
+        heroRepository.save(normalHero)
     }
 
     fun getMostHeroes(careerStats: JSONObject): List<Pair<String, Int>> {
@@ -206,16 +217,15 @@ class OverwatchService(
             val timeArr = time.split(":")
             val playSec = when(timeArr.size){
                 1 -> timeArr[0].toInt()
-                2 -> timeArr[1].toInt()*60 + timeArr[0].toInt()
-                3 -> timeArr[2].toInt() * 3600 + timeArr[1].toInt()*60 + timeArr[0].toInt()
+                2 -> timeArr[0].toInt()*60 + timeArr[1].toInt()
+                3 -> timeArr[0].toInt() * 3600 + timeArr[1].toInt()*60 + timeArr[2].toInt()
                 else -> 0
             }
             pair = Pair(i.toString(), playSec)
             returnData.add(pair)
         }
-        returnData.toList().sortedByDescending { it.second }
-
-        return returnData
+        returnData.removeIf{ it.first == "allHeroes" }
+        return returnData.sortedByDescending { it.second }
     }
 
     fun getHeroIsExist(name: String, battletag: Long): Boolean {
