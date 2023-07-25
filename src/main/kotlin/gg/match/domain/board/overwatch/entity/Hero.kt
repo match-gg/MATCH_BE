@@ -12,7 +12,7 @@ class Hero(
 
     var name: String,
 
-    var battletag: Int,
+    var battletag: Long,
 
     var type: Type,
 

@@ -8,7 +8,7 @@ data class HeroResponseDTO(
     val name: String,
 
     @JsonProperty("battletag")
-    val battletag: Int,
+    val battletag: Long,
 
     @JsonProperty("type")
     val type: Type,

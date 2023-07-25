@@ -111,7 +111,7 @@ class OverwatchService(
         }
     }
 
-    fun getHeroInfo(name: String, battletag: Int, type: Type): HeroResponseDTO{
+    fun getHeroInfo(name: String, battletag: Long, type: Type): HeroResponseDTO{
         return try{
             heroRepository.findByNameAndBattletagAndType(name, battletag, type).toHeroResponseDTO()
         } catch (e: Exception){
@@ -120,7 +120,7 @@ class OverwatchService(
     }
 
     @Transactional
-    fun saveHeroInfoByBattleNetApi(name: String, battletag: Int) {
+    fun saveHeroInfoByBattleNetApi(name: String, battletag: Long) {
         val parser = JSONParser()
         var mostHeroList: List<Pair<String, String>>
         val request = HttpGet("$serverUrl$name-$battletag/complete")
@@ -218,7 +218,7 @@ class OverwatchService(
         return returnData
     }
 
-    fun getHeroIsExist(name: String, battletag: Int): Boolean {
+    fun getHeroIsExist(name: String, battletag: Long): Boolean {
         val request = HttpGet("$serverUrl$name-$battletag/complete")
         val battleNetUser = HttpClientBuilder.create().build().execute(request)
         if(battleNetUser.statusLine.statusCode == 404){
