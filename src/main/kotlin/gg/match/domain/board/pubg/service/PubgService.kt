@@ -71,8 +71,8 @@ class PubgService(
         result = PageResult.ok(boards.map { it.toReadPubgBoardDTO(playerRepository.findByNameAndPlatformAndType(it.name, it.platform, it.type), getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
-            var playername = boards.content[i].name
-            result.content[i].author = getPlayerByPlatformAndType(playername, boards.content[i].platform, boards.content[i].type)
+            val playerName = boards.content[i].name
+            result.content[i].author = getPlayerByPlatformAndType(playerName, boards.content[i].platform, boards.content[i].type)
         }
         return result
     }
@@ -121,7 +121,7 @@ class PubgService(
     //배그에서 플레이어 정보 가져와 저장하기 (현재 시즌 user가 없는 관계로 우선 19시즌으로 작업)
     @Transactional
     fun getPlayerInfoByPubgApi(nickname: String, platform: Platform){
-        var account = getPlayerAccountId(nickname, platform)
+        val account = getPlayerAccountId(nickname, platform)
         savePlayerInfo(nickname, account, platform)
     }
 
@@ -132,9 +132,9 @@ class PubgService(
                     platform.toString().lowercase()
                 }/players?filter[playerNames]=${nickname}"
             )
-            var responseJson = getResponse(request)
-            var dataJson = responseJson["data"] as JSONArray
-            var idInfo = dataJson[0] as JSONObject
+            val responseJson = getResponse(request)
+            val dataJson = responseJson["data"] as JSONArray
+            val idInfo = dataJson[0] as JSONObject
             return idInfo["id"] as String
         } catch (e: Exception) {
             throw BusinessException(ErrorCode.USER_NOT_FOUND)
@@ -144,7 +144,7 @@ class PubgService(
     @Transactional
     fun savePlayerInfo(nickname: String, account: String, platform: Platform) {
         val request = HttpGet("https://api.pubg.com/shards/${platform.toString().lowercase()}/players/$account/seasons/division.bro.official.pc-2018-19")
-        var responseJson = getResponse(request)
+        val responseJson = getResponse(request)
         val dataJson = responseJson["data"] as JSONObject
         val attributes = dataJson["attributes"] as JSONObject
         val gameModeStats = attributes["gameModeStats"] as JSONObject
@@ -155,20 +155,20 @@ class PubgService(
         }
 
         //save duo info
-        var duo = gameModeStats["duo"] as JSONObject
+        val duo = gameModeStats["duo"] as JSONObject
         duo["tier"] = "None"
         duo["subTier"] = "None"
         duo["currentRankPoint"] = 0
-        var playerByDuo: Player = objectMapper.readValue(duo.toString(), PlayerReadDTO::class.java)
+        val playerByDuo: Player = objectMapper.readValue(duo.toString(), PlayerReadDTO::class.java)
             .toEntity(nickname, platform, Type.DUO)
         playerRepository.save(playerByDuo)
 
         //save squad info
-        var squad = gameModeStats["squad"] as JSONObject
+        val squad = gameModeStats["squad"] as JSONObject
         squad["tier"] = "None"
         squad["subTier"] = "None"
         squad["currentRankPoint"] = 0
-        var playerBySquad: Player = objectMapper.readValue(squad.toString(), PlayerReadDTO::class.java)
+        val playerBySquad: Player = objectMapper.readValue(squad.toString(), PlayerReadDTO::class.java)
             .toEntity(nickname, platform, Type.SQUAD)
         playerRepository.save(playerBySquad)
 
@@ -179,20 +179,20 @@ class PubgService(
     @Transactional
     fun saveRankedSquadInfo(nickname: String, account: String, platform: Platform){
         val request = HttpGet("https://api.pubg.com/shards/${platform.toString().lowercase()}/players/$account/seasons/division.bro.official.pc-2018-19/ranked")
-        var responseJson = getResponse(request)
+        val responseJson = getResponse(request)
         val dataJson = responseJson["data"] as JSONObject
         val attributes = dataJson["attributes"] as JSONObject
         val rankedGameModeStats = attributes["rankedGameModeStats"] as JSONObject
-        var squad = rankedGameModeStats["squad"] as JSONObject?
+        val squad = rankedGameModeStats["squad"] as JSONObject?
         if(squad == null){
             val player = Player(0, platform, nickname, "None", "None", 0, Type.RANKED_SQUAD, 0, 0, 0F, 0, 0, 0)
             playerRepository.save(player)
             return
         }
-        var currentTier = squad["currentTier"] as JSONObject
+        val currentTier = squad["currentTier"] as JSONObject
         squad["tier"] = currentTier["tier"] as String
         squad["subTier"] = currentTier["subTier"] as String
-        var playerByRankedSquad: Player = objectMapper.readValue(squad.toString(), PlayerReadDTO::class.java)
+        val playerByRankedSquad: Player = objectMapper.readValue(squad.toString(), PlayerReadDTO::class.java)
             .toEntity(nickname, platform, Type.RANKED_SQUAD)
         playerRepository.save(playerByRankedSquad)
     }
@@ -210,7 +210,7 @@ class PubgService(
     fun getMemberList(boardId: Long): List<String>{
         val board = pubgRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
-        var memberList = mutableListOf<String>()
+        val memberList = mutableListOf<String>()
         for(element in chatRooms){
             if(element.oauth2Id == "banned")   continue
             element.nickname?.let { memberList.add(it) }
@@ -221,7 +221,7 @@ class PubgService(
     fun getBanList(boardId: Long): List<String>{
         val board = pubgRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomIdAndOauth2Id(board.get().chatRoomId, "banned")
-        var banList = mutableListOf<String>()
+        val banList = mutableListOf<String>()
         for(element in chatRooms){
             element.nickname?.let { banList.add(it) }
         }

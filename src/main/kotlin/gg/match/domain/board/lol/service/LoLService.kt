@@ -122,53 +122,44 @@ class LoLService(
         val responseUser = getUserInfoByRiotApi(nickname)
         val responseUserId = responseUser["id"] as String
         val responseUserName = responseUser["name"] as String
-        val championList: List<Pair<String, Int>>
-        var summoner: Summoner
-        var summonerByName: Summoner
-        if (responseUserId != null) {
-            isNicknameExist(responseUserName)
-            val request = HttpGet("$serverUrl/lol/league/v4/entries/by-summoner/$responseUserId?api_key=$lolApiKey")
-            val responseSummoner: HttpResponse = HttpClientBuilder.create().build().execute(request)
-            var userJson = parser.parse(EntityUtils.toString(responseSummoner.entity, "UTF-8")) as JSONArray
-            if(userJson.isEmpty()){
-                var unRankedSummoner = SummonerReadDTO(nickname, "None", "", "", 0, 0, 0)
-                summonerRepository.save(unRankedSummoner.makeUnRankedSummoner())
+        val summoner: Summoner
+        val summonerByName: Summoner
+        isNicknameExist(responseUserName)
+        val request = HttpGet("$serverUrl/lol/league/v4/entries/by-summoner/$responseUserId?api_key=$lolApiKey")
+        val responseSummoner: HttpResponse = HttpClientBuilder.create().build().execute(request)
+        val userJson = parser.parse(EntityUtils.toString(responseSummoner.entity, "UTF-8")) as JSONArray
+        if(userJson.isEmpty()){
+            val unRankedSummoner = SummonerReadDTO(nickname, "None", "", "", 0, 0, 0)
+            summonerRepository.save(unRankedSummoner.makeUnRankedSummoner())
+        }
+        else{
+            for(i in 0 until userJson.size){
+                if("TFT" in userJson[i].toString()) continue
+                if("CHERRY" in userJson[i].toString()) continue
+                if("RANKED_FLEX_SR" !in userJson[i].toString()){
+                    val urFLEX = SummonerReadDTO(nickname, "RANKED_FLEX_SR", "", "", 0, 0, 0)
+                    summonerRepository.save(urFLEX.makeUnRankedSummoner())
+                }
+                else if("RANKED_SOLO_5x5" !in userJson[i].toString()){
+                    val urSOLO = SummonerReadDTO(nickname, "RANKED_SOLO_5x5", "", "", 0, 0, 0)
+                    summonerRepository.save(urSOLO.makeUnRankedSummoner())
+                }
+                val summonerReadDTO: Summoner = objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity()
+                summonerRepository.save(summonerReadDTO)
             }
-            else{
-                for(i in 0 until userJson.size){
-                    if("TFT" in userJson[i].toString()) continue
-                    if("CHERRY" in userJson[i].toString()) continue
-                    if("RANKED_FLEX_SR" !in userJson[i].toString()){
-                        var urFLEX = SummonerReadDTO(nickname, "RANKED_FLEX_SR", "", "", 0, 0, 0)
-                        summonerRepository.save(urFLEX.makeUnRankedSummoner())
-                    }
-                    else if("RANKED_SOLO_5x5" !in userJson[i].toString()){
-                        var urSOLO = SummonerReadDTO(nickname, "RANKED_SOLO_5x5", "", "", 0, 0, 0)
-                        summonerRepository.save(urSOLO.makeUnRankedSummoner())
-                    }
-                    var summonerReadDTO: Summoner = objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity()
-                    summonerRepository.save(summonerReadDTO)
-                }
+        }
+        val championList: List<Pair<String, Int>> = getMostChampions(responseUserName)
+        when(summonerRepository.countBySummonerName(responseUserName)) {
+            0L -> return
+            1L -> {
+                summonerByName = summonerRepository.findBySummonerName(responseUserName)
+                summonerByName.updateChampion(championList)
             }
-            championList = getMostChampions(responseUserName)
-            when(summonerRepository.countBySummonerName(responseUserName)) {
-                0L -> return
-                1L -> {
-                    summonerByName = summonerRepository.findBySummonerName(responseUserName)
-                    if (summonerByName != null) {
-                        summonerByName.updateChampion(championList)
-                    }
-                }
-                2L -> {
-                    summonerByName = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_FLEX_SR")
-                    summoner = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_SOLO_5x5")
-                    if(summonerByName != null){
-                        summonerByName.updateChampion(championList)
-                    }
-                    if(summoner != null){
-                        summoner.updateChampion(championList)
-                    }
-                }
+            2L -> {
+                summonerByName = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_FLEX_SR")
+                summoner = summonerRepository.findBySummonerNameAndQueueType(responseUserName, "RANKED_SOLO_5x5")
+                summonerByName.updateChampion(championList)
+                summoner.updateChampion(championList)
             }
         }
     }
@@ -203,15 +194,15 @@ class LoLService(
 
     fun getMostChampions(summonerName: String): List<Pair<String, Int>> {
         val matchListJson = getMatchList(summonerName)
-        var usingChampionList = mutableListOf<String>()
-        var mostLane = mutableListOf<String>()
-        var championMap = mutableMapOf<String, Int>()
-        var laneMap = mutableMapOf<String, Int>()
+        val usingChampionList = mutableListOf<String>()
+        val mostLane = mutableListOf<String>()
+        val championMap = mutableMapOf<String, Int>()
+        val laneMap = mutableMapOf<String, Int>()
         for(i in 0 until matchListJson.size){
             if(championByMatchRepository.existsByMatchIdAndSummonerName(matchListJson[i] as String, summonerName)) continue
             getChampionInMatchBySummonerName(matchListJson[i] as String)
         }
-        var championList: List<Champion> = championByMatchRepository.findAllBySummonerName(summonerName)
+        val championList: List<Champion> = championByMatchRepository.findAllBySummonerName(summonerName)
         if(championList.isEmpty()){
             return listOf(Pair("poro", 1))
         }
@@ -219,8 +210,8 @@ class LoLService(
             usingChampionList.add(element.champion)
             mostLane.add(element.mostLane)
         }
-        var championSet: Set<String> = HashSet<String>(usingChampionList)
-        var laneSet: Set<String> = HashSet<String>(mostLane)
+        val championSet: Set<String> = HashSet<String>(usingChampionList)
+        val laneSet: Set<String> = HashSet<String>(mostLane)
 
         for(championName: String in championSet)
             championMap[championName] = Collections.frequency(usingChampionList, championName)
@@ -232,7 +223,7 @@ class LoLService(
         val laneMapToList = laneMap.toList().sortedByDescending { it.second }
 
         //save most lane in summoner
-        var summonerList = summonerRepository.findAllBySummonerName(summonerName)
+        val summonerList = summonerRepository.findAllBySummonerName(summonerName)
         for(element in summonerList) {
             element.updateLane(laneMapToList[0].first)
         }
@@ -256,10 +247,10 @@ class LoLService(
             throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         val jsonString = EntityUtils.toString(response.entity, "UTF-8")
-        var gson = Gson()
-        var sample = gson.fromJson(jsonString, MatchDTO::class.java)
+        val gson = Gson()
+        val sample = gson.fromJson(jsonString, MatchDTO::class.java)
         if(sample.info.gameMode == "ARAM")  return
-        var championByMatch = ChampionByMatchDTO(
+        val championByMatch = ChampionByMatchDTO(
             summonerName,
             sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0],
             matchId,
@@ -271,7 +262,7 @@ class LoLService(
     fun getMemberList(boardId: Long): List<String>{
         val board = loLRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
-        var memberList = mutableListOf<String>()
+        val memberList = mutableListOf<String>()
         for(element in chatRooms){
             if(element.oauth2Id == "banned")   continue
             element.nickname?.let { memberList.add(it) }
@@ -282,7 +273,7 @@ class LoLService(
     fun getBanList(boardId: Long): List<String>{
         val board = loLRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomIdAndOauth2Id(board.get().chatRoomId, "banned")
-        var banList = mutableListOf<String>()
+        val banList = mutableListOf<String>()
         for(element in chatRooms){
             element.nickname?.let { banList.add(it) }
         }

@@ -63,7 +63,7 @@ class OverwatchService(
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
 
-        var result = PageResult.ok(boards.map { it.toReadOverwatchBoardDTO(heroRepository.findByName(it.name).toHeroResponseDTO(), getMemberList(it.id), getBanList(it.id))})
+        val result = PageResult.ok(boards.map { it.toReadOverwatchBoardDTO(heroRepository.findByName(it.name).toHeroResponseDTO(), getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
             name = boards.content[i].name
@@ -123,25 +123,25 @@ class OverwatchService(
     fun saveHeroInfoByBattleNetApi(name: String, battletag: Long) {
         deleteOldHero(name, battletag)
         val parser = JSONParser()
-        var mostHeroList: List<Pair<String, String>>
+        var mostHeroList: List<Pair<String, Int>>
         val request = HttpGet("$serverUrl$name-$battletag/complete")
         val response = HttpClientBuilder.create().build().execute(request)
-        var responseJson = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
-        var rankedJson = responseJson["competitiveStats"] as JSONObject
-        var normalJson = responseJson["quickPlayStats"] as JSONObject
-        var playRankedGames = rankedJson["games"] as JSONObject
-        var playNormalGames = normalJson["games"] as JSONObject
-        var rankedCareerStats = rankedJson["careerStats"] as JSONObject
-        var normalCareerStats = normalJson["careerStats"] as JSONObject
-        var rankedAllHeroes = rankedCareerStats["allHeroes"] as JSONObject
-        var normalAllHeroes = normalCareerStats["allHeroes"] as JSONObject
-        var rankedCombat = rankedAllHeroes["combat"] as JSONObject
-        var normalCombat = normalAllHeroes["combat"] as JSONObject
-        var ratings = responseJson["ratings"] as JSONArray
+        val responseJson = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
+        val rankedJson = responseJson["competitiveStats"] as JSONObject
+        val normalJson = responseJson["quickPlayStats"] as JSONObject
+        val playRankedGames = rankedJson["games"] as JSONObject
+        val playNormalGames = normalJson["games"] as JSONObject
+        val rankedCareerStats = rankedJson["careerStats"] as JSONObject
+        val normalCareerStats = normalJson["careerStats"] as JSONObject
+        val rankedAllHeroes = rankedCareerStats["allHeroes"] as JSONObject
+        val normalAllHeroes = normalCareerStats["allHeroes"] as JSONObject
+        val rankedCombat = rankedAllHeroes["combat"] as JSONObject
+        val normalCombat = normalAllHeroes["combat"] as JSONObject
+        val ratings = responseJson["ratings"] as JSONArray
 
-        var i = ratings.size
+        val i = ratings.size
 
-        var rankedHero = Hero(
+        val rankedHero = Hero(
             0,
             responseJson["name"] as String,
             battletag,
@@ -152,10 +152,9 @@ class OverwatchService(
             deaths = rankedCombat["deaths"] as Long
         )
         //position별 tier 분류
-        for(j in 0 until i) {
-            var rating = ratings[j] as JSONObject
-            var role = rating["role"] as String
-            when(role){
+        for (j in 0 until i) {
+            val rating = ratings[j] as JSONObject
+            when (rating["role"] as String) {
                 "tank" -> {
                     rankedHero.tank_tier = rating["group"].toString()
                     rankedHero.tank_rank = rating["tier"].toString()
@@ -179,24 +178,23 @@ class OverwatchService(
 
         heroRepository.save(rankedHero)
 
-        var normalHero = rankedHero
-        normalHero.wins = playNormalGames["won"] as Long
-        normalHero.losses = (playNormalGames["played"] as Long) - normalHero.wins
-        normalHero.kills = normalCombat["eliminations"] as Long
-        normalHero.deaths = normalCombat["deaths"] as Long
+        rankedHero.wins = playNormalGames["won"] as Long
+        rankedHero.losses = (playNormalGames["played"] as Long) - rankedHero.wins
+        rankedHero.kills = normalCombat["eliminations"] as Long
+        rankedHero.deaths = normalCombat["deaths"] as Long
 
         //most Hero 추출 by normal
         mostHeroList = getMostHeroes(normalCareerStats)
-        normalHero.most1Hero = mostHeroList[0].first
-        normalHero.most2Hero = mostHeroList[1].first
-        normalHero.most3Hero = mostHeroList[2].first
+        rankedHero.most1Hero = mostHeroList[0].first
+        rankedHero.most2Hero = mostHeroList[1].first
+        rankedHero.most3Hero = mostHeroList[2].first
 
-        heroRepository.save(normalHero)
+        heroRepository.save(rankedHero)
     }
 
-    fun getMostHeroes(careerStats: JSONObject): List<Pair<String, String>> {
-        var returnData = mutableListOf<Pair<String, String>>()
-        var pair: Pair<String, String>
+    fun getMostHeroes(careerStats: JSONObject): List<Pair<String, Int>> {
+        val returnData = mutableListOf<Pair<String, Int>>()
+        var pair: Pair<String, Int>
         var hero: JSONObject
         var game: JSONObject
         var time: String
@@ -205,7 +203,14 @@ class OverwatchService(
             hero = careerStats[i] as JSONObject
             game = hero["game"] as JSONObject
             time = game["timePlayed"] as String
-            pair = Pair(i.toString(), time)
+            val timeArr = time.split(":")
+            val playSec = when(timeArr.size){
+                1 -> timeArr[0].toInt()
+                2 -> timeArr[1].toInt()*60 + timeArr[0].toInt()
+                3 -> timeArr[2].toInt() * 3600 + timeArr[1].toInt()*60 + timeArr[0].toInt()
+                else -> 0
+            }
+            pair = Pair(i.toString(), playSec)
             returnData.add(pair)
         }
         returnData.toList().sortedByDescending { it.second }
@@ -228,7 +233,7 @@ class OverwatchService(
     fun getMemberList(boardId: Long): List<String>{
         val board = overwatchRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
-        var memberList = mutableListOf<String>()
+        val memberList = mutableListOf<String>()
         for(element in chatRooms){
             if(element.oauth2Id == "banned")   continue
             element.nickname?.let { memberList.add(it) }
@@ -239,7 +244,7 @@ class OverwatchService(
     fun getBanList(boardId: Long): List<String>{
         val board = overwatchRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomIdAndOauth2Id(board.get().chatRoomId, "banned")
-        var banList = mutableListOf<String>()
+        val banList = mutableListOf<String>()
         for(element in chatRooms){
             element.nickname?.let { banList.add(it) }
         }
