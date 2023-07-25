@@ -28,13 +28,13 @@ class Hero(
 
     var support_rank: String = "none",
 
-    var wins: Int,
+    var wins: Long,
 
-    var losses: Int,
+    var losses: Long,
 
-    var kills: Int,
+    var kills: Long,
 
-    var deaths: Int,
+    var deaths: Long,
 
     var most1Hero: String = "none",
 

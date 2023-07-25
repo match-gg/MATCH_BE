@@ -32,16 +32,16 @@ data class HeroResponseDTO(
     val support_rank: String,
 
     @JsonProperty("wins")
-    val wins: Int,
+    val wins: Long,
 
     @JsonProperty("losses")
-    val losses: Int,
+    val losses: Long,
 
     @JsonProperty("kills")
-    val kills: Int,
+    val kills: Long,
 
     @JsonProperty("deaths")
-    val deaths: Int,
+    val deaths: Long,
 
     @JsonProperty("mostHero")
     var mostHero: List<String>

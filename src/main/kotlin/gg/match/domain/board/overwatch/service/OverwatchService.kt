@@ -145,33 +145,31 @@ class OverwatchService(
             responseJson["name"] as String,
             battletag,
             Type.RANKED,
-            wins = playRankedGames["won"] as Int,
-            losses = (playRankedGames["played"] as Int) - (playRankedGames["won"] as Int),
-            kills = rankedCombat["eliminations"] as Int,
-            deaths = rankedCombat["deaths"] as Int
+            wins = playRankedGames["won"] as Long,
+            losses = (playRankedGames["played"] as Long) - (playRankedGames["won"] as Long),
+            kills = rankedCombat["eliminations"] as Long,
+            deaths = rankedCombat["deaths"] as Long
         )
-        
         //position별 tier 분류
-        for(j in 0..i) {
+        for(j in 0 until i) {
             var rating = ratings[j] as JSONObject
             var role = rating["role"] as String
             when(role){
                 "tank" -> {
-                    rankedHero.tank_tier = rating["group"] as String
-                    rankedHero.tank_rank = rating["tier"] as String
+                    rankedHero.tank_tier = rating["group"].toString()
+                    rankedHero.tank_rank = rating["tier"].toString()
                 }
                 "offense" -> {
-                    rankedHero.damage_tier = rating["group"] as String
-                    rankedHero.damage_rank = rating["tier"] as String
+                    rankedHero.damage_tier = rating["group"].toString()
+                    rankedHero.damage_rank = rating["tier"].toString()
                 }
                 "support" -> {
-                    rankedHero.support_tier = rating["group"] as String
-                    rankedHero.support_rank = rating["tier"] as String
+                    rankedHero.support_tier = rating["group"].toString()
+                    rankedHero.support_rank = rating["tier"].toString()
                 }
                 else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
             }
         }
-
         //most Hero 추출 by ranked
         mostHeroList = getMostHeroes(rankedCareerStats)
         rankedHero.most1Hero = mostHeroList[0].first
@@ -181,11 +179,11 @@ class OverwatchService(
         heroRepository.save(rankedHero)
 
         var normalHero = rankedHero
-        normalHero.wins = playNormalGames["won"] as Int
-        normalHero.losses = (playNormalGames["played"] as Int) - normalHero.wins
-        normalHero.kills = normalCombat["eliminations"] as Int
-        normalHero.deaths = normalCombat["deaths"] as Int
-
+        normalHero.wins = playNormalGames["won"] as Long
+        normalHero.losses = (playNormalGames["played"] as Long) - normalHero.wins
+        normalHero.kills = normalCombat["eliminations"] as Long
+        normalHero.deaths = normalCombat["deaths"] as Long
+        
         //most Hero 추출 by normal
         mostHeroList = getMostHeroes(normalCareerStats)
         normalHero.most1Hero = mostHeroList[0].first
@@ -203,14 +201,11 @@ class OverwatchService(
         var game: JSONObject
         var time: String
 
-        for(i in 1 until careerStats.size) {
-            heroList.add(careerStats[i] as String)
-        }
-        for(i in 0 until heroList.size) {
-            hero = careerStats[heroList[i]] as JSONObject
+        careerStats.keys.forEach { i ->
+            hero = careerStats[i] as JSONObject
             game = hero["game"] as JSONObject
             time = game["timePlayed"] as String
-            pair = Pair(heroList[i], time)
+            pair = Pair(i.toString(), time)
             returnData.add(pair)
         }
         returnData.toList().sortedByDescending { it.second }
