@@ -129,8 +129,10 @@ class LoLService(
         val responseSummoner: HttpResponse = HttpClientBuilder.create().build().execute(request)
         val userJson = parser.parse(EntityUtils.toString(responseSummoner.entity, "UTF-8")) as JSONArray
         if(userJson.isEmpty()){
-            val unRankedSummoner = SummonerReadDTO(nickname, "None", "", "", 0, 0, 0)
-            summonerRepository.save(unRankedSummoner.makeUnRankedSummoner())
+            val unRankedSolo = SummonerReadDTO(nickname, "RANKED_SOLO_5x5", "", "", 0, 0, 0)
+            summonerRepository.save(unRankedSolo.makeUnRankedSummoner())
+            val unRankedFlex = SummonerReadDTO(nickname, "RANKED_FLEX_SR", "", "", 0, 0, 0)
+            summonerRepository.save(unRankedFlex.makeUnRankedSummoner())
         }
         else{
             if("RANKED_FLEX_SR" !in userJson.toString()){
@@ -142,7 +144,6 @@ class LoLService(
                 summonerRepository.save(urSOLO.makeUnRankedSummoner())
             }
             for(i in 0 until userJson.size){
-                println(userJson[i])
                 if("TFT" in userJson[i].toString()) continue
                 if("CHERRY" in userJson[i].toString()) continue
                 val summonerReadDTO: Summoner = objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity()
