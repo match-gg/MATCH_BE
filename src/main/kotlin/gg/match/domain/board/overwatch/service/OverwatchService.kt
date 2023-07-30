@@ -143,7 +143,7 @@ class OverwatchService(
 
         val rankedHero = Hero(
             0,
-            responseJson["name"] as String,
+            name.replace("%23", "#"),
             Type.valueOf("RANKED"),
             wins = playRankedGames["won"] as Long,
             losses = (playRankedGames["played"] as Long) - (playRankedGames["won"] as Long),
@@ -153,7 +153,7 @@ class OverwatchService(
 
         val normalHero = Hero(
             0,
-            responseJson["name"] as String,
+            name.replace("%23", "#"),
             Type.valueOf("NORMAL"),
             wins = playNormalGames["won"] as Long,
             losses = (playNormalGames["played"] as Long) - (playNormalGames["won"] as Long),
