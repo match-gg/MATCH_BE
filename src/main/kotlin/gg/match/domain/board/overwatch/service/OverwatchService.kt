@@ -122,9 +122,10 @@ class OverwatchService(
     @Transactional
     fun saveHeroInfoByBattleNetApi(name: String) {
         deleteOldHero(name)
+        val nameArr = name.split("#")
         val parser = JSONParser()
         var mostHeroList: List<Pair<String, Int>>
-        val request = HttpGet("$serverUrl$name/complete")
+        val request = HttpGet("$serverUrl${nameArr[0]}-${nameArr[1]}/complete")
         val response = HttpClientBuilder.create().build().execute(request)
         val responseJson = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
         val rankedJson = responseJson["competitiveStats"] as JSONObject
@@ -227,7 +228,8 @@ class OverwatchService(
     }
 
     fun getHeroIsExist(name: String): Boolean {
-        val request = HttpGet("$serverUrl$name/complete")
+        val nameArr = name.split("#")
+        val request = HttpGet("$serverUrl${nameArr[0]}-${nameArr[1]}/complete")
         val battleNetUser = HttpClientBuilder.create().build().execute(request)
         if(battleNetUser.statusLine.statusCode == 404){
             throw BusinessException(ErrorCode.USER_NOT_FOUND)
