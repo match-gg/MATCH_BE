@@ -12,8 +12,6 @@ class Hero(
 
     var name: String,
 
-    var battletag: Long,
-
     @Enumerated(EnumType.STRING)
     var type: Type,
 
@@ -46,7 +44,6 @@ class Hero(
     fun toHeroResponseDTO(): HeroResponseDTO{
         return HeroResponseDTO(
             name = name,
-            battletag = battletag,
             type = type,
             tank_tier = tank_tier,
             tank_rank = tank_rank,

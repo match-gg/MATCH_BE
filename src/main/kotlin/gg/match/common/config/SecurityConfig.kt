@@ -33,7 +33,7 @@ class SecurityConfig(
                 //pubg
                 "/api/pubg/user/**/**", "/api/pubg/user/exist/**/**","/api/pubg/boards/**", "/api/pubg/player/**/**/**",
                 //overwatch
-                "/api/overwatch/user/**/**", "/api/overwatch/user/exist/**/**","/api/overwatch/boards/**", "/api/overwatch/player/**/**/**"
+                "/api/overwatch/user/**", "/api/overwatch/user/exist/**","/api/overwatch/boards/**", "/api/overwatch/player/**/**"
             )
         }
     }

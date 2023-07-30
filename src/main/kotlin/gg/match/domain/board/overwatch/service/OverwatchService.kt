@@ -111,20 +111,20 @@ class OverwatchService(
         }
     }
 
-    fun getHeroInfo(name: String, battletag: Long, type: Type): HeroResponseDTO{
+    fun getHeroInfo(name: String, type: Type): HeroResponseDTO{
         return try{
-            heroRepository.findByNameAndBattletagAndType(name, battletag, type).toHeroResponseDTO()
+            heroRepository.findByNameAndType(name, type).toHeroResponseDTO()
         } catch (e: Exception){
             throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
     }
 
     @Transactional
-    fun saveHeroInfoByBattleNetApi(name: String, battletag: Long) {
-        deleteOldHero(name, battletag)
+    fun saveHeroInfoByBattleNetApi(name: String) {
+        deleteOldHero(name)
         val parser = JSONParser()
         var mostHeroList: List<Pair<String, Int>>
-        val request = HttpGet("$serverUrl$name-$battletag/complete")
+        val request = HttpGet("$serverUrl$name/complete")
         val response = HttpClientBuilder.create().build().execute(request)
         val responseJson = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
         val rankedJson = responseJson["competitiveStats"] as JSONObject
@@ -143,7 +143,6 @@ class OverwatchService(
         val rankedHero = Hero(
             0,
             responseJson["name"] as String,
-            battletag,
             Type.valueOf("RANKED"),
             wins = playRankedGames["won"] as Long,
             losses = (playRankedGames["played"] as Long) - (playRankedGames["won"] as Long),
@@ -154,7 +153,6 @@ class OverwatchService(
         val normalHero = Hero(
             0,
             responseJson["name"] as String,
-            battletag,
             Type.valueOf("NORMAL"),
             wins = playNormalGames["won"] as Long,
             losses = (playNormalGames["played"] as Long) - (playNormalGames["won"] as Long),
@@ -228,8 +226,8 @@ class OverwatchService(
         return returnData.sortedByDescending { it.second }
     }
 
-    fun getHeroIsExist(name: String, battletag: Long): Boolean {
-        val request = HttpGet("$serverUrl$name-$battletag/complete")
+    fun getHeroIsExist(name: String): Boolean {
+        val request = HttpGet("$serverUrl$name/complete")
         val battleNetUser = HttpClientBuilder.create().build().execute(request)
         if(battleNetUser.statusLine.statusCode == 404){
             throw BusinessException(ErrorCode.USER_NOT_FOUND)
@@ -289,9 +287,9 @@ class OverwatchService(
     }
 
     @Transactional
-    fun deleteOldHero(name: String, battletag: Long){
-        if(heroRepository.existsByNameAndBattletag(name, battletag)){
-            heroRepository.deleteByNameAndBattletag(name, battletag)
+    fun deleteOldHero(name: String){
+        if(heroRepository.existsByName(name)){
+            heroRepository.deleteByName(name)
         }
     }
 }

@@ -62,20 +62,20 @@ class OverwatchController (
         return ResponseEntity.ok().body(null)
     }
 
-    @GetMapping("/user/exist/{nickname}/{battletag}")
-    fun userExist(@PathVariable nickname: String, @PathVariable battletag: Long): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(overwatchService.getHeroIsExist(nickname, battletag))
+    @GetMapping("/user/exist/{nickname}")
+    fun userExist(@PathVariable nickname: String): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(overwatchService.getHeroIsExist(nickname))
     }
 
-    @GetMapping("/user/{nickname}/{battletag}")
-    fun saveHero(@PathVariable nickname: String, @PathVariable battletag: Long): ResponseEntity<Any> {
-        overwatchService.saveHeroInfoByBattleNetApi(nickname, battletag)
+    @GetMapping("/user/{nickname}")
+    fun saveHero(@PathVariable nickname: String): ResponseEntity<Any> {
+        overwatchService.saveHeroInfoByBattleNetApi(nickname)
         return ResponseEntity.ok().body(null)
     }
 
-    @GetMapping("/player/{nickname}/{battletag}/{type}")
-    fun getHeroInfo(@PathVariable nickname: String, @PathVariable platform: String, @PathVariable battletag: Long, @PathVariable type: Type): ResponseEntity<HeroResponseDTO> {
-        return ResponseEntity.ok().body(overwatchService.getHeroInfo(nickname, battletag, type))
+    @GetMapping("/player/{nickname}/{type}")
+    fun getHeroInfo(@PathVariable nickname: String, @PathVariable platform: String, @PathVariable type: Type): ResponseEntity<HeroResponseDTO> {
+        return ResponseEntity.ok().body(overwatchService.getHeroInfo(nickname, type))
     }
 
     fun voiceUpper(voice: String): String{
