@@ -14,6 +14,7 @@ class Hero(
 
     var battletag: Long,
 
+    @Enumerated(EnumType.STRING)
     var type: Type,
 
     var tank_tier: String = "none",
