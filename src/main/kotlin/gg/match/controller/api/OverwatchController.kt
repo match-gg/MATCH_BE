@@ -64,18 +64,22 @@ class OverwatchController (
 
     @GetMapping("/user/exist/{nickname}")
     fun userExist(@PathVariable nickname: String): ResponseEntity<Any> {
-        return ResponseEntity.ok().body(overwatchService.getHeroIsExist(nickname))
+        return ResponseEntity.ok().body(overwatchService.getHeroIsExist(replaceString(nickname)))
     }
 
     @GetMapping("/user/{nickname}")
     fun saveHero(@PathVariable nickname: String): ResponseEntity<Any> {
-        overwatchService.saveHeroInfoByBattleNetApi(nickname)
+        overwatchService.saveHeroInfoByBattleNetApi(replaceString(nickname))
         return ResponseEntity.ok().body(null)
     }
 
     @GetMapping("/player/{nickname}/{type}")
-    fun getHeroInfo(@PathVariable nickname: String, @PathVariable platform: String, @PathVariable type: Type): ResponseEntity<HeroResponseDTO> {
-        return ResponseEntity.ok().body(overwatchService.getHeroInfo(nickname, type))
+    fun getHeroInfo(@PathVariable nickname: String, @PathVariable type: Type): ResponseEntity<HeroResponseDTO> {
+        return ResponseEntity.ok().body(overwatchService.getHeroInfo(replaceString(nickname), type))
+    }
+
+    fun replaceString(name: String): String{
+        return name.replace("%23", "#")
     }
 
     fun voiceUpper(voice: String): String{
