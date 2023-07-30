@@ -133,17 +133,18 @@ class LoLService(
             summonerRepository.save(unRankedSummoner.makeUnRankedSummoner())
         }
         else{
+            if("RANKED_FLEX_SR" !in userJson.toString()){
+                val urFLEX = SummonerReadDTO(nickname, "RANKED_FLEX_SR", "", "", 0, 0, 0)
+                summonerRepository.save(urFLEX.makeUnRankedSummoner())
+            }
+            if("RANKED_SOLO_5x5" !in userJson.toString()){
+                val urSOLO = SummonerReadDTO(nickname, "RANKED_SOLO_5x5", "", "", 0, 0, 0)
+                summonerRepository.save(urSOLO.makeUnRankedSummoner())
+            }
             for(i in 0 until userJson.size){
+                println(userJson[i])
                 if("TFT" in userJson[i].toString()) continue
                 if("CHERRY" in userJson[i].toString()) continue
-                if("RANKED_FLEX_SR" !in userJson[i].toString()){
-                    val urFLEX = SummonerReadDTO(nickname, "RANKED_FLEX_SR", "", "", 0, 0, 0)
-                    summonerRepository.save(urFLEX.makeUnRankedSummoner())
-                }
-                else if("RANKED_SOLO_5x5" !in userJson[i].toString()){
-                    val urSOLO = SummonerReadDTO(nickname, "RANKED_SOLO_5x5", "", "", 0, 0, 0)
-                    summonerRepository.save(urSOLO.makeUnRankedSummoner())
-                }
                 val summonerReadDTO: Summoner = objectMapper.readValue(userJson[i].toString(), SummonerReadDTO::class.java).toEntity()
                 summonerRepository.save(summonerReadDTO)
             }
