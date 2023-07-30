@@ -63,7 +63,7 @@ class OverwatchService(
         // boards not found
         if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
 
-        val result = PageResult.ok(boards.map { it.toReadOverwatchBoardDTO(heroRepository.findByName(it.name).toHeroResponseDTO(), getMemberList(it.id), getBanList(it.id))})
+        val result = PageResult.ok(boards.map { it.toReadOverwatchBoardDTO(heroRepository.findByNameAndType(it.name, it.type).toHeroResponseDTO(), getMemberList(it.id), getBanList(it.id))})
 
         for(i in 0 until boards.content.size){
             name = boards.content[i].name
