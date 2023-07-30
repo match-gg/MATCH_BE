@@ -67,14 +67,14 @@ class OverwatchService(
 
         for(i in 0 until boards.content.size){
             name = boards.content[i].name
-            result.content[i].author = getHeroByName(name)
+            result.content[i].author = getHeroByName(name, boards.content[i].type)
         }
         return result
     }
 
     fun getBoard(boardId: Long): ReadOverwatchBoardDTO {
         val board = overwatchRepository.findById(boardId)
-        return board.get().toReadOverwatchBoardDTO(getHeroByName(board.get().name), getMemberList(boardId), getBanList(boardId))
+        return board.get().toReadOverwatchBoardDTO(getHeroByName(board.get().name, board.get().type), getMemberList(boardId), getBanList(boardId))
     }
 
     @Transactional
@@ -103,9 +103,9 @@ class OverwatchService(
             chatRepository.delete(element)
     }
 
-    fun getHeroByName(name: String): HeroResponseDTO{
+    fun getHeroByName(name: String, type: Type): HeroResponseDTO{
         return try{
-            heroRepository.findByName(name).toHeroResponseDTO()
+            heroRepository.findByNameAndType(name, type).toHeroResponseDTO()
         } catch (e: Exception){
             throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
