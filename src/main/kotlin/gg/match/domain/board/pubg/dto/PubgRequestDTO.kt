@@ -33,12 +33,12 @@ data class PubgRequestDTO(
     fun toEntity(oauth2Id: String): Pubg {
         return Pubg(
             oauth2Id = oauth2Id,
-            type = type,
-            tier = tier,
-            platform = platform,
-            voice = voice,
-            content = content,
-            expire = expire
+            type = this.type,
+            tier = this.tier,
+            platform = this.platform,
+            voice = this.voice,
+            content = this.content,
+            expire = this.expire
         )
     }
 }
