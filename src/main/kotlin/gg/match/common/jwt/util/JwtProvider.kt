@@ -40,7 +40,7 @@ class JwtProvider(
         val now = Date()
         return Jwts.builder()
             .setIssuedAt(now)
-            .setExpiration(Date(now.time + accessTokenValidTime))
+            .setExpiration(Date(now.time + refreshTokenValidTime))
             .signWith(key)
             .compact()
     }

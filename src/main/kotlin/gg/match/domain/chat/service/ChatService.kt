@@ -30,7 +30,7 @@ class ChatService (
 ){
     @Transactional
     fun saveChatRoomId(game: Game, chatRoomRequestDTO: ChatRoomRequestDTO, user: User): Any{
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, chatRoomRequestDTO.boardId) as LoL
             Game.PUBG -> getBoardByGame(game, chatRoomRequestDTO.boardId) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, chatRoomRequestDTO.boardId) as Overwatch
@@ -50,13 +50,13 @@ class ChatService (
     @Transactional
     fun increaseMember(game: Game, id: Long, user: User){
         checkIncreaseMemberCount(game, id)
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
-        var nickname = when(game){
+        val nickname = when(game){
             Game.LOL -> user.lol
             Game.PUBG -> user.pubg
             Game.OVERWATCH -> user.overwatch
@@ -80,7 +80,7 @@ class ChatService (
     @Transactional
     fun addMember(game: Game, id: Long, nickname: String){
         checkIncreaseMemberCount(game, id)
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
@@ -103,14 +103,14 @@ class ChatService (
     @Transactional
     fun decreaseMember(game: Game, id: Long, oauth2Id: String){
         checkDecreaseMemberCount(game, id)
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
-        var nickname: String = if("kakao" in oauth2Id){
-            var user = userRepository.findByOauth2Id(oauth2Id) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        val nickname: String = if("kakao" in oauth2Id){
+            val user = userRepository.findByOauth2Id(oauth2Id) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
             when(game){
                 Game.LOL -> user.lol.toString()
                 Game.PUBG -> user.pubg.toString()
@@ -134,31 +134,39 @@ class ChatService (
     @Transactional
     fun banMember(game: Game, id: Long, nickname: String){
         checkDecreaseMemberCount(game, id)
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         board.nowUser -= 1
-        var user = chatRepository.findByChatRoomIdAndAndNickname(board.chatRoomId, nickname)
+        val user = chatRepository.findByChatRoomIdAndNickname(board.chatRoomId, nickname)
         user.update(ChatRoomDTO(user.chatRoomId, user.nickname, user.oauth2Id))
     }
 
     @Transactional
     fun startGame(game: Game, id: Long){
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
+        val chatRoomId = board.chatRoomId
+        val chatRoomList = chatRepository.findAllByChatRoomId(chatRoomId)
+        chatRoomList.forEach { i ->
+            val inGameUser = userRepository.findByOauth2Id(i.oauth2Id)
+                ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+            inGameUser.matchCount += 1
+        }
         board.finished = "true"
+        board.expired = "true"
     }
 
     @Transactional
     fun changeTotalUser(game: Game, id: Long, totalUser: Int){
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
@@ -172,7 +180,7 @@ class ChatService (
     }
 
     fun checkIncreaseMemberCount(game: Game, id: Long) {
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
@@ -184,7 +192,7 @@ class ChatService (
     }
 
     fun checkDecreaseMemberCount(game: Game, id: Long) {
-        var board = when(game){
+        val board = when(game){
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch

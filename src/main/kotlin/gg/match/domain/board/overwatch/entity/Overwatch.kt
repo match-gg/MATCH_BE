@@ -31,9 +31,7 @@ class Overwatch(
     var content: String,
 
     @Enumerated(EnumType.STRING)
-    var expire: Expire,
-
-    var expired: String = "false"
+    var expire: Expire
 
 ): BoardBaseEntity(){
     fun toReadOverwatchBoardDTO(hero: HeroResponseDTO, memberList: List<String>, banList: List<String>): ReadOverwatchBoardDTO {

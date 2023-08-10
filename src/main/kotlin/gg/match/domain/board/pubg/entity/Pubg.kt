@@ -32,9 +32,7 @@ class Pubg(
     var content: String,
 
     @Enumerated(EnumType.STRING)
-    var expire: Expire,
-
-    var expired: String = "false"
+    var expire: Expire
 
 ): BoardBaseEntity(){
     fun toReadPubgBoardDTO(player: PlayerResponseDTO, memberList: List<String>, banList: List<String>): ReadPubgBoardDTO {

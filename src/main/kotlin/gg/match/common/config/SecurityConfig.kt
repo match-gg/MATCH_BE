@@ -40,7 +40,7 @@ class SecurityConfig(
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http!!
+        http
             .httpBasic().disable()
             .csrf().disable()
             .exceptionHandling()

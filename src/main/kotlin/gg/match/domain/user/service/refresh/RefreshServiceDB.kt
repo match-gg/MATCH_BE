@@ -1,8 +1,6 @@
 package gg.match.domain.user.service.refresh
 
 import gg.match.common.util.Constants.Companion.REFRESH_TOKEN_PREFIX
-import gg.match.controller.error.BusinessException
-import gg.match.controller.error.ErrorCode
 import gg.match.domain.user.dto.JwtTokenDTO
 import gg.match.domain.user.entity.RefreshToken
 import org.springframework.beans.factory.annotation.Value
@@ -34,7 +32,6 @@ class RefreshServiceDB(
     @Transactional
     override fun getRefresh(refreshToken: String): String? {
         val findRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken)
-            ?: return null
 
         if (!isValidate(findRefreshToken)) {
             refreshTokenRepository.delete(findRefreshToken)
@@ -45,7 +42,6 @@ class RefreshServiceDB(
 
     override fun deleteRefresh(refreshToken: String) {
         val findRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken)
-            ?: throw BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
 
         refreshTokenRepository.delete(findRefreshToken)
     }

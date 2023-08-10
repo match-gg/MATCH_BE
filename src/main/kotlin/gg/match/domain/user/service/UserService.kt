@@ -24,13 +24,8 @@ class UserService (
     = userRepository.findByOauth2Id(oauth2Id)
 
     @Transactional
-    fun finishedBoard(): String{
-        return ""
-    }
-
-    @Transactional
     fun increaseLike(likeRequestDTO: LikeRequestDTO): Long?{
-        var user = getUserByGame(likeRequestDTO)
+        val user = getUserByGame(likeRequestDTO)
         return if(user == null) null
         else{
             user.likeCount += 1
@@ -40,7 +35,7 @@ class UserService (
 
     @Transactional
     fun increaseDislike(likeRequestDTO: LikeRequestDTO): Long?{
-        var user = getUserByGame(likeRequestDTO)
+        val user = getUserByGame(likeRequestDTO)
         return if(user == null) null
         else{
             user.dislikeCount += 1
@@ -49,12 +44,31 @@ class UserService (
     }
 
     fun getUserByGame(likeRequestDTO: LikeRequestDTO): User?{
-        var user: User? = when(Game.valueOf(likeRequestDTO.game.uppercase())){
+        val user: User = when(Game.valueOf(likeRequestDTO.game.uppercase())){
             Game.LOL -> userRepository.findByLol(likeRequestDTO.nickname)
             Game.PUBG -> userRepository.findByPubg(likeRequestDTO.nickname)
             Game.OVERWATCH -> userRepository.findByOverwatch(likeRequestDTO.nickname)
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         } ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         return user
+    }
+
+    @Transactional
+    fun changeNickname(game: Game, nickname: String, user: User){
+        val userData = userRepository.findByOauth2Id(user.oauth2Id)
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        when(game){
+            Game.LOL -> userData.lol = nickname
+            Game.OVERWATCH -> userData.overwatch = nickname
+            Game.PUBG -> userData.pubg = nickname
+            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    @Transactional
+    fun changeRepresentative(game: Game, user: User){
+        val userData = userRepository.findByOauth2Id(user.oauth2Id)
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        userData.representative = game
     }
 }
