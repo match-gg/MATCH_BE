@@ -3,6 +3,7 @@ package gg.match.controller.api
 import gg.match.common.annotation.CurrentUser
 import gg.match.common.jwt.util.JwtResolver
 import gg.match.domain.user.dto.*
+import gg.match.domain.user.entity.Game
 import gg.match.domain.user.entity.User
 import gg.match.domain.user.service.AuthService
 import gg.match.domain.user.service.UserService
@@ -51,6 +52,16 @@ class UserController(
         return ResponseEntity.ok().body(user)
     }
 
+    @PutMapping("/{game}/{nickname}/nickname")
+    fun changeNickname(@PathVariable game: Game, @PathVariable nickname: String, @CurrentUser user: User): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(userService.changeNickname(game, nickname, user))
+    }
+
+    @PutMapping("/{game}/representative")
+    fun changeRepresentative(@PathVariable game: Game, @CurrentUser user: User): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(userService.changeRepresentative(game, user))
+    }
+
     @PostMapping("/like")
     fun increaseLike(@RequestBody likeRequestDTO: LikeRequestDTO): ResponseEntity<Long> {
         return ResponseEntity.ok().body(userService.increaseLike(likeRequestDTO))
@@ -59,10 +70,5 @@ class UserController(
     @PostMapping("/dislike")
     fun increaseDislike(@RequestBody likeRequestDTO: LikeRequestDTO): ResponseEntity<Long> {
         return ResponseEntity.ok().body(userService.increaseDislike(likeRequestDTO))
-    }
-
-    @PostMapping("/finished/{boardId}")
-    fun finishedBoard(): ResponseEntity<Any>{
-        return ResponseEntity.ok().body(userService.finishedBoard())
     }
 }

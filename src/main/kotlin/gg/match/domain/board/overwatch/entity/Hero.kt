@@ -58,29 +58,4 @@ class Hero(
             mostHero = listOf(most1Hero, most2Hero, most3Hero)
         )
     }
-
-    fun updateHero(mostHeroList: List<Pair<String, Int>>){
-        when(mostHeroList.size){
-            0 -> {
-                most1Hero = "none"
-                most2Hero = "none"
-                most3Hero = "none"
-            }
-            1 -> {
-                most1Hero = mostHeroList[0].first
-                most2Hero = "none"
-                most3Hero = "none"
-            }
-            2 -> {
-                most1Hero = mostHeroList[0].first
-                most2Hero = mostHeroList[1].first
-                most3Hero = "none"
-            }
-            else -> {
-                most1Hero = mostHeroList[0].first
-                most2Hero = mostHeroList[1].first
-                most3Hero = mostHeroList[2].first
-            }
-        }
-    }
 }

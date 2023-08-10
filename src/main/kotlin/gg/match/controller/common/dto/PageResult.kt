@@ -5,10 +5,10 @@ import org.springframework.data.domain.Page
 class PageResult<T>(
     data: Page<T>
 ) {
-    val currentPage: Int
-    val totalPage: Int
-    val pageSize: Int
-    val totalElements: Long
+    private val currentPage: Int
+    private val totalPage: Int
+    private val pageSize: Int
+    private val totalElements: Long
     val content: List<T>
 
     init{

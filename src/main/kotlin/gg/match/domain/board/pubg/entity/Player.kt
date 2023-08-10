@@ -1,6 +1,5 @@
 package gg.match.domain.board.pubg.entity
 
-import gg.match.domain.board.pubg.dto.PlayerResponseDTO
 import javax.persistence.*
 
 @Entity
@@ -35,22 +34,4 @@ class Player(
     var wins: Int,
 
     var top10: Int
-) {
-    fun toPlayerResponseDTO(): PlayerResponseDTO {
-        return PlayerResponseDTO(
-            id = id,
-            platform = platform,
-            name = name,
-            type = type,
-            currentRankPoint = currentRankPoint,
-            tier = tier,
-            subTier = subTier,
-            kills = kills,
-            deaths = deaths,
-            avgDmg = avgDmg,
-            totalPlayed = totalPlayed,
-            wins = wins,
-            top10 = top10
-        )
-    }
-}
+)

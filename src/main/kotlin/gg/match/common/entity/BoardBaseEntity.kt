@@ -27,6 +27,9 @@ abstract class BoardBaseEntity {
     @Column(name = "finished")
     var finished: String = "false"
 
+    @Column(name = "expired")
+    var expired: String = "false"
+
     @CreatedDate
     @Column(name = "created", updatable = false)
     var created: LocalDateTime = LocalDateTime.now().plusHours(9)
