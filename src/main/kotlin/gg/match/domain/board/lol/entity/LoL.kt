@@ -62,8 +62,4 @@ class LoL(
         content = lolRequestDTO.content
         expire = lolRequestDTO.expire
     }
-
-    fun update(expired: String) {
-        this.expired = expired
-    }
 }

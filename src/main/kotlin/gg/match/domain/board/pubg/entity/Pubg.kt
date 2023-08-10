@@ -64,8 +64,4 @@ class Pubg(
         content = pubgRequestDTO.content
         expire = pubgRequestDTO.expire
     }
-
-    fun update(expired: String){
-        this.expired = expired
-    }
 }

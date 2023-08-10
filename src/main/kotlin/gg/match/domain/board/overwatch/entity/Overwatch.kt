@@ -62,8 +62,4 @@ class Overwatch(
         content = overwatchRequestDTO.content
         expire = overwatchRequestDTO.expire
     }
-
-    fun update(expired: String){
-        this.expired = expired
-    }
 }

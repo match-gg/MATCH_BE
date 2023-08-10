@@ -161,7 +161,7 @@ class ChatService (
             inGameUser.matchCount += 1
         }
         board.finished = "true"
-        board.expired = "true"
+        board.update("true")
     }
 
     @Transactional

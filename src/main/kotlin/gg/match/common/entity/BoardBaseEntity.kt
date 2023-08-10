@@ -43,4 +43,8 @@ abstract class BoardBaseEntity {
         this.totalUser = totalUser
         this.nowUser = 1
     }
+
+    fun update(expired: String) {
+        this.expired = expired
+    }
 }
