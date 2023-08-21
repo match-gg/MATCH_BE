@@ -23,6 +23,7 @@ import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
+import java.util.*
 
 @Service
 @Transactional(readOnly = true)
@@ -138,8 +139,7 @@ class OverwatchService(
         val normalAllHeroes = normalCareerStats["allHeroes"] as JSONObject
         val rankedCombat = rankedAllHeroes["combat"] as JSONObject
         val normalCombat = normalAllHeroes["combat"] as JSONObject
-        val ratings = responseJson["ratings"] as JSONArray
-        val i = ratings.size
+        val ratings = responseJson["ratings"] as JSONArray?
 
         val rankedHero = Hero(
             0,
@@ -162,23 +162,33 @@ class OverwatchService(
         )
 
         //position별 tier 분류
-        for (j in 0 until i) {
-            val rating = ratings[j] as JSONObject
-            when (rating["role"] as String) {
-                "tank" -> {
-                    rankedHero.tank_tier = rating["group"].toString()
-                    rankedHero.tank_rank = rating["tier"].toString()
+        if (ratings != null) {
+            for (element in ratings) {
+                val rating = element as JSONObject
+                when (rating["role"] as String) {
+                    "tank" -> {
+                        rankedHero.tank_tier = rating["group"].toString()
+                        rankedHero.tank_rank = rating["tier"].toString()
+                    }
+                    "offense" -> {
+                        rankedHero.damage_tier = rating["group"].toString()
+                        rankedHero.damage_rank = rating["tier"].toString()
+                    }
+                    "support" -> {
+                        rankedHero.support_tier = rating["group"].toString()
+                        rankedHero.support_rank = rating["tier"].toString()
+                    }
+                    else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
                 }
-                "offense" -> {
-                    rankedHero.damage_tier = rating["group"].toString()
-                    rankedHero.damage_rank = rating["tier"].toString()
-                }
-                "support" -> {
-                    rankedHero.support_tier = rating["group"].toString()
-                    rankedHero.support_rank = rating["tier"].toString()
-                }
-                else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
             }
+        }
+        else{
+            rankedHero.tank_tier = "none"
+            rankedHero.tank_rank = "none"
+            rankedHero.damage_tier = "none"
+            rankedHero.damage_rank = "none"
+            rankedHero.support_tier = "none"
+            rankedHero.support_rank = "none"
         }
         //most Hero 추출 by ranked
         mostHeroList = getMostHeroes(rankedCareerStats)
