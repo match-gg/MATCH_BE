@@ -23,7 +23,6 @@ import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
-import java.util.*
 
 @Service
 @Transactional(readOnly = true)
