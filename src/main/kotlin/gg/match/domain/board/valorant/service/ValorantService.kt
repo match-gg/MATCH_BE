@@ -6,4 +6,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true)
 class ValorantService {
+
+    fun getValorantUser(code: String): String{
+        return code
+    }
 }
