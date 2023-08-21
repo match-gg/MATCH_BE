@@ -27,19 +27,19 @@ class Hero(
 
     var support_rank: String = "none",
 
-    var wins: Long,
+    var wins: Long = 0L,
 
-    var losses: Long,
+    var losses: Long = 0L,
 
-    var kills: Long,
+    var kills: Long = 0L,
 
-    var deaths: Long,
+    var deaths: Long = 0L,
 
-    var most1Hero: String = "none",
+    var most1Hero: String = "poro",
 
-    var most2Hero: String = "none",
+    var most2Hero: String = "poro",
 
-    var most3Hero: String = "none",
+    var most3Hero: String = "poro",
 ) {
     fun toHeroResponseDTO(): HeroResponseDTO{
         return HeroResponseDTO(

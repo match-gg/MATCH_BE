@@ -130,35 +130,60 @@ class OverwatchService(
         val responseJson = parser.parse(EntityUtils.toString(response.entity, "UTF-8")) as JSONObject
         val rankedJson = responseJson["competitiveStats"] as JSONObject
         val normalJson = responseJson["quickPlayStats"] as JSONObject
-        val playRankedGames = rankedJson["games"] as JSONObject
-        val playNormalGames = normalJson["games"] as JSONObject
-        val rankedCareerStats = rankedJson["careerStats"] as JSONObject
-        val normalCareerStats = normalJson["careerStats"] as JSONObject
-        val rankedAllHeroes = rankedCareerStats["allHeroes"] as JSONObject
-        val normalAllHeroes = normalCareerStats["allHeroes"] as JSONObject
-        val rankedCombat = rankedAllHeroes["combat"] as JSONObject
-        val normalCombat = normalAllHeroes["combat"] as JSONObject
+        val playRankedGames = rankedJson["games"] as JSONObject?
+        val playNormalGames = normalJson["games"] as JSONObject?
+        val rankedCareerStats = rankedJson["careerStats"] as JSONObject?
+        val normalCareerStats = normalJson["careerStats"] as JSONObject?
+        val rankedAllHeroes = rankedCareerStats?.get("allHeroes") as JSONObject?
+        val normalAllHeroes = normalCareerStats?.get("allHeroes") as JSONObject?
+        val rankedCombat = rankedAllHeroes?.get("combat") as JSONObject?
+        val normalCombat = normalAllHeroes?.get("combat") as JSONObject?
         val ratings = responseJson["ratings"] as JSONArray?
 
-        val rankedHero = Hero(
-            0,
-            name.replace("%23", "#"),
-            Type.valueOf("RANKED"),
-            wins = playRankedGames["won"] as Long,
-            losses = (playRankedGames["played"] as Long) - (playRankedGames["won"] as Long),
-            kills = rankedCombat["eliminations"] as Long,
-            deaths = rankedCombat["deaths"] as Long
-        )
 
-        val normalHero = Hero(
-            0,
-            name.replace("%23", "#"),
-            Type.valueOf("NORMAL"),
-            wins = playNormalGames["won"] as Long,
-            losses = (playNormalGames["played"] as Long) - (playNormalGames["won"] as Long),
-            kills = normalCombat["eliminations"] as Long,
-            deaths = normalCombat["deaths"] as Long
-        )
+        val rankedHero = if(playRankedGames != null){
+            Hero(
+                0,
+                name.replace("%23", "#"),
+                Type.valueOf("RANKED"),
+                wins = playRankedGames["won"] as Long,
+                losses = (playRankedGames["played"] as Long) - (playRankedGames["won"] as Long),
+                kills = rankedCombat?.get("eliminations") as Long,
+                deaths = rankedCombat["deaths"] as Long
+            )
+        } else {
+            Hero(
+                0,
+                name.replace("%23", "#"),
+                Type.valueOf("RANKED"),
+                wins = 0,
+                losses = 0,
+                kills = 0,
+                deaths = 0
+            )
+        }
+
+        val normalHero = if(playNormalGames != null){
+            Hero(
+                0,
+                name.replace("%23", "#"),
+                Type.valueOf("NORMAL"),
+                wins = playNormalGames["won"] as Long,
+                losses = (playNormalGames["played"] as Long) - (playNormalGames["won"] as Long),
+                kills = normalCombat?.get("eliminations") as Long,
+                deaths = normalCombat["deaths"] as Long
+            )
+        } else {
+            Hero(
+                0,
+                name.replace("%23", "#"),
+                Type.valueOf("NORMAL"),
+                wins = 0,
+                losses = 0,
+                kills = 0,
+                deaths = 0
+            )
+        }
 
         //position별 tier 분류
         if (ratings != null) {
@@ -190,24 +215,21 @@ class OverwatchService(
             rankedHero.support_rank = "none"
         }
         //most Hero 추출 by ranked
-        mostHeroList = getMostHeroes(rankedCareerStats)
-        rankedHero.most1Hero = mostHeroList[0].first
-        rankedHero.most2Hero = mostHeroList[1].first
-        rankedHero.most3Hero = mostHeroList[2].first
+        if(rankedCareerStats != null) {
+            mostHeroList = getMostHeroes(rankedCareerStats)
+            rankedHero.most1Hero = mostHeroList[0].first
+            rankedHero.most2Hero = mostHeroList[1].first
+            rankedHero.most3Hero = mostHeroList[2].first
+        }
 
         heroRepository.save(rankedHero)
-
-        normalHero.wins = playNormalGames["won"] as Long
-        normalHero.losses = (playNormalGames["played"] as Long) - rankedHero.wins
-        normalHero.kills = normalCombat["eliminations"] as Long
-        normalHero.deaths = normalCombat["deaths"] as Long
-
         //most Hero 추출 by normal
-        mostHeroList = getMostHeroes(normalCareerStats)
-        normalHero.most1Hero = mostHeroList[0].first
-        normalHero.most2Hero = mostHeroList[1].first
-        normalHero.most3Hero = mostHeroList[2].first
-
+        if(normalCareerStats != null){
+            mostHeroList = getMostHeroes(normalCareerStats)
+            normalHero.most1Hero = mostHeroList[0].first
+            normalHero.most2Hero = mostHeroList[1].first
+            normalHero.most3Hero = mostHeroList[2].first
+        }
         heroRepository.save(normalHero)
     }
 
