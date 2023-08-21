@@ -19,9 +19,6 @@ data class SignUpRequestDTO (
     @JsonProperty("pubg")
     val pubg: String?,
 
-    @JsonProperty("maplestory")
-    val maplestory: String?,
-
-    @JsonProperty("lostark")
-    val lostark: String?
+    @JsonProperty("valorant")
+    val valorant: String?
 )

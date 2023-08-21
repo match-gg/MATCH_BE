@@ -30,9 +30,7 @@ class User(
 
     var pubg: String?,
 
-    var maplestory: String?,
-
-    var lostark: String?,
+    var valorant: String?,
 
     var likeCount: Long = 0,
 
@@ -56,8 +54,7 @@ class User(
                 lol = signUpRequestDTO.lol,
                 overwatch = signUpRequestDTO.overwatch,
                 pubg = signUpRequestDTO.pubg,
-                maplestory = signUpRequestDTO.maplestory,
-                lostark = signUpRequestDTO.lostark
+                valorant = signUpRequestDTO.valorant
             )
         }
     }
