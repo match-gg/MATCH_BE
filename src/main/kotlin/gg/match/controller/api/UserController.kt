@@ -119,7 +119,7 @@ class UserController(
             oauth2Ids.add(element.following)
         }
 
-        val result = when(Game.valueOf(game)){
+        val result = when(Game.valueOf(game.uppercase())){
             Game.LOL -> loLService.getFollowerBoards(user, pageable, oauth2Ids)
             Game.PUBG -> pubgService.getFollowerBoards(user, pageable, oauth2Ids)
             Game.OVERWATCH -> overwatchService.getFollowerBoards(user, pageable, oauth2Ids)
