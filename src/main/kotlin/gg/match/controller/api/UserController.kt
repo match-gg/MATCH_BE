@@ -97,6 +97,11 @@ class UserController(
         return ResponseEntity.ok(userService.following(user, oauth2Id))
     }
 
+    @DeleteMapping("/follow")
+    fun cancelFollowing(@CurrentUser user: User, @RequestParam(required = true) oauth2Id: String): ResponseEntity<Any>{
+        return ResponseEntity.ok(userService.cancelFollowing(user, oauth2Id))
+    }
+
     @GetMapping("/follow/list")
     fun getFollowList(@CurrentUser user: User): ResponseEntity<FollowerReturnWrapDTO>{
         return ResponseEntity.ok().body(userService.getFollower(user))

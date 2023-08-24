@@ -19,7 +19,9 @@ enum class ErrorCode(
     LOGOUT_TOKEN(HttpStatus.UNAUTHORIZED, "로그아웃한 회원입니다."),
     //COMMON
     NO_BOARD_FOUND(HttpStatus.NOT_FOUND, "게시글이 존재하지 않습니다."),
+    //FOLLOWER
     FOLLOWERS_NOT_FOUND(HttpStatus.NOT_FOUND, "팔로워 목록이 존재하지 않습니다."),
+    INVALID_FOLLOWER(HttpStatus.BAD_REQUEST, "이미 팔로우 하는 사용자입니다."),
     //LOL
     USER_NOT_RANKED(HttpStatus.NOT_FOUND, "아직 랭크정보를 보유하고 있지 않습니다."),
     //PUBG

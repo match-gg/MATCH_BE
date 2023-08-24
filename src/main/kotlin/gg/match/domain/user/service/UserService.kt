@@ -86,11 +86,21 @@ class UserService (
 
     @Transactional
     fun following(user: User, oauth2Id: String){
-        val follow = Follow(
-            oauth2Id = user.oauth2Id,
-            following = oauth2Id
-        )
-        followRepository.save(follow)
+        if(!followRepository.existsByOauth2IdAndFollowing(user.oauth2Id, oauth2Id)) {
+            val savedFollow = Follow(
+                oauth2Id = user.oauth2Id,
+                following = oauth2Id
+            )
+            followRepository.save(savedFollow)
+        }
+        else    throw BusinessException(ErrorCode.INVALID_FOLLOWER)
+    }
+
+    @Transactional
+    fun cancelFollowing(user: User, oauth2Id: String){
+        val follow = followRepository.findByOauth2IdAndFollowing(user.oauth2Id, oauth2Id)
+            ?: throw BusinessException(ErrorCode.FOLLOWERS_NOT_FOUND)
+        followRepository.delete(follow)
     }
 
     fun getFollower(user: User): FollowerReturnWrapDTO{
