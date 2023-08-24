@@ -7,6 +7,7 @@ import gg.match.domain.board.overwatch.entity.Overwatch
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.repository.query.Param
 
 interface OverwatchRepository: JpaRepository<Overwatch, Long> {
     fun findAllByOrderByExpiredAscIdDesc(pageable: Pageable): Page<Overwatch>
@@ -17,4 +18,6 @@ interface OverwatchRepository: JpaRepository<Overwatch, Long> {
     fun findAllByTypeAndTierOrderByExpiredAscIdDesc(pageable: Pageable, type: Type, tier: Tier): Page<Overwatch>
     fun findAllByPositionAndTierOrderByExpiredAscIdDesc(pageable: Pageable, position: Position, tier: Tier): Page<Overwatch>
     fun findAllByPositionAndTypeAndTierOrderByExpiredAscIdDesc(pageable: Pageable, position: Position, type: Type, tier: Tier): Page<Overwatch>
+
+    fun findAllByOauth2IdInAndExpiredAndFinishedOrderByIdDesc(pageable: Pageable, @Param("oauth2Ids") oauth2Ids: List<String>, expired: String, finished: String): Page<Overwatch>
 }

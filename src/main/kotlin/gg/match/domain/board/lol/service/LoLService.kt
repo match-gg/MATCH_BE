@@ -28,6 +28,7 @@ import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
+import gg.match.domain.user.repository.FollowRepository
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
@@ -48,6 +49,19 @@ class LoLService(
     lateinit var result: PageResult<ReadLoLBoardDTO>
 
     lateinit var summonerName: String
+
+    @Transactional
+    fun getFollowerBoards(user: User, pageable: Pageable, oauth2Ids: List<String>): PageResult<ReadLoLBoardDTO>{
+        val boards = loLRepository.findAllByOauth2IdInAndExpiredAndFinishedOrderByIdDesc(pageable, oauth2Ids, "false", "false")
+        if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+        result = PageResult.ok(boards.map { it.toReadLoLBoardDTO(summonerRepository.findBySummonerNameAndQueueType(it.name, "RANKED_SOLO_5x5"), getMemberList(it.id), getBanList(it.id))})
+
+        for(i in 0 until boards.content.size){
+            summonerName = boards.content[i].name
+            result.content[i].author = getSummonerByType(summonerName, boards.content[i].type).toSummonerResponseDTO()
+        }
+        return result
+    }
 
     @Transactional
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadLoLBoardDTO> {

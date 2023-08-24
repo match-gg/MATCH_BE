@@ -15,6 +15,7 @@ import gg.match.domain.board.pubg.repository.PlayerRepository
 import gg.match.domain.board.pubg.repository.PubgRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
+import gg.match.domain.user.repository.FollowRepository
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.util.EntityUtils
@@ -40,6 +41,19 @@ class PubgService(
 ){
     lateinit var result: PageResult<ReadPubgBoardDTO>
     val parser = JSONParser()
+
+    @Transactional
+    fun getFollowerBoards(user: User, pageable: Pageable, oauth2Ids: List<String>): PageResult<ReadPubgBoardDTO>{
+        val boards = pubgRepository.findAllByOauth2IdInAndExpiredAndFinishedOrderByIdDesc(pageable, oauth2Ids, "false", "false")
+        if(boards.isEmpty)  throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+        result = PageResult.ok(boards.map { it.toReadPubgBoardDTO(playerRepository.findByNameAndPlatformAndType(it.name, it.platform, it.type), getMemberList(it.id), getBanList(it.id))})
+
+        for(i in 0 until boards.content.size){
+            val playerName = boards.content[i].name
+            result.content[i].author = getPlayerByPlatformAndType(playerName, boards.content[i].platform, boards.content[i].type)
+        }
+        return result
+    }
 
     @Transactional
     fun getBoards(pageable: Pageable, platform: Platform, type: Type, tier: Tier): PageResult<ReadPubgBoardDTO> {

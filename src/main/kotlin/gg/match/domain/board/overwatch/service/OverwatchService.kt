@@ -22,6 +22,7 @@ import gg.match.domain.board.overwatch.repository.HeroRepository
 import gg.match.domain.board.overwatch.repository.OverwatchRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
+import gg.match.domain.user.repository.FollowRepository
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 
@@ -33,6 +34,19 @@ class OverwatchService(
     private val heroRepository: HeroRepository
 ) {
     private val serverUrl = "https://ow-api.com/v1/stats/pc/asia/"
+
+    @Transactional
+    fun getFollowerBoards(user: User, pageable: Pageable, oauth2Ids: List<String>): PageResult<ReadOverwatchBoardDTO>{
+        val boards = overwatchRepository.findAllByOauth2IdInAndExpiredAndFinishedOrderByIdDesc(pageable, oauth2Ids, "false", "false")
+        if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+        val result = PageResult.ok(boards.map { it.toReadOverwatchBoardDTO(heroRepository.findByNameAndType(it.name, it.type).toHeroResponseDTO(), getMemberList(it.id), getBanList(it.id))})
+        for(i in 0 until boards.content.size){
+            val name = boards.content[i].name
+            result.content[i].author = getHeroByName(name, boards.content[i].type)
+        }
+        return result
+    }
+
 
     @Transactional
     fun getBoards(pageable: Pageable, position: Position, type: Type, tier: Tier): PageResult<ReadOverwatchBoardDTO> {

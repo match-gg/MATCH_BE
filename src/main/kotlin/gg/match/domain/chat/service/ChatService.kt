@@ -88,7 +88,7 @@ class ChatService (
         }
         if(validateMemberByChatRoom(game, board.chatRoomId, nickname))
             throw BusinessException(ErrorCode.BAD_REQUEST)
-        ChatRoomDTO(board.chatRoomId, nickname, "guest").toEntity()
+        ChatRoomDTO(board.chatRoomId, nickname, "guest$nickname").toEntity()
             ?.let { chatRepository.save(it) }
         board.nowUser += 1
         when(game){
