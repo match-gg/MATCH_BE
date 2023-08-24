@@ -14,11 +14,13 @@ class ChatRoom(
 
     var nickname: String? = null,
 
-    var oauth2Id: String
+    var oauth2Id: String,
+
+    var isBanned: String = "false"
 ){
     fun update(chatRoomDTO: ChatRoomDTO){
         chatRoomId = chatRoomDTO.chatRoomId
         nickname = chatRoomDTO.nickname
-        oauth2Id = "banned"
+        isBanned = "true"
     }
 }

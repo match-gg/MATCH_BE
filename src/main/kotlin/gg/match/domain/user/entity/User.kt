@@ -24,13 +24,13 @@ class User(
     @Enumerated(EnumType.STRING)
     var representative: Game,
 
-    var lol: String?,
+    var lol: String = "",
 
-    var overwatch: String?,
+    var overwatch: String = "",
 
-    var pubg: String?,
+    var pubg: String = "",
 
-    var valorant: String?,
+    var valorant: String = "",
 
     var likeCount: Long = 0,
 

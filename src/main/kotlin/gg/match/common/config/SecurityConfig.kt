@@ -26,6 +26,7 @@ class SecurityConfig(
             web.ignoring().antMatchers(
                 //user
                 "/api/user/signin", "/api/user/signup", "/api/user/refresh", "/api/user/health",
+                "/api/user/play/**",
                 //setting
                 "/css/**", "/js/**", "/images/**",
                 //lol

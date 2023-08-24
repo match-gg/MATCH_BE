@@ -2,10 +2,14 @@ package gg.match.domain.user.service
 
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
+import gg.match.domain.user.dto.FollowerReturnDTO
+import gg.match.domain.user.dto.FollowerReturnWrapDTO
 import gg.match.domain.user.dto.LikeRequestDTO
 import gg.match.domain.user.dto.UserPlayInfoDTO
+import gg.match.domain.user.entity.Follow
 import gg.match.domain.user.entity.Game
 import gg.match.domain.user.entity.User
+import gg.match.domain.user.repository.FollowRepository
 import gg.match.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -13,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true)
 class UserService (
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val followRepository: FollowRepository
 ) {
     @Transactional
     fun saveUser(user: User) = userRepository.save(user)
@@ -77,5 +82,26 @@ class UserService (
         val user = userRepository.findByOauth2Id(oauth2Id)
             ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         return UserPlayInfoDTO(user.matchCount, user.likeCount, user.dislikeCount)
+    }
+
+    @Transactional
+    fun following(user: User, oauth2Id: String){
+        val follow = Follow(
+            oauth2Id = user.oauth2Id,
+            following = oauth2Id
+        )
+        followRepository.save(follow)
+    }
+
+    fun getFollower(user: User): FollowerReturnWrapDTO{
+        var follower: User?
+        val followList = followRepository.findAllByOauth2Id(user.oauth2Id)
+        val followerList = mutableListOf<FollowerReturnDTO>()
+        for(element in followList){
+            follower = userRepository.findByOauth2Id(element.oauth2Id)
+                ?: throw BusinessException(ErrorCode.FOLLOWERS_NOT_FOUND)
+            follower.let { followerList.add(FollowerReturnDTO(it.oauth2Id, it.lol, it.pubg, it.overwatch, it.valorant)) }
+        }
+        return FollowerReturnWrapDTO(followerList)
     }
 }

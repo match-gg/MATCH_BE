@@ -11,14 +11,14 @@ data class SignUpRequestDTO (
     val representative: Game,
 
     @JsonProperty("lol")
-    val lol: String?,
+    val lol: String,
 
     @JsonProperty("overwatch")
-    val overwatch: String?,
+    val overwatch: String,
 
     @JsonProperty("pubg")
-    val pubg: String?,
+    val pubg: String,
 
     @JsonProperty("valorant")
-    val valorant: String?
+    val valorant: String
 )

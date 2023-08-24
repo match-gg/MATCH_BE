@@ -76,4 +76,14 @@ class UserController(
     fun getPlayInfoByUser(@RequestParam(required = true) oauth2Id: String): ResponseEntity<UserPlayInfoDTO>{
         return ResponseEntity.ok().body(userService.getUserPlayInfo(oauth2Id))
     }
+
+    @PostMapping("/follow")
+    fun following(@CurrentUser user: User, @RequestParam(required = true) oauth2Id: String): ResponseEntity<Any>{
+        return ResponseEntity.ok(userService.following(user, oauth2Id))
+    }
+
+    @GetMapping("/follow/list")
+    fun getFollowList(@CurrentUser user: User): ResponseEntity<FollowerReturnWrapDTO>{
+        return ResponseEntity.ok().body(userService.getFollower(user))
+    }
 }
