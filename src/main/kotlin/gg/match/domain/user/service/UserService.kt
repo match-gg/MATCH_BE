@@ -108,7 +108,7 @@ class UserService (
         val followList = followRepository.findAllByOauth2Id(user.oauth2Id)
         val followerList = mutableListOf<FollowerReturnDTO>()
         for(element in followList){
-            follower = userRepository.findByOauth2Id(element.oauth2Id)
+            follower = userRepository.findByOauth2Id(element.following)
                 ?: throw BusinessException(ErrorCode.FOLLOWERS_NOT_FOUND)
             follower.let { followerList.add(FollowerReturnDTO(it.oauth2Id, it.lol, it.pubg, it.overwatch, it.valorant)) }
         }
