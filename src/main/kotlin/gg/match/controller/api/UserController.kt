@@ -71,4 +71,9 @@ class UserController(
     fun increaseDislike(@RequestBody likeRequestDTO: LikeRequestDTO): ResponseEntity<Long> {
         return ResponseEntity.ok().body(userService.increaseDislike(likeRequestDTO))
     }
+
+    @GetMapping("/play/info")
+    fun getPlayInfoByUser(@RequestParam(required = true) oauth2Id: String): ResponseEntity<UserPlayInfoDTO>{
+        return ResponseEntity.ok().body(userService.getUserPlayInfo(oauth2Id))
+    }
 }

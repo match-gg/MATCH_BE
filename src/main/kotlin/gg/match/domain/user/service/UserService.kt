@@ -3,6 +3,7 @@ package gg.match.domain.user.service
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
 import gg.match.domain.user.dto.LikeRequestDTO
+import gg.match.domain.user.dto.UserPlayInfoDTO
 import gg.match.domain.user.entity.Game
 import gg.match.domain.user.entity.User
 import gg.match.domain.user.repository.UserRepository
@@ -70,5 +71,11 @@ class UserService (
         val userData = userRepository.findByOauth2Id(user.oauth2Id)
             ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         userData.representative = game
+    }
+
+    fun getUserPlayInfo(oauth2Id: String): UserPlayInfoDTO{
+        val user = userRepository.findByOauth2Id(oauth2Id)
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        return UserPlayInfoDTO(user.matchCount, user.likeCount, user.dislikeCount)
     }
 }
