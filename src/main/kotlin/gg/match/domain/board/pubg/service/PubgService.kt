@@ -210,10 +210,9 @@ class PubgService(
 
     fun getMemberList(boardId: Long): List<ChatMemberListDTO>{
         val board = pubgRepository.findById(boardId)
-        val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
+        val chatRooms = chatRepository.findAllByChatRoomIdAndIsBanned(board.get().chatRoomId, "false")
         val memberList = mutableListOf<ChatMemberListDTO>()
         for(element in chatRooms){
-            if(element.oauth2Id == "banned")   continue
             element.nickname?.let { memberList.add(ChatMemberListDTO(element.oauth2Id, it)) }
         }
         return memberList
@@ -221,7 +220,7 @@ class PubgService(
 
     fun getBanList(boardId: Long): List<ChatMemberListDTO>{
         val board = pubgRepository.findById(boardId)
-        val chatRooms = chatRepository.findAllByChatRoomIdAndOauth2Id(board.get().chatRoomId, "banned")
+        val chatRooms = chatRepository.findAllByChatRoomIdAndIsBanned(board.get().chatRoomId, "true")
         val banList = mutableListOf<ChatMemberListDTO>()
         for(element in chatRooms){
             element.nickname?.let { banList.add(ChatMemberListDTO(element.oauth2Id, it)) }
