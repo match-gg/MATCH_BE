@@ -252,6 +252,7 @@ class LoLService(
         val gson = Gson()
         val sample = gson.fromJson(jsonString, MatchDTO::class.java)
         if(sample.info.gameMode == "ARAM")  return
+        if(sample.info.gameMode == "CHERRY")  return
         val championByMatch = ChampionByMatchDTO(
             summonerName,
             sample.info.participants.filter { it.summonerName == summonerName }.map { it.championName }[0],
