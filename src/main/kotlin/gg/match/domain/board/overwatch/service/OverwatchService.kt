@@ -1,5 +1,6 @@
 package gg.match.domain.board.overwatch.service
 
+import gg.match.common.dto.ChatMemberListDTO
 import gg.match.controller.common.dto.PageResult
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
@@ -271,23 +272,23 @@ class OverwatchService(
         return true
     }
 
-    fun getMemberList(boardId: Long): List<String>{
+    fun getMemberList(boardId: Long): List<ChatMemberListDTO>{
         val board = overwatchRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
-        val memberList = mutableListOf<String>()
+        val memberList = mutableListOf<ChatMemberListDTO>()
         for(element in chatRooms){
             if(element.oauth2Id == "banned")   continue
-            element.nickname?.let { memberList.add(it) }
+            element.nickname?.let { memberList.add(ChatMemberListDTO(element.oauth2Id, it)) }
         }
         return memberList
     }
 
-    fun getBanList(boardId: Long): List<String>{
+    fun getBanList(boardId: Long): List<ChatMemberListDTO>{
         val board = overwatchRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomIdAndOauth2Id(board.get().chatRoomId, "banned")
-        val banList = mutableListOf<String>()
+        val banList = mutableListOf<ChatMemberListDTO>()
         for(element in chatRooms){
-            element.nickname?.let { banList.add(it) }
+            element.nickname?.let { banList.add(ChatMemberListDTO(element.oauth2Id, it)) }
         }
         return banList
     }

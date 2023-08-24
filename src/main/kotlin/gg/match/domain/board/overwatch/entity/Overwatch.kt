@@ -1,5 +1,6 @@
 package gg.match.domain.board.overwatch.entity
 
+import gg.match.common.dto.ChatMemberListDTO
 import gg.match.common.entity.BoardBaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.overwatch.dto.HeroResponseDTO
@@ -34,7 +35,7 @@ class Overwatch(
     var expire: Expire
 
 ): BoardBaseEntity(){
-    fun toReadOverwatchBoardDTO(hero: HeroResponseDTO, memberList: List<String>, banList: List<String>): ReadOverwatchBoardDTO {
+    fun toReadOverwatchBoardDTO(hero: HeroResponseDTO, memberList: List<ChatMemberListDTO>, banList: List<ChatMemberListDTO>): ReadOverwatchBoardDTO {
         return ReadOverwatchBoardDTO(
             id = id,
             oauth2Id = oauth2Id,

@@ -1,5 +1,6 @@
 package gg.match.domain.board.pubg.entity
 
+import gg.match.common.dto.ChatMemberListDTO
 import gg.match.common.entity.BaseEntity
 import gg.match.common.entity.BoardBaseEntity
 import gg.match.controller.common.entity.Expire
@@ -35,7 +36,7 @@ class Pubg(
     var expire: Expire
 
 ): BoardBaseEntity(){
-    fun toReadPubgBoardDTO(player: PlayerResponseDTO, memberList: List<String>, banList: List<String>): ReadPubgBoardDTO {
+    fun toReadPubgBoardDTO(player: PlayerResponseDTO, memberList: List<ChatMemberListDTO>, banList: List<ChatMemberListDTO>): ReadPubgBoardDTO {
         return ReadPubgBoardDTO(
             id = id,
             oauth2Id = oauth2Id,

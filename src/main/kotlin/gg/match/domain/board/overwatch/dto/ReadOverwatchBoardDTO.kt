@@ -1,6 +1,7 @@
 package gg.match.domain.board.overwatch.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import gg.match.common.dto.ChatMemberListDTO
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.overwatch.entity.Position
 import gg.match.domain.board.overwatch.entity.Tier
@@ -48,8 +49,8 @@ class ReadOverwatchBoardDTO(
     var chatRoomId: String,
 
     @JsonProperty("memberList")
-    var memberList: List<String>,
+    var memberList: List<ChatMemberListDTO>,
 
     @JsonProperty("banList")
-    var banList: List<String>
+    var banList: List<ChatMemberListDTO>
 )

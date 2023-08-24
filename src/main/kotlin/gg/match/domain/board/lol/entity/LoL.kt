@@ -1,5 +1,6 @@
 package gg.match.domain.board.lol.entity
 
+import gg.match.common.dto.ChatMemberListDTO
 import gg.match.common.entity.BoardBaseEntity
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.LoLRequestDTO
@@ -33,7 +34,7 @@ class LoL(
     var expire: Expire
 
 ): BoardBaseEntity(){
-    fun toReadLoLBoardDTO(summoner: Summoner, memberList: List<String>, banList: List<String>): ReadLoLBoardDTO{
+    fun toReadLoLBoardDTO(summoner: Summoner, memberList: List<ChatMemberListDTO>, banList: List<ChatMemberListDTO>): ReadLoLBoardDTO{
         return ReadLoLBoardDTO(
             id = id,
             oauth2Id = oauth2Id,

@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.collections.HashSet
 import com.google.gson.Gson
+import gg.match.common.dto.ChatMemberListDTO
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
@@ -262,23 +263,23 @@ class LoLService(
         championByMatchRepository.save(championByMatch)
     }
 
-    fun getMemberList(boardId: Long): List<String>{
+    fun getMemberList(boardId: Long): List<ChatMemberListDTO>{
         val board = loLRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomId(board.get().chatRoomId)
-        val memberList = mutableListOf<String>()
+        val memberList = mutableListOf<ChatMemberListDTO>()
         for(element in chatRooms){
             if(element.oauth2Id == "banned")   continue
-            element.nickname?.let { memberList.add(it) }
+            element.nickname?.let { memberList.add(ChatMemberListDTO(element.oauth2Id, it)) }
         }
         return memberList
     }
 
-    fun getBanList(boardId: Long): List<String>{
+    fun getBanList(boardId: Long): List<ChatMemberListDTO>{
         val board = loLRepository.findById(boardId)
         val chatRooms = chatRepository.findAllByChatRoomIdAndOauth2Id(board.get().chatRoomId, "banned")
-        val banList = mutableListOf<String>()
+        val banList = mutableListOf<ChatMemberListDTO>()
         for(element in chatRooms){
-            element.nickname?.let { banList.add(it) }
+            element.nickname?.let { banList.add(ChatMemberListDTO(element.oauth2Id, it)) }
         }
         return banList
     }
