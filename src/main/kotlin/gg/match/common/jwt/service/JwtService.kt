@@ -1,5 +1,6 @@
 package gg.match.common.jwt.service
 
+import gg.match.common.dto.AdminLoginDTO
 import gg.match.common.jwt.util.JwtProvider
 import gg.match.common.jwt.util.JwtResolver
 import gg.match.controller.error.BusinessException
@@ -8,6 +9,7 @@ import gg.match.domain.user.dto.JwtTokenDTO
 import gg.match.domain.user.entity.User
 import gg.match.domain.user.oauth.OAuth2ServiceFactory
 import gg.match.domain.user.service.UserService
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -16,8 +18,25 @@ class JwtService(
     private val jwtProvider: JwtProvider,
     private val jwtResolver: JwtResolver,
     private val userService: UserService,
-    private val oAuth2ServiceFactory: OAuth2ServiceFactory
+    private val oAuth2ServiceFactory: OAuth2ServiceFactory,
+    private val encoder: PasswordEncoder
 ) {
+    fun adminIssue(adminLoginDTO: AdminLoginDTO): JwtTokenDTO{
+        val user: User = userService.findByOauth2Id(adminLoginDTO.id)
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        if(encoder.matches(adminLoginDTO.id, user.password)) {
+            val accessToken = jwtProvider.createAccessToken(user.oauth2Id)
+            val refreshToken = jwtProvider.createRefreshToken()
+            return JwtTokenDTO(
+                accessToken = accessToken,
+                refreshToken = refreshToken
+            )
+        }
+        else{
+            throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+        }
+    }
+
     fun issue(oauth2AccessToken: String): JwtTokenDTO {
         val oAuth2Id: String = oAuth2ServiceFactory
             .getOAuthService()

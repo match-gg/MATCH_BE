@@ -1,5 +1,6 @@
 package gg.match.domain.user.service
 
+import gg.match.common.dto.AdminLoginDTO
 import gg.match.common.jwt.service.JwtService
 import gg.match.common.util.Constants.Companion.REFRESH_TOKEN_PREFIX
 import gg.match.controller.error.BusinessException
@@ -19,6 +20,13 @@ class AuthService(
     private val jwtService: JwtService,
     private val refreshService: RefreshService
 ) {
+    @Transactional
+    fun adminLogin(adminLoginDTO: AdminLoginDTO): JwtTokenDTO{
+        val jwtToken = jwtService.adminIssue(adminLoginDTO)
+        refreshService.storeRefresh(jwtToken, adminLoginDTO.id)
+        return jwtToken
+    }
+
     @Transactional
     fun signUp(signUpRequestDTO: SignUpRequestDTO): Any?{
         val oAuth2User = oAuth2ServiceFactory

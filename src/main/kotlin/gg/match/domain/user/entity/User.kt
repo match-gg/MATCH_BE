@@ -15,6 +15,8 @@ class User(
 
     var oauth2Id: String,
 
+    var password: String = "",
+
     var nickname: String,
 
     var email: String?,
