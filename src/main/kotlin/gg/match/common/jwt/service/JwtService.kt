@@ -24,7 +24,7 @@ class JwtService(
     fun adminIssue(adminLoginDTO: AdminLoginDTO): JwtTokenDTO{
         val user: User = userService.findByOauth2Id(adminLoginDTO.id)
             ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
-        if(encoder.matches(adminLoginDTO.id, user.password)) {
+        if(encoder.matches(adminLoginDTO.pw, user.password)) {
             val accessToken = jwtProvider.createAccessToken(user.oauth2Id)
             val refreshToken = jwtProvider.createRefreshToken()
             return JwtTokenDTO(
