@@ -27,5 +27,7 @@ enum class ErrorCode(
     //PUBG
     USER_NOT_PLAYED(HttpStatus.NOT_FOUND, "게임 정보를 보유하고 있지 않습니다."),
     //CHAT
-    MEMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다.")
+    MEMBER(HttpStatus.BAD_REQUEST, "유효하지 않은 요청입니다."),
+    //ADMIN
+    INVALID_PW(HttpStatus.INTERNAL_SERVER_ERROR, "비밀번호가 일치하지 않습니다.")
 }

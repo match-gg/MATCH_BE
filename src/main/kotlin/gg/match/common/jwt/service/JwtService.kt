@@ -33,7 +33,7 @@ class JwtService(
             )
         }
         else{
-            throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+            throw BusinessException(ErrorCode.INVALID_PW)
         }
     }
 
