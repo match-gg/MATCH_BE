@@ -28,7 +28,6 @@ import gg.match.domain.board.lol.dto.*
 import gg.match.domain.board.lol.repository.ChampionByMatchRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
-import gg.match.domain.user.repository.FollowRepository
 import org.springframework.data.domain.Page
 import java.time.LocalDateTime
 

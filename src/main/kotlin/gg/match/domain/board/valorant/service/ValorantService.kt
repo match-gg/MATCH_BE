@@ -3,12 +3,23 @@ package gg.match.domain.board.valorant.service
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.google.gson.Gson
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
+import gg.match.domain.board.valorant.dto.AgentByMatchDTO
+import gg.match.domain.board.valorant.dto.HistoryDTO
 import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
 import gg.match.domain.board.valorant.entity.Agent
+import gg.match.domain.board.valorant.entity.AgentByMatch
+import gg.match.domain.board.valorant.repository.AgentByMatchRepository
 import gg.match.domain.board.valorant.repository.AgentRepository
+import org.apache.http.HttpResponse
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.util.EntityUtils
+import org.json.simple.JSONArray
+import org.json.simple.JSONObject
+import org.json.simple.parser.JSONParser
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Service
@@ -23,16 +34,30 @@ class ValorantService (
     @Value("\${valorant.client-id}") private val valorantClientId: String,
     @Value("\${valorant.client-secret}") private val valorantClientSecret: String,
     @Value("\${valorant.callback-uri}") private val valorantCallbackUri: String,
+    @Value("\${valorant.mykey}") private val mykey: String,
     private val agentRepository: AgentRepository,
+    private val agentByMatchRepository: AgentByMatchRepository,
     private val restTemplate: RestTemplate,
     private val objectMapper: ObjectMapper
 ){
     private val tokenUrl: String = "https://auth.riotgames.com/token"
     private val infoUrl: String = "https://asia.api.riotgames.com/riot/account/v1/accounts/me"
+    private val matchListUrl: String = "https://kr.api.riotgames.com/val/match/v1/matchlists/by-puuid"
+    val parser = JSONParser()
 
     fun getValorantUser(code: String): JsonNode{
-        val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
-        return getValorantUserData(rsoReturnJson)
+        try {
+            val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
+            val valorantUser = getValorantUserData(rsoReturnJson)
+            val puuid = valorantUser["puuid"].asText()
+            val agentName = valorantUser["gameName"] as String + "#" + valorantUser["tagLine"] as String
+            val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
+                .toEntity(puuid, agentName)
+            agentRepository.save(agent)
+            return valorantUser
+        } catch(e: Exception){
+            throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        }
     }
 
     private fun requestRiotAccessToken(code: String): JsonNode? {
@@ -53,8 +78,6 @@ class ValorantService (
             throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         return try {
-            val agent: Agent = objectMapper.readValue(response.body.toString(), ValorantUserTokenDTO::class.java).toEntity()
-            agentRepository.save(agent)
             objectMapper.readTree(response.body)
         } catch (e: JsonProcessingException) {
             throw Exception("반환 에러")
@@ -62,9 +85,7 @@ class ValorantService (
     }
 
     private fun getValorantUserData(rsoReturnJson: JsonNode): JsonNode{
-        val idToken = rsoReturnJson.get("id_token")
         val accessToken = rsoReturnJson.get("access_token").asText()
-        val refreshToken = rsoReturnJson.get("refresh_token")
 
         val httpHeaders = HttpHeaders()
         httpHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
@@ -85,5 +106,31 @@ class ValorantService (
         } catch (e: JsonProcessingException) {
             throw Exception("반환 에러")
         }
+    }
+
+    fun saveValorantUserData(valorantUserName: String): Any{
+        val puuid = agentRepository.findByAgentName(valorantUserName)?.puuid ?: BusinessException(ErrorCode.USER_NOT_FOUND)
+        saveValorantMatchHistory(puuid.toString())
+        return "good"
+    }
+
+    private fun saveValorantMatchHistory(puuid: String) {
+        var matchList =  ArrayList<String>()
+        val request = HttpGet("$matchListUrl/$puuid?api_key=$mykey")
+        val responseMatchList: HttpResponse = HttpClientBuilder.create().build().execute(request)
+
+        val matchHistory = parser.parse(EntityUtils.toString(responseMatchList.entity, "UTF-8")) as JSONObject
+
+//        val jsonString = EntityUtils.toString(responseMatchList.entity, "UTF-8")
+//        val gson = Gson()
+//        val sample = gson.fromJson(jsonString, HistoryDTO::class.java)
+
+        for(element in matchHistory["history"] as JSONArray){
+            val history = element as JSONObject
+            matchList.add(history["matchId"].toString())
+        }
+
+        println(matchList)
+
     }
 }
