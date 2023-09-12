@@ -12,7 +12,12 @@ class ValorantController(
     private val valorantService: ValorantService
 ) {
     @PostMapping("/user/exist")
-    fun test(@RequestBody valorantCodeRequest: ValorantCodeRequest): ResponseEntity<Any>{
+    fun getValorantUserExist(@RequestBody valorantCodeRequest: ValorantCodeRequest): ResponseEntity<Any>{
         return ResponseEntity.ok().body(valorantService.getValorantUser(valorantCodeRequest.code))
+    }
+
+    @GetMapping("/user/{valorant}")
+    fun saveValorantUser(@PathVariable valorant: String): ResponseEntity<Any>{
+        return ResponseEntity.ok().body(valorantService.saveValorantUserData(valorant))
     }
 }

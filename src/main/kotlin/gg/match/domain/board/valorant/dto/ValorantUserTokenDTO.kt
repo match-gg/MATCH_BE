@@ -10,12 +10,16 @@ data class ValorantUserTokenDTO (
     @JsonProperty("id_token")
     var id_token: String,
 
+    var puuid: String,
+
     @JsonProperty("refresh_token")
     var refresh_token: String,
 ){
-    fun toEntity(): Agent{
+    fun toEntity(puuid: String, agentName: String): Agent{
         return Agent(
             id_token = id_token,
+            agentName = agentName,
+            puuid = puuid,
             refreshToken = refresh_token
         )
     }
