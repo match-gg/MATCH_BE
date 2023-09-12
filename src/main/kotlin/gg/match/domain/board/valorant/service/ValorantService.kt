@@ -46,18 +46,14 @@ class ValorantService (
     val parser = JSONParser()
 
     fun getValorantUser(code: String): JsonNode{
-        try {
-            val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
-            val valorantUser = getValorantUserData(rsoReturnJson)
-            val puuid = valorantUser["puuid"].asText()
-            val agentName = valorantUser["gameName"] as String + "#" + valorantUser["tagLine"] as String
-            val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
-                .toEntity(puuid, agentName)
-            agentRepository.save(agent)
-            return valorantUser
-        } catch(e: Exception){
-            throw BusinessException(ErrorCode.USER_NOT_FOUND)
-        }
+        val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
+        val valorantUser = getValorantUserData(rsoReturnJson)
+        val puuid = valorantUser["puuid"].asText()
+        val agentName = valorantUser["gameName"] as String + "#" + valorantUser["tagLine"] as String
+        val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
+            .toEntity(puuid, agentName)
+        agentRepository.save(agent)
+        return valorantUser
     }
 
     private fun requestRiotAccessToken(code: String): JsonNode? {
