@@ -49,7 +49,7 @@ class ValorantService (
         val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
         val valorantUser = getValorantUserData(rsoReturnJson)
         val puuid = valorantUser["puuid"].asText()
-        val agentName = valorantUser["gameName"] as String + "#" + valorantUser["tagLine"] as String
+        val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
         agentRepository.save(agent)
