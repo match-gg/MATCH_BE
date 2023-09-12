@@ -10,6 +10,7 @@ data class ValorantUserTokenDTO (
     @JsonProperty("id_token")
     var id_token: String,
 
+    @JsonProperty("puuid")
     var puuid: String,
 
     @JsonProperty("refresh_token")
