@@ -3,8 +3,12 @@ package gg.match.domain.board.valorant.service
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
+import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
+import gg.match.domain.board.valorant.entity.Agent
+import gg.match.domain.board.valorant.repository.AgentRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.*
 import org.springframework.stereotype.Service
@@ -19,6 +23,7 @@ class ValorantService (
     @Value("\${valorant.client-id}") private val valorantClientId: String,
     @Value("\${valorant.client-secret}") private val valorantClientSecret: String,
     @Value("\${valorant.callback-uri}") private val valorantCallbackUri: String,
+    private val agentRepository: AgentRepository,
     private val restTemplate: RestTemplate,
     private val objectMapper: ObjectMapper
 ){
@@ -48,16 +53,18 @@ class ValorantService (
             throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         return try {
+            val agent: Agent = objectMapper.readValue(response.body.toString(), ValorantUserTokenDTO::class.java).toEntity()
+            agentRepository.save(agent)
             objectMapper.readTree(response.body)
         } catch (e: JsonProcessingException) {
             throw Exception("반환 에러")
         }
     }
 
-    private fun getValorantUserData(jsonNode: JsonNode): JsonNode{
-        val idToken = jsonNode.get("id_token")
-        val accessToken = jsonNode.get("access_token").asText()
-        val refreshToken = jsonNode.get("refresh_token")
+    private fun getValorantUserData(rsoReturnJson: JsonNode): JsonNode{
+        val idToken = rsoReturnJson.get("id_token")
+        val accessToken = rsoReturnJson.get("access_token").asText()
+        val refreshToken = rsoReturnJson.get("refresh_token")
 
         val httpHeaders = HttpHeaders()
         httpHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED

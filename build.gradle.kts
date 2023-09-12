@@ -7,7 +7,6 @@ plugins {
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
     kotlin("kapt") version "1.7.10"
-    id ("com.ewerk.gradle.plugins.querydsl") version "1.0.10"
 }
 
 allOpen {
