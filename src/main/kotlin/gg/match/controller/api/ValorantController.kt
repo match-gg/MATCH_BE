@@ -18,6 +18,6 @@ class ValorantController(
 
     @GetMapping("/user/{valorant}")
     fun saveValorantUser(@PathVariable valorant: String): ResponseEntity<Any>{
-        return ResponseEntity.ok().body(valorantService.saveValorantUserData(valorant))
+        return ResponseEntity.ok().body(valorantService.saveValorantUserData(valorant.replace("%23", "#")))
     }
 }
