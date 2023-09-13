@@ -44,14 +44,13 @@ class ValorantService (
     fun getValorantUser(code: String): JsonNode{
         val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
         val valorantUser = getValorantUserData(rsoReturnJson)
-        println()
         val puuid = valorantUser["puuid"].asText()
-        println("puuid = $puuid")
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
-        println("agentName= $agentName")
-        println("rsoReturnJson$rsoReturnJson")
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
+        if(agentRepository.existsByAgentName(agentName)){
+            agentRepository.deleteByAgentName(agentName)
+        }
         agentRepository.save(agent)
         return valorantUser
     }
