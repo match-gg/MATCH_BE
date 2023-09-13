@@ -7,6 +7,7 @@ import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
 import gg.match.domain.board.valorant.entity.Agent
+import gg.match.domain.board.valorant.entity.ValorantGameModes
 import gg.match.domain.board.valorant.repository.AgentByMatchRepository
 import gg.match.domain.board.valorant.repository.AgentRepository
 import org.apache.http.HttpResponse
@@ -39,6 +40,7 @@ class ValorantService (
     private val tokenUrl: String = "https://auth.riotgames.com/token"
     private val infoUrl: String = "https://asia.api.riotgames.com/riot/account/v1/accounts/me"
     private val matchListUrl: String = "https://kr.api.riotgames.com/val/match/v1/matchlists/by-puuid"
+    private val matchUrl: String = "https://kr.api.riotgames.com/val/match/v1/matches"
     val parser = JSONParser()
 
     fun getValorantUser(code: String): JsonNode{
@@ -49,7 +51,7 @@ class ValorantService (
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
         if(agentRepository.existsByAgentName(agentName)){
-            agentRepository.deleteByAgentName(agentName)
+            agentRepository.deleteAllByAgentName(agentName)
         }
         agentRepository.save(agent)
         return valorantUser
@@ -126,6 +128,18 @@ class ValorantService (
         }
 
         println(matchList)
+        for(element in matchList){
+            getMatchData(element, puuid)
+        }
 
+    }
+
+    private fun getMatchData(matchId: String, puuid: String){
+        val request = HttpGet("$matchUrl/$matchId?api_key=$mykey")
+        val responseMatch: HttpResponse = HttpClientBuilder.create().build().execute(request)
+        val matchHistory = parser.parse(EntityUtils.toString(responseMatch.entity, "UTF-8")) as JSONObject
+        val matchInfo = matchHistory["matchInfo"] as JSONObject
+        val gameMode = matchInfo["gameMode"].toString()
+        println(ValorantGameModes.assetPathToName(gameMode))
     }
 }

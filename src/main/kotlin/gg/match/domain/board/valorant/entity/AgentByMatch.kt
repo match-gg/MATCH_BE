@@ -13,5 +13,7 @@ class AgentByMatch(
 
     var matchId: String,
 
-    var agentName: String
+    var agentName: String,
+
+    var gameMode: String
 )

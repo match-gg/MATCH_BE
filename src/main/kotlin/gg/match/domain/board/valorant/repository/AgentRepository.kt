@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface AgentRepository: JpaRepository<Agent, Long> {
     fun findByAgentName(agentName: String): Agent?
     fun existsByAgentName(agentName: String): Boolean
-    fun deleteByAgentName(agentName: String)
+    fun deleteAllByAgentName(agentName: String)
 }
