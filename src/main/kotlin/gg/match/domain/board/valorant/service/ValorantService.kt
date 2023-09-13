@@ -3,14 +3,10 @@ package gg.match.domain.board.valorant.service
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.gson.Gson
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
-import gg.match.domain.board.valorant.dto.AgentByMatchDTO
-import gg.match.domain.board.valorant.dto.HistoryDTO
 import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
 import gg.match.domain.board.valorant.entity.Agent
-import gg.match.domain.board.valorant.entity.AgentByMatch
 import gg.match.domain.board.valorant.repository.AgentByMatchRepository
 import gg.match.domain.board.valorant.repository.AgentRepository
 import org.apache.http.HttpResponse
