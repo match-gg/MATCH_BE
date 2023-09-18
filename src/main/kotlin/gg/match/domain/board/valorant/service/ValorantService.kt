@@ -134,23 +134,31 @@ class ValorantService (
     }
 
     private fun getMatchData(matchId: String, puuid: String){
+        var damage = 0L
+        var leg = 0L
+        var body = 0L
+        var head = 0L
+
         val request = HttpGet("$matchUrl/$matchId?api_key=$mykey")
         val responseMatch: HttpResponse = HttpClientBuilder.create().build().execute(request)
         val matchHistory = parser.parse(EntityUtils.toString(responseMatch.entity, "UTF-8")) as JSONObject
         val matchInfo = matchHistory["matchInfo"] as JSONObject
         val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString())
         var rounds = 0
-        var allDamageData = arrayOf(0L, 0L, 0L, 0L)
+        var damageData: Array<Long>
         val roundResults = matchHistory["roundResults"] as JSONArray
 
-        for(roundResult in roundResults){
+        for(roundResult in roundResults) {
             rounds += 1
-            allDamageData += getRoundResultData(roundResult as JSONObject, puuid)
+            damageData = getRoundResultData(roundResult as JSONObject, puuid)
+            damage += damageData[0]
+            leg += damageData[1]
+            body += damageData[2]
+            head += damageData[3]
         }
-        val headShot = allDamageData[3]
-        val shots = allDamageData[1] + allDamageData[2] + allDamageData[3]
-        val avgDmg = allDamageData[0] / rounds
-        println("head=$headShot shots=$shots avgDmg = $avgDmg")
+        val shots = leg+body+head
+        val avgDmg = damage / rounds
+        println("head=$head shots=$shots avgDmg = $avgDmg")
     }
 
     private fun getRoundResultData(roundResult: JSONObject, puuid: String): Array<Long> {
@@ -165,11 +173,9 @@ class ValorantService (
             if(playerStat["puuid"] != puuid){
                 continue
             }
-            println("맞는 puuid 발견!")
             damageDTO = playerStat["damage"] as JSONArray
             for(damageInfo in damageDTO){
                 damageInfo as JSONObject
-                println("damageInfo: $damageInfo")
                 damage += damageInfo["damage"] as Long
                 leg += damageInfo["legshots"] as Long
                 body += damageInfo["bodyshots"] as Long
