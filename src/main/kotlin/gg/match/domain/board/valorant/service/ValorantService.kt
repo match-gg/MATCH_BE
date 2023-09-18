@@ -45,17 +45,23 @@ class ValorantService (
 
     fun getValorantUser(code: String): JsonNode{
         val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
+        println("rsoReturnJson get!!")
         val valorantUser = getValorantUserData(rsoReturnJson)
+        println("valorantUser get!!")
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
-        val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
-            .toEntity(puuid, agentName)
-        
+
         if(agentRepository.existsByAgentName(agentName)){
             println("agent이름 중복")
             agentRepository.deleteAllByAgentName(agentName)
         }
+
+        val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
+            .toEntity(puuid, agentName)
+        println("agent get!!")
+
         agentRepository.save(agent)
+        println("agent save!!")
         return valorantUser
     }
 
@@ -142,7 +148,7 @@ class ValorantService (
         val matchInfo = matchHistory["matchInfo"] as JSONObject
         val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString())
         var rounds = 0
-        var allDamageData = arrayOf(0, 0, 0, 0)
+        var allDamageData = arrayOf(0L, 0L, 0L, 0L)
         val roundResults = matchHistory["roundResults"] as JSONArray
 
         for(roundResult in roundResults){
@@ -156,13 +162,13 @@ class ValorantService (
         println("head=$headShot shots=$shots avgDmg = $avgDmg")
     }
 
-    private fun getRoundResultData(roundResult: JSONObject, puuid: String): Array<Int> {
+    private fun getRoundResultData(roundResult: JSONObject, puuid: String): Array<Long> {
         val playerStats = roundResult["playerStats"] as JSONArray
         var damageDTO: JSONArray
-        var damage = 0
-        var leg = 0
-        var body = 0
-        var head = 0
+        var damage = 0L
+        var leg = 0L
+        var body = 0L
+        var head = 0L
         for(playerStat in playerStats){
             playerStat as JSONObject
             if(playerStat["puuid"] != puuid){
@@ -171,10 +177,10 @@ class ValorantService (
             damageDTO = playerStat["damage"] as JSONArray
             for(damageInfo in damageDTO){
                 damageInfo as JSONObject
-                damage += damageInfo["damage"] as Int
-                leg += damageInfo["legshots"] as Int
-                body += damageInfo["bodyshots"] as Int
-                head += damageInfo["headshots"] as Int
+                damage += damageInfo["damage"] as Long
+                leg += damageInfo["legshots"] as Long
+                body += damageInfo["bodyshots"] as Long
+                head += damageInfo["headshots"] as Long
             }
         }
         return arrayOf(damage, leg, body, head)
