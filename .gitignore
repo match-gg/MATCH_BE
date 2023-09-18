@@ -37,7 +37,9 @@ out/
 .DS_Store
 
 ### local database setting ###
-src/main/resources/application-local.yml
+*.yml
+*.yaml
+*.properties
 
 ### VS Code ###
 .vscode/
