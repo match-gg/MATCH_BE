@@ -15,5 +15,5 @@ class Agent(
 
     var puuid: String,
 
-    var refreshToken: String
+    var refreshToken: String,
 )

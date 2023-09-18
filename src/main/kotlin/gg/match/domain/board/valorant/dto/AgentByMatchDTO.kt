@@ -10,13 +10,33 @@ data class AgentByMatchDTO (
     var matchId: String,
 
     @JsonProperty("agentName")
-    var agentName: String
+    var agentName: String,
+
+    @JsonProperty("gameMode")
+    var gameMode: String,
+
+    @JsonProperty("avgDmg")
+    var avgDmg: Long,
+
+    @JsonProperty("head")
+    var head: Long,
+
+    @JsonProperty("shots")
+    var shots: Long,
+
+    @JsonProperty("isRanked")
+    var isRanked: String
 ){
     fun toEntity(valorantUserName: String): AgentByMatch{
         return AgentByMatch(
             puuid = valorantUserName,
             matchId = matchId,
-            agentName = agentName
+            agentName = agentName,
+            gameMode = gameMode,
+            avgDmg = avgDmg,
+            head = head,
+            shots = shots,
+            isRanked = isRanked
         )
     }
 }

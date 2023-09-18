@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
+import gg.match.domain.board.valorant.dto.AgentByMatchDTO
 import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
 import gg.match.domain.board.valorant.entity.Agent
 import gg.match.domain.board.valorant.entity.ValorantGameModes
@@ -49,10 +50,10 @@ class ValorantService (
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
 
-        if(agentRepository.existsByAgentName(agentName)){
-            agentRepository.findByAgentName(agentName)?.let { agentRepository.delete(it) }
+        val oldAgent = agentRepository.findByPuuid(puuid)
+        if(oldAgent != null){
+            agentRepository.delete(oldAgent)
         }
-
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
         agentRepository.save(agent)
@@ -143,7 +144,9 @@ class ValorantService (
         val responseMatch: HttpResponse = HttpClientBuilder.create().build().execute(request)
         val matchHistory = parser.parse(EntityUtils.toString(responseMatch.entity, "UTF-8")) as JSONObject
         val matchInfo = matchHistory["matchInfo"] as JSONObject
-        val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString())
+        val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString()) ?: return
+        val isRanked = matchInfo["isRanked"].toString()
+        val userName = agentRepository.findByPuuid(puuid)?.agentName ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         var rounds = 0
         var damageData: Array<Long>
         val roundResults = matchHistory["roundResults"] as JSONArray
@@ -158,10 +161,9 @@ class ValorantService (
         }
         val shots = leg+body+head
         val avgDmg = damage / rounds
-        println("총 라운드=$rounds gameMode=$gameMode")
-        println("damage=$damage, leg=$leg, body=$body, head=$head")
-        println("head=$head shots=$shots avgDmg = $avgDmg")
-        println()
+
+        val agentByMatch = AgentByMatchDTO(matchId, userName, gameMode.toString(), avgDmg, head, shots, isRanked).toEntity(puuid)
+        agentByMatchRepository.save(agentByMatch)
     }
 
     private fun getRoundResultData(roundResult: JSONObject, puuid: String): Array<Long> {
@@ -185,9 +187,6 @@ class ValorantService (
                 head += damageInfo["headshots"] as Long
             }
         }
-        println("이번 라운드의 성적")
-        println("damage=$damage, leg=$leg, body=$body, head=$head")
-        println()
         return arrayOf(damage, leg, body, head)
     }
 }

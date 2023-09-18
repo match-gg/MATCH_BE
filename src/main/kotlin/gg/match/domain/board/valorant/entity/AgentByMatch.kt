@@ -15,5 +15,13 @@ class AgentByMatch(
 
     var agentName: String,
 
-    var gameMode: String
+    var gameMode: String,
+
+    var avgDmg: Long,
+
+    var head: Long,
+
+    var shots: Long,
+
+    var isRanked: String
 )

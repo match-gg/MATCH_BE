@@ -7,4 +7,5 @@ interface AgentRepository: JpaRepository<Agent, Long> {
     fun findByAgentName(agentName: String): Agent?
     fun existsByAgentName(agentName: String): Boolean
     fun deleteAllByAgentName(agentName: String)
+    fun findByPuuid(puuid: String): Agent?
 }
