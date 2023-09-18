@@ -150,8 +150,6 @@ class ValorantService (
         val headShot = allDamageData[3]
         val shots = allDamageData[1] + allDamageData[2] + allDamageData[3]
         val avgDmg = allDamageData[0] / rounds
-
-        println("allDamageData = $allDamageData")
         println("head=$headShot shots=$shots avgDmg = $avgDmg")
     }
 
@@ -171,12 +169,14 @@ class ValorantService (
             damageDTO = playerStat["damage"] as JSONArray
             for(damageInfo in damageDTO){
                 damageInfo as JSONObject
+                println("damageInfo: $damageInfo")
                 damage += damageInfo["damage"] as Long
                 leg += damageInfo["legshots"] as Long
                 body += damageInfo["bodyshots"] as Long
                 head += damageInfo["headshots"] as Long
             }
         }
+        println("damage=$damage, leg=$leg, body=$body, head=$head")
         return arrayOf(damage, leg, body, head)
     }
 }
