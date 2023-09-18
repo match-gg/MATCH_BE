@@ -45,23 +45,17 @@ class ValorantService (
 
     fun getValorantUser(code: String): JsonNode{
         val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
-        println("rsoReturnJson get!!")
         val valorantUser = getValorantUserData(rsoReturnJson)
-        println("valorantUser get!!")
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
 
         if(agentRepository.existsByAgentName(agentName)){
-            println("agent이름 중복")
-            agentRepository.deleteAllByAgentName(agentName)
+            agentRepository.findByAgentName(agentName)?.let { agentRepository.delete(it) }
         }
 
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
-        println("agent get!!")
-
         agentRepository.save(agent)
-        println("agent save!!")
         return valorantUser
     }
 
@@ -115,7 +109,6 @@ class ValorantService (
 
     fun saveValorantUserData(valorantUserName: String): Any{
         val puuid = agentRepository.findByAgentName(valorantUserName)?.puuid ?: BusinessException(ErrorCode.USER_NOT_FOUND)
-        println("user puuid = $puuid")
         saveValorantMatchHistory(puuid.toString())
         return "good"
     }
@@ -135,7 +128,6 @@ class ValorantService (
             val history = element as JSONObject
             matchList.add(history["matchId"].toString())
         }
-        println(matchList)
         for(element in matchList){
             getMatchData(element, puuid)
         }
@@ -159,6 +151,7 @@ class ValorantService (
         val shots = allDamageData[1] + allDamageData[2] + allDamageData[3]
         val avgDmg = allDamageData[0] / rounds
 
+        println("allDamageData = $allDamageData")
         println("head=$headShot shots=$shots avgDmg = $avgDmg")
     }
 
@@ -174,6 +167,7 @@ class ValorantService (
             if(playerStat["puuid"] != puuid){
                 continue
             }
+            println("맞는 puuid 발견!")
             damageDTO = playerStat["damage"] as JSONArray
             for(damageInfo in damageDTO){
                 damageInfo as JSONObject
