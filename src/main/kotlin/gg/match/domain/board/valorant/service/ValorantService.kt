@@ -126,12 +126,9 @@ class ValorantService (
             val history = element as JSONObject
             matchList.add(history["matchId"].toString())
         }
-
-        println(matchList)
         for(element in matchList){
             getMatchData(element, puuid)
         }
-
     }
 
     private fun getMatchData(matchId: String, puuid: String){
@@ -139,7 +136,43 @@ class ValorantService (
         val responseMatch: HttpResponse = HttpClientBuilder.create().build().execute(request)
         val matchHistory = parser.parse(EntityUtils.toString(responseMatch.entity, "UTF-8")) as JSONObject
         val matchInfo = matchHistory["matchInfo"] as JSONObject
-        val gameMode = matchInfo["gameMode"].toString()
-        println(ValorantGameModes.assetPathToName(gameMode))
+        val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString())
+        var rounds = 0
+        var allDamageData = arrayOf(0, 0, 0, 0)
+        val roundResults = matchHistory["RoundResults"] as JSONArray
+
+        for(roundResult in roundResults){
+            rounds += 1
+            allDamageData += getRoundResultData(roundResult as JSONObject, puuid)
+        }
+        val headShot = allDamageData[3]
+        val shots = allDamageData[1] + allDamageData[2] + allDamageData[3]
+        val avgDmg = allDamageData[0] / rounds
+
+        println("head=$headShot shots=$shots avgDmg = $avgDmg")
+    }
+
+    private fun getRoundResultData(roundResult: JSONObject, puuid: String): Array<Int> {
+        val playerStats = roundResult["playerStats"] as JSONArray
+        var damageDTO: JSONArray
+        var damage = 0
+        var leg = 0
+        var body = 0
+        var head = 0
+        for(playerStat in playerStats){
+            playerStat as JSONObject
+            if(playerStat["puuid"] != puuid){
+                continue
+            }
+            damageDTO = playerStat["damage"] as JSONArray
+            for(damageInfo in damageDTO){
+                damageInfo as JSONObject
+                damage += damageInfo["damage"] as Int
+                leg += damageInfo["legshots"] as Int
+                body += damageInfo["bodyshots"] as Int
+                head += damageInfo["headshots"] as Int
+            }
+        }
+        return arrayOf(damage, leg, body, head)
     }
 }
