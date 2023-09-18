@@ -50,7 +50,9 @@ class ValorantService (
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
+        
         if(agentRepository.existsByAgentName(agentName)){
+            println("agent이름 중복")
             agentRepository.deleteAllByAgentName(agentName)
         }
         agentRepository.save(agent)
@@ -139,7 +141,7 @@ class ValorantService (
         val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString())
         var rounds = 0
         var allDamageData = arrayOf(0, 0, 0, 0)
-        val roundResults = matchHistory["RoundResults"] as JSONArray
+        val roundResults = matchHistory["roundResults"] as JSONArray
 
         for(roundResult in roundResults){
             rounds += 1
