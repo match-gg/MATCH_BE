@@ -109,6 +109,7 @@ class ValorantService (
 
     fun saveValorantUserData(valorantUserName: String): Any{
         val puuid = agentRepository.findByAgentName(valorantUserName)?.puuid ?: BusinessException(ErrorCode.USER_NOT_FOUND)
+        println("user puuid = $puuid")
         saveValorantMatchHistory(puuid.toString())
         return "good"
     }
@@ -128,6 +129,7 @@ class ValorantService (
             val history = element as JSONObject
             matchList.add(history["matchId"].toString())
         }
+        println(matchList)
         for(element in matchList){
             getMatchData(element, puuid)
         }
