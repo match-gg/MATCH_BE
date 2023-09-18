@@ -158,7 +158,10 @@ class ValorantService (
         }
         val shots = leg+body+head
         val avgDmg = damage / rounds
+        println("총 라운드=$rounds gameMode=$gameMode")
+        println("damage=$damage, leg=$leg, body=$body, head=$head")
         println("head=$head shots=$shots avgDmg = $avgDmg")
+        println()
     }
 
     private fun getRoundResultData(roundResult: JSONObject, puuid: String): Array<Long> {
@@ -182,7 +185,9 @@ class ValorantService (
                 head += damageInfo["headshots"] as Long
             }
         }
+        println("이번 라운드의 성적")
         println("damage=$damage, leg=$leg, body=$body, head=$head")
+        println()
         return arrayOf(damage, leg, body, head)
     }
 }
