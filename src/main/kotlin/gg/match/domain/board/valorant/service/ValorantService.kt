@@ -121,9 +121,11 @@ class ValorantService (
             val history = element as JSONObject
             matchList.add(history["matchId"].toString())
         }
+        println("matchList: $matchList")
 
         for(element in matchList){
             if(!agentByMatchRepository.existsByMatchId(element)){
+                println("전적쌓기 진입")
                 getMatchData(element, puuid)
             }
         }
