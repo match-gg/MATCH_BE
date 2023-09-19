@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.*
 class ValorantController(
     private val valorantService: ValorantService
 ) {
+    @GetMapping("/user/exist/{valorant}")
+    fun existByUserNickname(@PathVariable valorant: String): ResponseEntity<Boolean>{
+        return ResponseEntity.ok().body(valorantService.existByUserNickname(valorant.replace("%23", "#")))
+    }
+
     @PostMapping("/user/sign")
     fun getValorantUserExist(@RequestBody valorantCodeRequest: ValorantCodeRequest): ResponseEntity<Any>{
         return ResponseEntity.ok().body(valorantService.getValorantUser(valorantCodeRequest.code))

@@ -45,6 +45,10 @@ class ValorantService (
     private val matchUrl: String = "https://kr.api.riotgames.com/val/match/v1/matches"
     val parser = JSONParser()
 
+    fun existByUserNickname(userName: String): Boolean{
+        return agentRepository.existsByAgentName(userName)
+    }
+
     fun getValorantUser(code: String): JsonNode{
         val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
         val valorantUser = getValorantUserData(rsoReturnJson)
