@@ -17,7 +17,8 @@ class Valorant (
 
     var oauth2Id: String,
 
-    var valorantGameModes: String,
+    @Enumerated(EnumType.STRING)
+    var valorantGameModes: ValorantGameModes,
 
     @Column(length=1)
     var voice: String,
@@ -32,7 +33,7 @@ class Valorant (
         return ReadValorantBoardDTO(
             id = id,
             oauth2Id = oauth2Id,
-            valorantGameModes = valorantGameModes.toString(),
+            gameMode = valorantGameModes,
             voice = voice,
             content = content,
             expire = expire,
@@ -47,7 +48,7 @@ class Valorant (
     }
 
     fun update(valorantRequestDTO: ValorantRequestDTO){
-        valorantGameModes = valorantRequestDTO.valorantGameModes.toString()
+        valorantGameModes = valorantRequestDTO.valorantGameModes
         voice = valorantRequestDTO.voice
         content = valorantRequestDTO.content
         expire = valorantRequestDTO.expire

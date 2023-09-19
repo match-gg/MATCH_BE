@@ -125,7 +125,7 @@ class ValorantService (
     }
 
     fun saveValorantUserData(valorantUserName: String){
-        val puuid = agentRepository.findByNameAndGameMode(valorantUserName, ValorantGameModes.NONE.toString())?.puuid
+        val puuid = agentRepository.findByNameAndGameMode(valorantUserName, ValorantGameModes.NONE)?.puuid
         saveValorantMatchHistory(puuid.toString())
     }
 
@@ -160,7 +160,7 @@ class ValorantService (
         var agent: Agent
         val basicAgent = agentRepository.findByPuuid(puuid) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         enumValues<ValorantGameModes>().forEach {
-            val agentByMatch = agentByMatchRepository.findAllByGameMode(it.toString()) ?: return
+            val agentByMatch = agentByMatchRepository.findAllByGameMode(it) ?: return
             for(i in agentByMatch.indices){
                 avgDmg += agentByMatch[i].avgDmg
                 kills += agentByMatch[i].kills

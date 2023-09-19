@@ -14,7 +14,7 @@ data class ReadValorantBoardDTO (
     var oauth2Id: String,
 
     @JsonProperty("gameMode")
-    var valorantGameModes: String,
+    var gameMode: ValorantGameModes,
 
     @JsonProperty("voice")
     var voice: String,
