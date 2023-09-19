@@ -151,7 +151,7 @@ class ValorantService (
         val initArray = arrayOf(0L, 0L, 0L, 0L)
         var (avgDmg, tier, kills, deaths) = initArray
         var (wins, losses, heads, shots) = initArray
-        var most1Agent = "poro"
+        var most1Agent: String
         var most2Agent = "poro"
         var most3Agent = "poro"
         val tierList: MutableList<Long> = arrayListOf()
@@ -159,8 +159,9 @@ class ValorantService (
         var mostAgents: List<Pair<String, Int>>
         var agent: Agent
         val basicAgent = agentRepository.findByPuuid(puuid) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        println("enum 값 돌기 전까지 옴")
         enumValues<ValorantGameModes>().forEach {
-            val agentByMatch = agentByMatchRepository.findAllByGameMode(it)
+            val agentByMatch = agentByMatchRepository.findAllByGameMode(it) ?: return
             for(i in agentByMatch.indices){
                 avgDmg += agentByMatch[i].avgDmg
                 kills += agentByMatch[i].kills
