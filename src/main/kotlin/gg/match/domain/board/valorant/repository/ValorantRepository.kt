@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param
 
 interface ValorantRepository: JpaRepository<Valorant, Long> {
     fun findAllByOrderByExpiredAscIdDesc(pageable: Pageable): Page<Valorant>
-    fun findAllByValorantGameModesOrderByExpiredAscIdDesc(pageable: Pageable, valorantGameModes: ValorantGameModes): Page<Valorant>
+    fun findAllByValorantGameModesOrderByExpiredAscIdDesc(pageable: Pageable, valorantGameModes: String): Page<Valorant>
     fun findAllByOauth2IdInAndExpiredAndFinishedOrderByIdDesc(pageable: Pageable, @Param("oauth2Ids") oauth2Ids: List<String>, expired: String, finished: String): Page<Valorant>
 }
