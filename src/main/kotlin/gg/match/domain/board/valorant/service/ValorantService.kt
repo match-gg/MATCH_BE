@@ -123,11 +123,9 @@ class ValorantService (
         }
 
         for(element in matchList){
-            println(agentByMatchRepository.existsByMatchId(element))
-            if(agentByMatchRepository.existsByMatchId(element)){
-                continue
+            if(!agentByMatchRepository.existsByMatchId(element)){
+                getMatchData(element, puuid)
             }
-            getMatchData(element, puuid)
         }
     }
 
