@@ -89,9 +89,9 @@ class ValorantBoardService (
             chatRepository.delete(element)
     }
 
-    private fun getAgentByName(name: String, valorantGameModes: ValorantGameModes): AgentResponseDTO {
+    private fun getAgentByName(name: String, valorantGameModes: String): AgentResponseDTO {
         return try{
-            agentRepository.findByNameAndGameMode(name, valorantGameModes.toString()).toAgentResponseDTO()
+            agentRepository.findByNameAndGameMode(name, valorantGameModes).toAgentResponseDTO()
         } catch (e: Exception){
             throw BusinessException(ErrorCode.USER_NOT_FOUND)
         }

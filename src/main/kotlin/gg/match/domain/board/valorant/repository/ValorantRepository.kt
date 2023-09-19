@@ -1,7 +1,6 @@
 package gg.match.domain.board.valorant.repository
 
 import gg.match.domain.board.valorant.entity.Valorant
-import gg.match.domain.board.valorant.entity.ValorantGameModes
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository

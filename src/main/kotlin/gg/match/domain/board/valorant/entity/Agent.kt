@@ -18,8 +18,7 @@ class Agent(
 
     var refreshToken: String,
 
-    @Enumerated(EnumType.STRING)
-    var gameMode: ValorantGameModes = ValorantGameModes.NONE,
+    var gameMode: String = ValorantGameModes.NONE.toString(),
 
     var tier: Long = 0,
 
