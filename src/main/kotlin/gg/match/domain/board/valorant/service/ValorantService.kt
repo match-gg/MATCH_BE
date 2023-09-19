@@ -150,7 +150,9 @@ class ValorantService (
         val roundResults = matchHistory["roundResults"] as JSONArray
         val killsAndDeaths = getKillsAndDeaths(players, puuid)
         val playerStats = getWonData(players, puuid, matchHistory["teams"] as JSONArray)
+        println("playerstats1 = ${playerStats[1]}")
         val character = ValorantCharacters.characterIdToName(playerStats[1])
+        println("변환 = $character")
 
         for(roundResult in roundResults) {
             rounds += 1
@@ -220,6 +222,7 @@ class ValorantService (
             }
             teamId = player["teamId"].toString()
             characterId = player["characterId"].toString()
+            println("characterId = $characterId")
             for(team in teams){
                 team as JSONObject
                 if(team["teamId"] == teamId){

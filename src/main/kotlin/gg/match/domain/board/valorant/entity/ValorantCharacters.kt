@@ -33,7 +33,7 @@ enum class ValorantCharacters(
 
     companion object{
         fun characterIdToName(id: String): ValorantCharacters? {
-            return Arrays.stream(ValorantCharacters.values())
+            return Arrays.stream(values())
                 .filter{ v -> v.id == id }
                 .findAny()
                 .orElse(null)
