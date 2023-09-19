@@ -5,8 +5,11 @@ import gg.match.controller.common.dto.PageResult
 import gg.match.controller.common.entity.Expire
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
+import gg.match.domain.board.overwatch.dto.ReadOverwatchBoardDTO
+import gg.match.domain.board.valorant.dto.AgentResponseDTO
 import gg.match.domain.board.valorant.dto.ReadValorantBoardDTO
 import gg.match.domain.board.valorant.dto.ValorantRequestDTO
+import gg.match.domain.board.valorant.entity.Agent
 import gg.match.domain.board.valorant.entity.Valorant
 import gg.match.domain.board.valorant.entity.ValorantGameModes
 import gg.match.domain.board.valorant.repository.AgentByMatchRepository
@@ -30,6 +33,19 @@ class ValorantBoardService (
     private val chatRepository: ChatRepository
 ){
     lateinit var result: PageResult<ReadValorantBoardDTO>
+
+    @Transactional
+    fun getFollowerBoards(user: User, pageable: Pageable, oauth2Ids: List<String>): PageResult<ReadValorantBoardDTO>{
+        val boards = valorantRepository.findAllByOauth2IdInAndExpiredAndFinishedOrderByIdDesc(pageable, oauth2Ids, "false", "false")
+        if(boards.isEmpty) throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+        val result = PageResult.ok(boards.map { it.toReadValorantBoardDTO(agentRepository.findByNameAndGameMode(it.name, it.valorantGameModes).toAgentResponseDTO(), getMemberList(it.id, "false"), getMemberList(it.id, "true"))})
+        for(i in 0 until boards.content.size){
+            val name = boards.content[i].name
+            result.content[i].author = getAgentByName(name, boards.content[i].valorantGameModes)
+        }
+        return result
+    }
+
     fun getBoards(pageable: Pageable, gameMode: ValorantGameModes): PageResult<ReadValorantBoardDTO> {
         val boards = if(gameMode == ValorantGameModes.ALL){
             valorantRepository.findAllByOrderByExpiredAscIdDesc(pageable)
@@ -42,10 +58,10 @@ class ValorantBoardService (
         if(boards.isEmpty)  throw BusinessException(ErrorCode.NO_BOARD_FOUND)
         result = PageResult.ok(boards.map { it.toReadValorantBoardDTO(agentRepository.findByNameAndGameMode(it.name, it.valorantGameModes).toAgentResponseDTO(), getMemberList(it.id, "false"), getMemberList(it.id, "true"))})
 
-//        for(i in 0 until boards.content.size){
-//            val playerName = boards.content[i].name
-//            result.content[i].author = getPlayerByPlatformAndType(playerName, boards.content[i].platform, boards.content[i].type)
-//        }
+        for(i in 0 until boards.content.size){
+            val playerName = boards.content[i].name
+            result.content[i].author = getAgentByName(playerName, boards.content[i].valorantGameModes)
+        }
         return result
     }
 
@@ -71,6 +87,14 @@ class ValorantBoardService (
         val chat = chatRepository.findAllByChatRoomId(board.chatRoomId)
         for(element in chat)
             chatRepository.delete(element)
+    }
+
+    private fun getAgentByName(name: String, valorantGameModes: ValorantGameModes): AgentResponseDTO {
+        return try{
+            agentRepository.findByNameAndGameMode(name, valorantGameModes).toAgentResponseDTO()
+        } catch (e: Exception){
+            throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        }
     }
 
     @Transactional

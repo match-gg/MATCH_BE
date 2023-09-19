@@ -8,6 +8,7 @@ import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.lol.service.LoLService
 import gg.match.domain.board.overwatch.service.OverwatchService
 import gg.match.domain.board.pubg.service.PubgService
+import gg.match.domain.board.valorant.service.ValorantBoardService
 import gg.match.domain.user.dto.*
 import gg.match.domain.user.entity.Game
 import gg.match.domain.user.entity.User
@@ -30,6 +31,7 @@ class UserController(
     private val loLService: LoLService,
     private val pubgService: PubgService,
     private val overwatchService: OverwatchService,
+    private val valorantService: ValorantBoardService,
 
     private val followRepository: FollowRepository
 ) {
@@ -123,6 +125,7 @@ class UserController(
             Game.LOL -> loLService.getFollowerBoards(user, pageable, oauth2Ids)
             Game.PUBG -> pubgService.getFollowerBoards(user, pageable, oauth2Ids)
             Game.OVERWATCH -> overwatchService.getFollowerBoards(user, pageable, oauth2Ids)
+            Game.VALORANT -> valorantService.getFollowerBoards(user, pageable, oauth2Ids)
             else -> throw BusinessException(ErrorCode.BAD_REQUEST)
         }
         return ResponseEntity.ok().body(result)
