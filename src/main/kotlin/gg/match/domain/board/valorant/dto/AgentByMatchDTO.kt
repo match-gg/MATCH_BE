@@ -24,6 +24,12 @@ data class AgentByMatchDTO (
     @JsonProperty("shots")
     var shots: Long,
 
+    @JsonProperty("kills")
+    var kills: Long,
+
+    @JsonProperty("deaths")
+    var deaths: Long,
+
     @JsonProperty("isRanked")
     var isRanked: String
 ){
@@ -36,6 +42,8 @@ data class AgentByMatchDTO (
             avgDmg = avgDmg,
             head = head,
             shots = shots,
+            kills = kills,
+            deaths = deaths,
             isRanked = isRanked
         )
     }

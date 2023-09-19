@@ -23,5 +23,9 @@ class AgentByMatch(
 
     var shots: Long,
 
+    var kills: Long,
+
+    var deaths: Long,
+
     var isRanked: String
 )

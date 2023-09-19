@@ -121,10 +121,6 @@ class ValorantService (
 
         val matchHistory = parser.parse(EntityUtils.toString(responseMatchList.entity, "UTF-8")) as JSONObject
 
-//        val jsonString = EntityUtils.toString(responseMatchList.entity, "UTF-8")
-//        val gson = Gson()
-//        val sample = gson.fromJson(jsonString, HistoryDTO::class.java)
-
         for(element in matchHistory["history"] as JSONArray){
             val history = element as JSONObject
             matchList.add(history["matchId"].toString())
@@ -144,12 +140,15 @@ class ValorantService (
         val responseMatch: HttpResponse = HttpClientBuilder.create().build().execute(request)
         val matchHistory = parser.parse(EntityUtils.toString(responseMatch.entity, "UTF-8")) as JSONObject
         val matchInfo = matchHistory["matchInfo"] as JSONObject
+        val players = matchHistory["players"] as JSONArray
         val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString()) ?: return
         val isRanked = matchInfo["isRanked"].toString()
         val userName = agentRepository.findByPuuid(puuid)?.agentName ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         var rounds = 0
         var damageData: Array<Long>
         val roundResults = matchHistory["roundResults"] as JSONArray
+        val killsAndDeaths = getKillsAndDeaths(players, puuid)
+        val won = getWonData(players, puuid, matchHistory["teams"] as JSONArray)
 
         for(roundResult in roundResults) {
             rounds += 1
@@ -162,7 +161,11 @@ class ValorantService (
         val shots = leg+body+head
         val avgDmg = damage / rounds
 
-        val agentByMatch = AgentByMatchDTO(matchId, userName, gameMode.toString(), avgDmg, head, shots, isRanked).toEntity(puuid)
+        val agentByMatch = AgentByMatchDTO(
+            matchId, userName, gameMode.toString(), avgDmg, head, shots,
+            killsAndDeaths[0], killsAndDeaths[1], isRanked
+        ).toEntity(puuid)
+
         agentByMatchRepository.save(agentByMatch)
     }
 
@@ -188,5 +191,36 @@ class ValorantService (
             }
         }
         return arrayOf(damage, leg, body, head)
+    }
+
+    private fun getKillsAndDeaths(players: JSONArray, puuid: String): Array<Long> {
+        val stats: JSONObject
+        for(player in players){
+            player as JSONObject
+            if(player["puuid"] != puuid){
+                continue
+            }
+            stats = player["stats"] as JSONObject
+            return arrayOf(stats["kills"] as Long, stats["deaths"] as Long)
+        }
+        throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+    }
+
+    private fun getWonData(players: JSONArray, puuid: String, teams: JSONArray): String{
+        var teamId: String
+        for(player in players){
+            player as JSONObject
+            if(player["puuid"] != puuid){
+                continue
+            }
+            teamId = player["teamId"].toString()
+            for(team in teams){
+                team as JSONObject
+                if(team["teamId"] == teamId){
+                    return team["won"].toString()
+                }
+            }
+        }
+        throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
     }
 }
