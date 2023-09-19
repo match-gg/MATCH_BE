@@ -8,6 +8,8 @@ import gg.match.domain.board.overwatch.entity.Overwatch
 import gg.match.domain.board.overwatch.repository.OverwatchRepository
 import gg.match.domain.board.pubg.entity.Pubg
 import gg.match.domain.board.pubg.repository.PubgRepository
+import gg.match.domain.board.valorant.entity.Valorant
+import gg.match.domain.board.valorant.repository.ValorantRepository
 import gg.match.domain.chat.dto.ChatRoomDTO
 import gg.match.domain.chat.dto.ChatRoomListDTO
 import gg.match.domain.chat.dto.ChatRoomRequestDTO
@@ -26,6 +28,7 @@ class ChatService (
     private val chatRepository: ChatRepository,
     private val loLRepository: LoLRepository,
     private val pubgRepository: PubgRepository,
+    private val valorantRepository: ValorantRepository,
     private val overwatchRepository: OverwatchRepository
 ){
     @Transactional
@@ -34,6 +37,7 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, chatRoomRequestDTO.boardId) as LoL
             Game.PUBG -> getBoardByGame(game, chatRoomRequestDTO.boardId) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, chatRoomRequestDTO.boardId) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, chatRoomRequestDTO.boardId) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
 
@@ -54,12 +58,14 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         val nickname = when(game){
             Game.LOL -> user.lol
             Game.PUBG -> user.pubg
             Game.OVERWATCH -> user.overwatch
+            Game.VALORANT -> user.valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         if(nickname?.let { validateMemberByChatRoom(game, board.chatRoomId, it) } == true){
@@ -70,6 +76,7 @@ class ChatService (
             Game.LOL -> loLRepository.save(board as LoL)
             Game.PUBG -> pubgRepository.save(board as Pubg)
             Game.OVERWATCH -> overwatchRepository.save(board as Overwatch)
+            Game.VALORANT -> valorantRepository.save(board as Valorant)
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         ChatRoomDTO(board.chatRoomId, nickname, user.oauth2Id).toEntity()
@@ -84,6 +91,7 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         if(validateMemberByChatRoom(game, board.chatRoomId, nickname))
@@ -95,6 +103,7 @@ class ChatService (
             Game.LOL -> loLRepository.save(board as LoL)
             Game.PUBG -> pubgRepository.save(board as Pubg)
             Game.OVERWATCH -> overwatchRepository.save(board as Overwatch)
+            Game.VALORANT -> valorantRepository.save(board as Valorant)
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         return
@@ -107,14 +116,16 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         val nickname: String = if("kakao" in oauth2Id){
             val user = userRepository.findByOauth2Id(oauth2Id) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
             when(game){
-                Game.LOL -> user.lol.toString()
-                Game.PUBG -> user.pubg.toString()
-                Game.OVERWATCH -> user.overwatch.toString()
+                Game.LOL -> user.lol
+                Game.PUBG -> user.pubg
+                Game.OVERWATCH -> user.overwatch
+                Game.VALORANT -> user.valorant
                 else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
             }
         } else oauth2Id
@@ -126,6 +137,7 @@ class ChatService (
             Game.LOL -> loLRepository.save(board as LoL)
             Game.PUBG -> pubgRepository.save(board as Pubg)
             Game.OVERWATCH -> overwatchRepository.save(board as Overwatch)
+            Game.VALORANT -> valorantRepository.save(board as Valorant)
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         return
@@ -138,6 +150,7 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         board.nowUser -= 1
@@ -151,6 +164,7 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         val chatRoomId = board.chatRoomId
@@ -170,6 +184,7 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         board.totalUser = totalUser
@@ -184,6 +199,7 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         if(board.totalUser == board.nowUser) {
@@ -196,6 +212,7 @@ class ChatService (
             Game.LOL -> getBoardByGame(game, id) as LoL
             Game.PUBG -> getBoardByGame(game, id) as Pubg
             Game.OVERWATCH -> getBoardByGame(game, id) as Overwatch
+            Game.VALORANT -> getBoardByGame(game, id) as Valorant
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
         if(board.nowUser == 0) {
@@ -212,8 +229,13 @@ class ChatService (
             Game.PUBG -> {
                 pubgRepository.findByIdOrNull(id)
                     ?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-            }Game.OVERWATCH -> {
+            }
+            Game.OVERWATCH -> {
                 overwatchRepository.findByIdOrNull(id)
+                    ?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+            }
+            Game.VALORANT -> {
+                valorantRepository.findByIdOrNull(id)
                     ?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
             }
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
