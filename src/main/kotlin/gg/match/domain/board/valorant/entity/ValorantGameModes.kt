@@ -7,6 +7,7 @@ enum class ValorantGameModes(
     val assetPath: String,
     val koName: String
 ) {
+    ALL("", "", ""),
     STANDARD("96BD3920-4F36-D026-2B28-C683EB0BCAC5", "/Game/GameModes/Bomb/BombGameMode.BombGameMode_C", "기본"),
     COMPETITIVE("", "", ""),
     TEAM_DEATHMATCH("E086DB66-47FD-E791-CA81-06A645AC7661", "/Game/GameModes/HURM/HURMGameMode.HURMGameMode_C", "팀 데스매치"),

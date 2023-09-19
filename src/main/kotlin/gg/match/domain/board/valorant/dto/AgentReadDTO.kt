@@ -2,10 +2,22 @@ package gg.match.domain.board.valorant.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import gg.match.domain.board.valorant.entity.Agent
-import gg.match.domain.board.valorant.entity.ValorantCharacters
 import gg.match.domain.board.valorant.entity.ValorantGameModes
 
 data class AgentReadDTO (
+
+    @JsonProperty("name")
+    var name: String,
+
+    @JsonProperty("puuid")
+    var puuid: String,
+
+    @JsonProperty("id_token")
+    var idToken: String,
+
+    @JsonProperty("refresh_token")
+    var refreshToken: String,
+
     @JsonProperty("gameMode")
     var gameMode: ValorantGameModes,
 
@@ -24,8 +36,8 @@ data class AgentReadDTO (
     @JsonProperty("wins")
     var wins: Long,
 
-    @JsonProperty("looses")
-    var looses: Long,
+    @JsonProperty("losses")
+    var losses: Long,
 
     @JsonProperty("heads")
     var heads: Long,
@@ -34,27 +46,27 @@ data class AgentReadDTO (
     var shots: Long,
 
     @JsonProperty("most1Agent")
-    var most1Agent: ValorantCharacters,
+    var most1Agent: String,
 
     @JsonProperty("most2Agent")
-    var most2Agent: ValorantCharacters,
+    var most2Agent: String,
 
     @JsonProperty("most3Agent")
-    var most3Agent: ValorantCharacters,
+    var most3Agent: String,
 ){
-    fun toEntity(agent: Agent): Agent{
+    fun toEntity(): Agent{
         return Agent(
-            agentName = agent.agentName,
-            puuid = agent.puuid,
-            id_token = agent.id_token,
-            refreshToken = agent.refreshToken,
+            name = name,
+            puuid = puuid,
+            id_token = idToken,
+            refreshToken = refreshToken,
             gameMode = gameMode,
             tier = tier,
             avgDmg = avgDmg,
             kills = kills,
             deaths = deaths,
             wins = wins,
-            looses = looses,
+            losses = losses,
             heads = heads,
             shots = shots,
             most1Agent = most1Agent,

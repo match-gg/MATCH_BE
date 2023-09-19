@@ -1,5 +1,6 @@
 package gg.match.domain.board.valorant.entity
 
+import gg.match.domain.board.valorant.dto.AgentResponseDTO
 import javax.persistence.*
 
 @Entity
@@ -9,7 +10,7 @@ class Agent(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
 
-    var agentName: String,
+    var name: String,
 
     var id_token: String,
 
@@ -30,18 +31,31 @@ class Agent(
 
     var wins: Long = 0,
 
-    var looses: Long = 0,
+    var losses: Long = 0,
 
     var heads: Long = 0,
 
     var shots: Long = 0,
 
-    @Enumerated(EnumType.STRING)
-    var most1Agent: ValorantCharacters = ValorantCharacters.NO_DATA,
+    var most1Agent: String = "poro",
 
-    @Enumerated(EnumType.STRING)
-    var most2Agent: ValorantCharacters = ValorantCharacters.NO_DATA,
+    var most2Agent: String = "poro",
 
-    @Enumerated(EnumType.STRING)
-    var most3Agent: ValorantCharacters = ValorantCharacters.NO_DATA
-)
+    var most3Agent: String = "poro"
+){
+    fun toAgentResponseDTO(): AgentResponseDTO {
+        return AgentResponseDTO(
+            puuid = puuid,
+            name = name,
+            tier = tier,
+            avgDmg = avgDmg,
+            wins = wins,
+            losses = losses,
+            kills = kills,
+            deaths = deaths,
+            heads = heads,
+            shots = shots,
+            mostAgent = listOf(most1Agent, most2Agent, most3Agent)
+        )
+    }
+}

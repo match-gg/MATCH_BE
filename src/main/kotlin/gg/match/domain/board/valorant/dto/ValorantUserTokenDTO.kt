@@ -16,7 +16,7 @@ data class ValorantUserTokenDTO (
     fun toEntity(puuid: String, agentName: String): Agent{
         return Agent(
             id_token = id_token,
-            agentName = agentName,
+            name = agentName,
             puuid = puuid,
             refreshToken = refresh_token
         )

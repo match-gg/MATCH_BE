@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.valorant.dto.AgentByMatchDTO
+import gg.match.domain.board.valorant.dto.AgentReadDTO
 import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
 import gg.match.domain.board.valorant.entity.Agent
 import gg.match.domain.board.valorant.entity.ValorantCharacters
@@ -26,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 @Service
 @Transactional
@@ -46,7 +50,7 @@ class ValorantService (
     val parser = JSONParser()
 
     fun existByUserNickname(userName: String): Boolean{
-        return agentRepository.existsByAgentName(userName)
+        return agentRepository.existsByName(userName)
     }
 
     fun getValorantUser(code: String): JsonNode{
@@ -54,11 +58,85 @@ class ValorantService (
         val valorantUser = getValorantUserData(rsoReturnJson)
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
+        var agent: Agent
         agentRepository.deleteAllByPuuid(puuid)
-        val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
-            .toEntity(puuid, agentName)
-        agentRepository.save(agent)
+        //get agent info in agent_match table
+        val idToken = rsoReturnJson["id_token"].toString()
+        val refreshToken = rsoReturnJson["refresh_token"].toString()
+        val initArray = arrayOf(0L, 0L, 0L, 0L)
+        var (avgDmg, tier, kills, deaths) = initArray
+        var (wins, losses, heads, shots) = initArray
+        var most1Agent = "poro"
+        var most2Agent = "poro"
+        var most3Agent = "poro"
+        val tierList: MutableList<Long> = arrayListOf()
+        val usingAgentList = mutableListOf<String>()
+        var mostAgents: List<Pair<String, Int>>
+        enumValues<ValorantGameModes>().forEach {
+            val agentByMatch = agentByMatchRepository.findAllByGameMode(it)
+            for(i in agentByMatch.indices){
+                avgDmg += agentByMatch[i].avgDmg
+                kills += agentByMatch[i].kills
+                deaths += agentByMatch[i].deaths
+                if(agentByMatch[i].won == "true"){
+                    wins += 1L
+                } else{
+                    losses += 1L
+                }
+                heads += agentByMatch[i].head
+                shots += agentByMatch[i].shots
+                tierList.add(agentByMatch[i].tier)
+                usingAgentList.add(agentByMatch[i].agentName)
+            }
+            mostAgents = getMostAgent(usingAgentList)
+            when(mostAgents.size){
+                1 -> {
+                    most1Agent = mostAgents[0].first
+                }
+                2 -> {
+                    most1Agent = mostAgents[0].first
+                    most2Agent = mostAgents[1].first
+                }
+                else -> {
+                    most1Agent = mostAgents[0].first
+                    most2Agent = mostAgents[1].first
+                    most3Agent = mostAgents[2].first
+                }
+            }
+
+            tierList.sortDescending()
+            tier = tierList[0]
+            agent = AgentReadDTO(
+                name = agentName,
+                puuid = puuid,
+                idToken = idToken,
+                refreshToken = refreshToken,
+                gameMode = it,
+                tier = tier,
+                avgDmg = avgDmg,
+                kills = kills,
+                deaths = deaths,
+                wins = wins,
+                losses = losses,
+                heads = heads,
+                shots = shots,
+                most1Agent = most1Agent,
+                most2Agent = most2Agent,
+                most3Agent = most3Agent,
+            ).toEntity()
+            agentRepository.save(agent)
+        }
         return valorantUser
+    }
+
+    private fun getMostAgent(usingAgentList: MutableList<String>): List<Pair<String, Int>> {
+        val agentSet: Set<String>
+        val agentMap = mutableMapOf<String, Int>()
+
+        agentSet = HashSet<String>(usingAgentList)
+        for(agentName: String in agentSet)
+            agentMap[agentName] = Collections.frequency(usingAgentList, agentName)
+        return agentMap.toList().sortedByDescending { it.second }
     }
 
     private fun requestRiotAccessToken(code: String): JsonNode? {
@@ -110,7 +188,7 @@ class ValorantService (
     }
 
     fun saveValorantUserData(valorantUserName: String){
-        val puuid = agentRepository.findByAgentName(valorantUserName)?.puuid ?: BusinessException(ErrorCode.USER_NOT_FOUND)
+        val puuid = agentRepository.findByNameAndGameMode(valorantUserName, ValorantGameModes.NONE)?.puuid
         saveValorantMatchHistory(puuid.toString())
     }
 
@@ -146,7 +224,7 @@ class ValorantService (
         val players = matchHistory["players"] as JSONArray
         val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString()) ?: return
         val isRanked = matchInfo["isRanked"].toString()
-        val userName = agentRepository.findByPuuid(puuid)?.agentName ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        val userName = agentRepository.findByPuuid(puuid)?.name ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         var rounds = 0
         var damageData: Array<Long>
         val roundResults = matchHistory["roundResults"] as JSONArray
