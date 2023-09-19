@@ -58,74 +58,11 @@ class ValorantService (
         val valorantUser = getValorantUserData(rsoReturnJson)
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
-        var agent: Agent
         agentRepository.deleteAllByPuuid(puuid)
-        //get agent info in agent_match table
-        val idToken = rsoReturnJson["id_token"].toString()
-        val refreshToken = rsoReturnJson["refresh_token"].toString()
-        val initArray = arrayOf(0L, 0L, 0L, 0L)
-        var (avgDmg, tier, kills, deaths) = initArray
-        var (wins, losses, heads, shots) = initArray
-        var most1Agent = "poro"
-        var most2Agent = "poro"
-        var most3Agent = "poro"
-        val tierList: MutableList<Long> = arrayListOf()
-        val usingAgentList = mutableListOf<String>()
-        var mostAgents: List<Pair<String, Int>>
-        enumValues<ValorantGameModes>().forEach {
-            val agentByMatch = agentByMatchRepository.findAllByGameMode(it)
-            for(i in agentByMatch.indices){
-                avgDmg += agentByMatch[i].avgDmg
-                kills += agentByMatch[i].kills
-                deaths += agentByMatch[i].deaths
-                if(agentByMatch[i].won == "true"){
-                    wins += 1L
-                } else{
-                    losses += 1L
-                }
-                heads += agentByMatch[i].head
-                shots += agentByMatch[i].shots
-                tierList.add(agentByMatch[i].tier)
-                usingAgentList.add(agentByMatch[i].agentName)
-            }
-            mostAgents = getMostAgent(usingAgentList)
-            when(mostAgents.size){
-                1 -> {
-                    most1Agent = mostAgents[0].first
-                }
-                2 -> {
-                    most1Agent = mostAgents[0].first
-                    most2Agent = mostAgents[1].first
-                }
-                else -> {
-                    most1Agent = mostAgents[0].first
-                    most2Agent = mostAgents[1].first
-                    most3Agent = mostAgents[2].first
-                }
-            }
 
-            tierList.sortDescending()
-            tier = tierList[0]
-            agent = AgentReadDTO(
-                name = agentName,
-                puuid = puuid,
-                idToken = idToken,
-                refreshToken = refreshToken,
-                gameMode = it,
-                tier = tier,
-                avgDmg = avgDmg,
-                kills = kills,
-                deaths = deaths,
-                wins = wins,
-                losses = losses,
-                heads = heads,
-                shots = shots,
-                most1Agent = most1Agent,
-                most2Agent = most2Agent,
-                most3Agent = most3Agent,
-            ).toEntity()
-            agentRepository.save(agent)
-        }
+        val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
+            .toEntity(puuid, agentName)
+        agentRepository.save(agent)
         return valorantUser
     }
 
@@ -208,6 +145,73 @@ class ValorantService (
             if(!agentByMatchRepository.existsByMatchId(element)){
                 getMatchData(element, puuid)
             }
+        }
+        //add user most data in DB
+        //get agent info in agent_match table
+        val initArray = arrayOf(0L, 0L, 0L, 0L)
+        var (avgDmg, tier, kills, deaths) = initArray
+        var (wins, losses, heads, shots) = initArray
+        var most1Agent = "poro"
+        var most2Agent = "poro"
+        var most3Agent = "poro"
+        val tierList: MutableList<Long> = arrayListOf()
+        val usingAgentList = mutableListOf<String>()
+        var mostAgents: List<Pair<String, Int>>
+        var agent: Agent
+        val basicAgent = agentRepository.findByPuuid(puuid) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        enumValues<ValorantGameModes>().forEach {
+            val agentByMatch = agentByMatchRepository.findAllByGameMode(it)
+            for(i in agentByMatch.indices){
+                avgDmg += agentByMatch[i].avgDmg
+                kills += agentByMatch[i].kills
+                deaths += agentByMatch[i].deaths
+                if(agentByMatch[i].won == "true"){
+                    wins += 1L
+                } else{
+                    losses += 1L
+                }
+                heads += agentByMatch[i].head
+                shots += agentByMatch[i].shots
+                tierList.add(agentByMatch[i].tier)
+                usingAgentList.add(agentByMatch[i].agentName)
+            }
+            mostAgents = getMostAgent(usingAgentList)
+            when(mostAgents.size){
+                1 -> {
+                    most1Agent = mostAgents[0].first
+                }
+                2 -> {
+                    most1Agent = mostAgents[0].first
+                    most2Agent = mostAgents[1].first
+                }
+                else -> {
+                    most1Agent = mostAgents[0].first
+                    most2Agent = mostAgents[1].first
+                    most3Agent = mostAgents[2].first
+                }
+            }
+
+            tierList.sortDescending()
+            tier = tierList[0]
+            agent = AgentReadDTO(
+                name = basicAgent.name,
+                puuid = puuid,
+                idToken = basicAgent.id_token,
+                refreshToken = basicAgent.refreshToken,
+                gameMode = it,
+                tier = tier,
+                avgDmg = avgDmg,
+                kills = kills,
+                deaths = deaths,
+                wins = wins,
+                losses = losses,
+                heads = heads,
+                shots = shots,
+                most1Agent = most1Agent,
+                most2Agent = most2Agent,
+                most3Agent = most3Agent,
+            ).toEntity()
+            agentRepository.save(agent)
         }
     }
 
