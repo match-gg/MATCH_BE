@@ -33,12 +33,12 @@ data class OverwatchRequestDTO(
     fun toEntity(oauth2Id: String): Overwatch {
         return Overwatch(
             oauth2Id = oauth2Id,
-            type = this.type,
-            tier = this.tier,
-            position = this.position,
-            voice = this.voice,
-            content = this.content,
-            expire = this.expire
+            type = type,
+            tier = tier,
+            position = position,
+            voice = voice,
+            content = content,
+            expire = expire
         )
     }
 }
