@@ -51,10 +51,8 @@ class ValorantService (
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
 
-        val oldAgent = agentRepository.findByPuuid(puuid)
-        if(oldAgent != null){
-            agentRepository.delete(oldAgent)
-        }
+        agentRepository.findByPuuid(puuid)?.let { agentRepository.delete(it) }
+
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
         agentRepository.save(agent)
@@ -109,14 +107,13 @@ class ValorantService (
         }
     }
 
-    fun saveValorantUserData(valorantUserName: String): Any{
+    fun saveValorantUserData(valorantUserName: String){
         val puuid = agentRepository.findByAgentName(valorantUserName)?.puuid ?: BusinessException(ErrorCode.USER_NOT_FOUND)
         saveValorantMatchHistory(puuid.toString())
-        return "good"
     }
 
     private fun saveValorantMatchHistory(puuid: String) {
-        var matchList =  ArrayList<String>()
+        val matchList =  ArrayList<String>()
         val request = HttpGet("$matchListUrl/$puuid?api_key=$mykey")
         val responseMatchList: HttpResponse = HttpClientBuilder.create().build().execute(request)
 
@@ -126,7 +123,11 @@ class ValorantService (
             val history = element as JSONObject
             matchList.add(history["matchId"].toString())
         }
+
         for(element in matchList){
+            if(agentByMatchRepository.existsByMatchId(element)){
+                continue
+            }
             getMatchData(element, puuid)
         }
     }
@@ -142,7 +143,7 @@ class ValorantService (
         val matchHistory = parser.parse(EntityUtils.toString(responseMatch.entity, "UTF-8")) as JSONObject
         val matchInfo = matchHistory["matchInfo"] as JSONObject
         val players = matchHistory["players"] as JSONArray
-        val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString()) ?: return
+        val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString().uppercase()) ?: return
         val isRanked = matchInfo["isRanked"].toString()
         val userName = agentRepository.findByPuuid(puuid)?.agentName ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         var rounds = 0
@@ -150,9 +151,7 @@ class ValorantService (
         val roundResults = matchHistory["roundResults"] as JSONArray
         val killsAndDeaths = getKillsAndDeaths(players, puuid)
         val playerStats = getWonData(players, puuid, matchHistory["teams"] as JSONArray)
-        println("playerstats1 = ${playerStats[1]}")
-        val character = ValorantCharacters.characterIdToName(playerStats[1])
-        println("변환 = $character")
+        val character = ValorantCharacters.characterIdToName(playerStats[1].uppercase())
 
         for(roundResult in roundResults) {
             rounds += 1
@@ -222,7 +221,6 @@ class ValorantService (
             }
             teamId = player["teamId"].toString()
             characterId = player["characterId"].toString()
-            println("characterId = $characterId")
             for(team in teams){
                 team as JSONObject
                 if(team["teamId"] == teamId){
