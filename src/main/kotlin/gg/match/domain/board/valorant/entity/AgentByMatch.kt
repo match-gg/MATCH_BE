@@ -15,6 +15,8 @@ class AgentByMatch(
 
     var agentName: String,
 
+    var characterName: String,
+
     var gameMode: String,
 
     var avgDmg: Long,
@@ -26,6 +28,10 @@ class AgentByMatch(
     var kills: Long,
 
     var deaths: Long,
+
+    var won: String,
+
+    var tier: Long,
 
     var isRanked: String
 )

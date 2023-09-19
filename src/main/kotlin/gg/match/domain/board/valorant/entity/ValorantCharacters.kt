@@ -1,5 +1,7 @@
 package gg.match.domain.board.valorant.entity
 
+import java.util.*
+
 enum class ValorantCharacters(
     val id: String,
     val koName: String
@@ -27,4 +29,14 @@ enum class ValorantCharacters(
     OMEN("8E253930-4C05-31DD-1B6C-968525494517", "오멘"),
     JETT("ADD6443A-41BD-E414-F6AD-E58D267F4E95", "제트"),
     NO_DATA("36FB82AF-409D-C0ED-4B49-57B1EB08FBD5", "No_Data")
+    ;
+
+    companion object{
+        fun characterIdToName(id: String): ValorantCharacters? {
+            return Arrays.stream(ValorantCharacters.values())
+                .filter{ v -> v.id == id }
+                .findAny()
+                .orElse(null)
+        }
+    }
 }

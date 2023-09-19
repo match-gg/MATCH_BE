@@ -12,6 +12,9 @@ data class AgentByMatchDTO (
     @JsonProperty("agentName")
     var agentName: String,
 
+    @JsonProperty("character_name")
+    var characterName: String,
+
     @JsonProperty("gameMode")
     var gameMode: String,
 
@@ -30,6 +33,12 @@ data class AgentByMatchDTO (
     @JsonProperty("deaths")
     var deaths: Long,
 
+    @JsonProperty("won")
+    var won: String,
+
+    @JsonProperty("tier")
+    var tier: Long,
+
     @JsonProperty("isRanked")
     var isRanked: String
 ){
@@ -38,12 +47,15 @@ data class AgentByMatchDTO (
             puuid = valorantUserName,
             matchId = matchId,
             agentName = agentName,
+            characterName = characterName,
             gameMode = gameMode,
             avgDmg = avgDmg,
             head = head,
             shots = shots,
             kills = kills,
             deaths = deaths,
+            won = won,
+            tier = tier,
             isRanked = isRanked
         )
     }

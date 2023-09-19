@@ -8,6 +8,7 @@ import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.valorant.dto.AgentByMatchDTO
 import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
 import gg.match.domain.board.valorant.entity.Agent
+import gg.match.domain.board.valorant.entity.ValorantCharacters
 import gg.match.domain.board.valorant.entity.ValorantGameModes
 import gg.match.domain.board.valorant.repository.AgentByMatchRepository
 import gg.match.domain.board.valorant.repository.AgentRepository
@@ -148,7 +149,8 @@ class ValorantService (
         var damageData: Array<Long>
         val roundResults = matchHistory["roundResults"] as JSONArray
         val killsAndDeaths = getKillsAndDeaths(players, puuid)
-        val won = getWonData(players, puuid, matchHistory["teams"] as JSONArray)
+        val playerStats = getWonData(players, puuid, matchHistory["teams"] as JSONArray)
+        val character = ValorantCharacters.characterIdToName(playerStats[1])
 
         for(roundResult in roundResults) {
             rounds += 1
@@ -162,8 +164,8 @@ class ValorantService (
         val avgDmg = damage / rounds
 
         val agentByMatch = AgentByMatchDTO(
-            matchId, userName, gameMode.toString(), avgDmg, head, shots,
-            killsAndDeaths[0], killsAndDeaths[1], isRanked
+            matchId, userName, character.toString(), gameMode.toString(), avgDmg, head, shots,
+            killsAndDeaths[0], killsAndDeaths[1], playerStats[0], killsAndDeaths[2], isRanked
         ).toEntity(puuid)
 
         agentByMatchRepository.save(agentByMatch)
@@ -195,29 +197,33 @@ class ValorantService (
 
     private fun getKillsAndDeaths(players: JSONArray, puuid: String): Array<Long> {
         val stats: JSONObject
+        val tier: Long
         for(player in players){
             player as JSONObject
             if(player["puuid"] != puuid){
                 continue
             }
+            tier = player["competitiveTier"] as Long
             stats = player["stats"] as JSONObject
-            return arrayOf(stats["kills"] as Long, stats["deaths"] as Long)
+            return arrayOf(stats["kills"] as Long, stats["deaths"] as Long, tier)
         }
         throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
     }
 
-    private fun getWonData(players: JSONArray, puuid: String, teams: JSONArray): String{
+    private fun getWonData(players: JSONArray, puuid: String, teams: JSONArray): Array<String> {
         var teamId: String
+        var characterId: String
         for(player in players){
             player as JSONObject
             if(player["puuid"] != puuid){
                 continue
             }
             teamId = player["teamId"].toString()
+            characterId = player["characterId"].toString()
             for(team in teams){
                 team as JSONObject
                 if(team["teamId"] == teamId){
-                    return team["won"].toString()
+                    return arrayOf(team["won"].toString(), characterId)
                 }
             }
         }
