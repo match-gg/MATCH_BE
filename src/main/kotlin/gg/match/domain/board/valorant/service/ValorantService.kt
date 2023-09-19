@@ -28,7 +28,7 @@ import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 class ValorantService (
     @Value("\${valorant.client-id}") private val valorantClientId: String,
     @Value("\${valorant.client-secret}") private val valorantClientSecret: String,
@@ -50,9 +50,7 @@ class ValorantService (
         val valorantUser = getValorantUserData(rsoReturnJson)
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
-
-        agentRepository.findByPuuid(puuid)?.let { agentRepository.delete(it) }
-
+        agentRepository.deleteAllByPuuid(puuid)
         val agent: Agent = objectMapper.readValue(rsoReturnJson.toString(), ValorantUserTokenDTO::class.java)
             .toEntity(puuid, agentName)
         agentRepository.save(agent)

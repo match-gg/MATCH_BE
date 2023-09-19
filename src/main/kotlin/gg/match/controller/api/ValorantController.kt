@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 class ValorantController(
     private val valorantService: ValorantService
 ) {
-    @PostMapping("/user/exist")
+    @PostMapping("/user/sign")
     fun getValorantUserExist(@RequestBody valorantCodeRequest: ValorantCodeRequest): ResponseEntity<Any>{
         return ResponseEntity.ok().body(valorantService.getValorantUser(valorantCodeRequest.code))
     }
