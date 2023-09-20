@@ -172,7 +172,7 @@ class ValorantService (
             }
             val agentByMatch = agentByMatchRepository.findAllByGameModeAndPuuid(element, puuid)
             if(agentByMatch.isEmpty()){
-                if(element == ValorantGameModes.NONE){
+                if(element == ValorantGameModes.NONE || element == ValorantGameModes.ALL){
                     continue
                 }
                 val emptyAgent = AgentReadDTO(
