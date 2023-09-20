@@ -38,7 +38,7 @@ class ValorantService (
 //    @Value("\${valorant.client-id}") private val valorantClientId: String,
     @Value("\${valorant.client-secret}") private val valorantClientSecret: String,
     @Value("\${valorant.callback-uri}") private val valorantCallbackUri: String,
-    @Value("\${mypage-callback-uri}") private val myPageCallBackUri: String,
+    @Value("\${valorant.mypage-callback-uri}") private val myPageCallBackUri: String,
     @Value("\${valorant.mykey}") private val mykey: String,
     private val agentRepository: AgentRepository,
     private val agentByMatchRepository: AgentByMatchRepository,
