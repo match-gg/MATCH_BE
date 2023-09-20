@@ -15,6 +15,7 @@ import gg.match.domain.board.valorant.repository.AgentRepository
 import gg.match.domain.board.valorant.repository.ValorantRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -43,25 +44,35 @@ class ValorantBoardService (
         return result
     }
 
-    fun getBoards(pageable: Pageable, gameMode: ValorantGameModes, position: ValorantPosition): PageResult<ReadValorantBoardDTO> {
-
-        val boards = if(gameMode == ValorantGameModes.ALL && position == ValorantPosition.ALL){
-            valorantRepository.findAllByOrderByExpiredAscIdDesc(pageable)
-        } else{
-            if(gameMode == ValorantGameModes.ALL){
-                valorantRepository.findAllByValorantGameModesOrderByExpiredAscIdDesc(pageable, gameMode)
-            }
-            else if(position == ValorantPosition.ALL){
+    fun getBoards(pageable: Pageable, gameMode: ValorantGameModes, position: ValorantPosition, tier: Long): PageResult<ReadValorantBoardDTO> {
+        val boards: Page<Valorant>
+        if(gameMode == ValorantGameModes.ALL && position == ValorantPosition.ALL && tier == 0L){
+            boards = valorantRepository.findAllByOrderByExpiredAscIdDesc(pageable)
+        }
+        else if(gameMode == ValorantGameModes.ALL) {
+            boards = if (position == ValorantPosition.ALL && tier != 0L) {
+                valorantRepository.findAllByTierOrderByExpiredAscIdDesc(pageable, tier)
+            } else if (position != ValorantPosition.ALL && tier == 0L) {
                 valorantRepository.findAllByPositionOrderByExpiredAscIdDesc(pageable, position)
-            }
-            valorantRepository.findAllByPositionAndValorantGameModesOrderByExpiredAscIdDesc(pageable, position, gameMode)
+            } else valorantRepository.findAllByPositionAndTierOrderByExpiredAscIdDesc(pageable, position, tier)
+        }
+        else if(position == ValorantPosition.ALL){
+            boards = if(tier == 0L){
+                valorantRepository.findAllByValorantGameModesOrderByExpiredAscIdDesc(pageable, gameMode)
+            } else valorantRepository.findAllByValorantGameModesAndTierOrderByExpiredAscIdDesc(pageable, gameMode, tier)
+        }
+        else{
+            boards = if(tier == 0L){
+                valorantRepository.findAllByValorantGameModesAndPositionOrderByExpiredAscIdDesc(pageable, gameMode, position)
+            } else valorantRepository.findAllByValorantGameModesAndPositionAndTierOrderByExpiredAscIdDesc(pageable, gameMode, position, tier)
         }
         //update expired
         updateExpired()
         //get boards
         if(boards.isEmpty)  throw BusinessException(ErrorCode.NO_BOARD_FOUND)
+        println("여기까지 진입")
         result = PageResult.ok(boards.map { it.toReadValorantBoardDTO(agentRepository.findByNameAndGameMode(it.name, it.valorantGameModes).toAgentResponseDTO(), getMemberList(it.id, "false"), getMemberList(it.id, "true"))})
-
+        println()
         for(i in 0 until boards.content.size){
             val playerName = boards.content[i].name
             result.content[i].author = getAgentByName(playerName, boards.content[i].valorantGameModes)
