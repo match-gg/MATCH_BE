@@ -3,6 +3,7 @@ package gg.match.domain.board.valorant.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import gg.match.domain.board.valorant.entity.AgentByMatch
+import gg.match.domain.board.valorant.entity.ValorantGameModes
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AgentByMatchDTO (
@@ -16,7 +17,7 @@ data class AgentByMatchDTO (
     var characterName: String,
 
     @JsonProperty("gameMode")
-    var gameMode: String,
+    var gameMode: ValorantGameModes,
 
     @JsonProperty("avgDmg")
     var avgDmg: Long,

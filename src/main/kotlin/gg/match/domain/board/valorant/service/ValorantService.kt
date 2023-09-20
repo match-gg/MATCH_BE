@@ -259,7 +259,7 @@ class ValorantService (
         val avgDmg = damage / rounds
 
         val agentByMatch = AgentByMatchDTO(
-            matchId, userName, character.toString(), gameMode.toString(), avgDmg, head, shots,
+            matchId, userName, character.toString(), gameMode, avgDmg, head, shots,
             killsAndDeaths[0], killsAndDeaths[1], playerStats[0], killsAndDeaths[2], isRanked
         ).toEntity(puuid)
         agentByMatchRepository.save(agentByMatch)
