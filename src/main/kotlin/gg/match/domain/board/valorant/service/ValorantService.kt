@@ -34,7 +34,7 @@ import kotlin.collections.HashSet
 @Service
 @Transactional
 class ValorantService (
-    @Value("\${valorant.client-id}") private val valorantClientId: String,
+//    @Value("\${valorant.client-id}") private val valorantClientId: String,
     @Value("\${valorant.client-secret}") private val valorantClientSecret: String,
     @Value("\${valorant.callback-uri}") private val valorantCallbackUri: String,
     @Value("\${valorant.mykey}") private val mykey: String,
@@ -125,8 +125,8 @@ class ValorantService (
     }
 
     fun saveValorantUserData(valorantUserName: String){
-        val puuid = agentRepository.findByNameAndGameMode(valorantUserName, ValorantGameModes.NONE)?.puuid
-        saveValorantMatchHistory(puuid.toString())
+        val puuid = agentRepository.findByNameAndGameMode(valorantUserName, ValorantGameModes.NONE).puuid
+        saveValorantMatchHistory(puuid)
     }
 
     private fun saveValorantMatchHistory(puuid: String) {
@@ -158,9 +158,15 @@ class ValorantService (
         val usingAgentList = mutableListOf<String>()
         var mostAgents: List<Pair<String, Int>>
         var agent: Agent
-        val basicAgent = agentRepository.findByPuuid(puuid) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
-        enumValues<ValorantGameModes>().forEach {
-            val agentByMatch = agentByMatchRepository.findAllByGameMode(it.name) ?: return
+        val basicAgent = agentRepository.findByPuuidAndGameMode(puuid, ValorantGameModes.NONE)
+        for(element in enumValues<ValorantGameModes>()){
+            if(element != ValorantGameModes.NONE){
+                agentRepository.deleteAllByGameMode(element)
+            }
+            val agentByMatch = agentByMatchRepository.findAllByGameMode(element)
+            if(agentByMatch.isEmpty()){
+                continue
+            }
             for(i in agentByMatch.indices){
                 avgDmg += agentByMatch[i].avgDmg
                 kills += agentByMatch[i].kills
@@ -173,8 +179,9 @@ class ValorantService (
                 heads += agentByMatch[i].head
                 shots += agentByMatch[i].shots
                 tierList.add(agentByMatch[i].tier)
-                usingAgentList.add(agentByMatch[i].agentName)
+                usingAgentList.add(agentByMatch[i].characterName)
             }
+            avgDmg /= agentByMatch.size
             mostAgents = getMostAgent(usingAgentList)
             when(mostAgents.size){
                 1 -> {
@@ -198,7 +205,7 @@ class ValorantService (
                 puuid = puuid,
                 idToken = basicAgent.id_token,
                 refreshToken = basicAgent.refreshToken,
-                gameMode = it,
+                gameMode = element,
                 tier = tier,
                 avgDmg = avgDmg,
                 kills = kills,
@@ -226,15 +233,19 @@ class ValorantService (
         val matchHistory = parser.parse(EntityUtils.toString(responseMatch.entity, "UTF-8")) as JSONObject
         val matchInfo = matchHistory["matchInfo"] as JSONObject
         val players = matchHistory["players"] as JSONArray
-        val gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString()) ?: return
+        var gameMode = ValorantGameModes.assetPathToName(matchInfo["gameMode"].toString()) ?: return
         val isRanked = matchInfo["isRanked"].toString()
-        val userName = agentRepository.findByPuuid(puuid)?.name ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        val userName = agentRepository.findByPuuidAndGameMode(puuid, ValorantGameModes.NONE).name
         var rounds = 0
         var damageData: Array<Long>
         val roundResults = matchHistory["roundResults"] as JSONArray
         val killsAndDeaths = getKillsAndDeaths(players, puuid)
         val playerStats = getWonData(players, puuid, matchHistory["teams"] as JSONArray)
         val character = ValorantCharacters.characterIdToName(playerStats[1])
+
+        if(gameMode == ValorantGameModes.STANDARD && isRanked =="true"){
+            gameMode = ValorantGameModes.COMPETITIVE
+        }
 
         for(roundResult in roundResults) {
             rounds += 1
