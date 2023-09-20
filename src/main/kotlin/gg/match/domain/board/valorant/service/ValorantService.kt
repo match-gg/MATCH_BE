@@ -161,9 +161,9 @@ class ValorantService (
         val basicAgent = agentRepository.findByPuuidAndGameMode(puuid, ValorantGameModes.NONE)
         for(element in enumValues<ValorantGameModes>()){
             if(element != ValorantGameModes.NONE){
-                agentRepository.deleteAllByGameMode(element)
+                agentRepository.deleteAllByGameModeAndPuuid(element, puuid)
             }
-            val agentByMatch = agentByMatchRepository.findAllByGameMode(element)
+            val agentByMatch = agentByMatchRepository.findAllByGameModeAndPuuid(element, puuid)
             if(agentByMatch.isEmpty()){
                 continue
             }

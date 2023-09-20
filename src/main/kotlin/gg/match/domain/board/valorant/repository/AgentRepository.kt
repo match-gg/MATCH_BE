@@ -9,5 +9,5 @@ interface AgentRepository: JpaRepository<Agent, Long> {
     fun findByNameAndGameMode(name: String, gameMode: ValorantGameModes): Agent
     fun deleteAllByPuuid(puuid: String)
     fun findByPuuidAndGameMode(puuid: String, gameMode: ValorantGameModes): Agent
-    fun deleteAllByGameMode(gameMode: ValorantGameModes)
+    fun deleteAllByGameModeAndPuuid(gameMode: ValorantGameModes, puuid: String)
 }
