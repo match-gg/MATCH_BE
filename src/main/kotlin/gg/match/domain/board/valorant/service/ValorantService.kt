@@ -246,7 +246,6 @@ class ValorantService (
         if(gameMode == ValorantGameModes.STANDARD && isRanked =="true"){
             gameMode = ValorantGameModes.COMPETITIVE
         }
-
         for(roundResult in roundResults) {
             rounds += 1
             damageData = getRoundResultData(roundResult as JSONObject, puuid)

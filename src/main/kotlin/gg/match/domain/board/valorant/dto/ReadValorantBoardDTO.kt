@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import gg.match.common.dto.ChatMemberListDTO
 import gg.match.controller.common.entity.Expire
 import gg.match.domain.board.valorant.entity.ValorantGameModes
+import gg.match.domain.board.valorant.entity.ValorantPosition
 import java.time.LocalDateTime
 
 data class ReadValorantBoardDTO (
@@ -15,6 +16,12 @@ data class ReadValorantBoardDTO (
 
     @JsonProperty("gameMode")
     var gameMode: ValorantGameModes,
+
+    @JsonProperty("tier")
+    var tier: Long,
+
+    @JsonProperty("position")
+    var position: ValorantPosition,
 
     @JsonProperty("voice")
     var voice: String,

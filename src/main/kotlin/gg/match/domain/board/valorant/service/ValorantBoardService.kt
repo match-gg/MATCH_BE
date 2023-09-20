@@ -5,20 +5,16 @@ import gg.match.controller.common.dto.PageResult
 import gg.match.controller.common.entity.Expire
 import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
-import gg.match.domain.board.overwatch.dto.ReadOverwatchBoardDTO
 import gg.match.domain.board.valorant.dto.AgentResponseDTO
 import gg.match.domain.board.valorant.dto.ReadValorantBoardDTO
 import gg.match.domain.board.valorant.dto.ValorantRequestDTO
-import gg.match.domain.board.valorant.entity.Agent
 import gg.match.domain.board.valorant.entity.Valorant
 import gg.match.domain.board.valorant.entity.ValorantGameModes
 import gg.match.domain.board.valorant.entity.ValorantPosition
-import gg.match.domain.board.valorant.repository.AgentByMatchRepository
 import gg.match.domain.board.valorant.repository.AgentRepository
 import gg.match.domain.board.valorant.repository.ValorantRepository
 import gg.match.domain.chat.repository.ChatRepository
 import gg.match.domain.user.entity.User
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -78,18 +74,21 @@ class ValorantBoardService (
         return board.toReadValorantBoardDTO(agentRepository.findByNameAndGameMode(board.name, board.valorantGameModes).toAgentResponseDTO(), getMemberList(boardId, "false"), getMemberList(boardId, "true"))
     }
 
+    @Transactional
     fun save(valorantRequestDTO: ValorantRequestDTO, user: User): Long?{
         val board = valorantRepository.save(valorantRequestDTO.toEntity(user.oauth2Id))
         board.name = valorantRequestDTO.name
         return board.id
     }
 
+    @Transactional
     fun update(boardId: Long, valorantRequestDTO: ValorantRequestDTO): Valorant {
         val board = valorantRepository.findByIdOrNull(boardId)?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
         board.update(valorantRequestDTO)
         return board
     }
 
+    @Transactional
     fun delete(boardId: Long){
         val board = valorantRepository.findByIdOrNull(boardId)?: throw BusinessException(ErrorCode.NO_BOARD_FOUND)
         val chat = chatRepository.findAllByChatRoomId(board.chatRoomId)
@@ -98,10 +97,10 @@ class ValorantBoardService (
     }
 
     private fun getAgentByName(name: String, valorantGameModes: ValorantGameModes): AgentResponseDTO {
-        return try{
+        return try {
             agentRepository.findByNameAndGameMode(name, valorantGameModes).toAgentResponseDTO()
-        } catch (e: Exception){
-            throw BusinessException(ErrorCode.USER_NOT_FOUND)
+        } catch (e: Exception) {
+            agentRepository.findByNameAndGameMode(name, ValorantGameModes.NONE).toAgentResponseDTO()
         }
     }
 
