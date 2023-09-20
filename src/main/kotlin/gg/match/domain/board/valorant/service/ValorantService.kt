@@ -38,6 +38,7 @@ class ValorantService (
 //    @Value("\${valorant.client-id}") private val valorantClientId: String,
     @Value("\${valorant.client-secret}") private val valorantClientSecret: String,
     @Value("\${valorant.callback-uri}") private val valorantCallbackUri: String,
+    @Value("\${mypage-callback-uri}") private val myPageCallBackUri: String,
     @Value("\${valorant.mykey}") private val mykey: String,
     private val agentRepository: AgentRepository,
     private val agentByMatchRepository: AgentByMatchRepository,
@@ -54,8 +55,8 @@ class ValorantService (
         return agentRepository.existsByName(userName)
     }
 
-    fun getValorantUser(code: String): JsonNode{
-        val rsoReturnJson = requestRiotAccessToken(code) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
+    fun getValorantUser(code: String, location: String): JsonNode{
+        val rsoReturnJson = requestRiotAccessToken(code, location) ?: throw BusinessException(ErrorCode.BAD_REQUEST)
         val valorantUser = getValorantUserData(rsoReturnJson)
         val puuid = valorantUser["puuid"].asText()
         val agentName = "${valorantUser["gameName"].asText()}#${valorantUser["tagLine"].asText()}"
@@ -77,13 +78,18 @@ class ValorantService (
         return agentMap.toList().sortedByDescending { it.second }
     }
 
-    private fun requestRiotAccessToken(code: String): JsonNode? {
+    private fun requestRiotAccessToken(code: String, location: String): JsonNode? {
         val httpHeaders = HttpHeaders()
         httpHeaders.contentType = MediaType.APPLICATION_FORM_URLENCODED
         val params = LinkedMultiValueMap<String, String>()
         params.add("grant_type", "authorization_code")
         params.add("code", code)
-        params.add("redirect_uri", valorantCallbackUri)
+        if(location == "kakao") {
+            params.add("redirect_uri", valorantCallbackUri)
+        }
+        else{
+            params.add("redirect_uri", myPageCallBackUri)
+        }
         params.add("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
         params.add("client_assertion", valorantClientSecret)
 

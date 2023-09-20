@@ -70,7 +70,6 @@ class ValorantBoardService (
         updateExpired()
         //get boards
         if(boards.isEmpty)  throw BusinessException(ErrorCode.NO_BOARD_FOUND)
-        println("여기까지 진입")
         result = PageResult.ok(boards.map { it.toReadValorantBoardDTO(agentRepository.findByNameAndGameMode(it.name, it.valorantGameModes).toAgentResponseDTO(), getMemberList(it.id, "false"), getMemberList(it.id, "true"))})
         println()
         for(i in 0 until boards.content.size){

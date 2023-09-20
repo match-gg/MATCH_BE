@@ -78,8 +78,13 @@ class ValorantController(
     }
 
     @PostMapping("/user/sign")
-    fun getValorantUserExist(@RequestBody valorantCodeRequest: ValorantCodeRequest): ResponseEntity<Any>{
-        return ResponseEntity.ok().body(valorantService.getValorantUser(valorantCodeRequest.code))
+    fun getValorantUser(@RequestBody valorantCodeRequest: ValorantCodeRequest): ResponseEntity<Any>{
+        return ResponseEntity.ok().body(valorantService.getValorantUser(valorantCodeRequest.code, "kakao"))
+    }
+
+    @PostMapping("/user/mypage/sign")
+    fun getValorantUserInMyPage(@RequestBody valorantCodeRequest: ValorantCodeRequest): ResponseEntity<Any>{
+        return ResponseEntity.ok().body(valorantService.getValorantUser(valorantCodeRequest.code, "mypage"))
     }
 
     @GetMapping("/user/{valorant}")
