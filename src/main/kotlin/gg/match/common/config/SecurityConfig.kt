@@ -36,7 +36,7 @@ class SecurityConfig(
                 //overwatch
                 "/api/overwatch/user/**", "/api/overwatch/user/exist/**","/api/overwatch/boards/**", "/api/overwatch/player/**/**",
                 //valorant
-                "/api/valorant/user/exist", "/api/valorant/user/**", "/api/valorant/boards/**", "api/valorant/player/**/**",
+                "/api/valorant/user/**", "/api/valorant/user/exist/**", "/api/valorant/boards/**", "/api/valorant/player/**/**",
                 //admin
                 "/api/admin/login"
             )
