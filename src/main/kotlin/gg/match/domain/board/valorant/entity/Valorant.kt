@@ -37,6 +37,7 @@ class Valorant (
     fun toReadValorantBoardDTO(agent: AgentResponseDTO, memeberList: List<ChatMemberListDTO>, banList: List<ChatMemberListDTO>): ReadValorantBoardDTO{
         return ReadValorantBoardDTO(
             id = id,
+            name = name,
             oauth2Id = oauth2Id,
             gameMode = valorantGameModes,
             tier = tier,
