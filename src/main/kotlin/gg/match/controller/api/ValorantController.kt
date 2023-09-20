@@ -28,9 +28,10 @@ class ValorantController(
     fun getBoards(
         @PageableDefault(size = 10) pageable: Pageable,
         @RequestParam(required = false, defaultValue = "ALL") gameMode: ValorantGameModes,
-        @RequestParam(required = false, defaultValue = "ALL") position: ValorantPosition
+        @RequestParam(required = false, defaultValue = "ALL") position: ValorantPosition,
+        @RequestParam(required = false, defaultValue = "0") tier: Long
     ): PageResult<ReadValorantBoardDTO> {
-        return valorantBoardService.getBoards(pageable, gameMode, position)
+        return valorantBoardService.getBoards(pageable, gameMode, position, tier)
     }
 
     @GetMapping("/boards/{boardId}")
@@ -84,5 +85,12 @@ class ValorantController(
     @GetMapping("/user/{valorant}")
     fun saveValorantUser(@PathVariable valorant: String): ResponseEntity<Any>{
         return ResponseEntity.ok().body(valorantService.saveValorantUserData(valorant.replace("%23", "#")))
+    }
+
+    @GetMapping("/agent/{valorant}/{gameMode}")
+    fun getAgentInfo(@PathVariable valorant: String, @PathVariable gameMode: String): ResponseEntity<Any>{
+        val username = valorant.replace("%23", "#")
+        val gameModes = ValorantGameModes.valueOf(gameMode.uppercase())
+        return ResponseEntity.ok().body(valorantService.getAgentInfo(username, gameModes))
     }
 }

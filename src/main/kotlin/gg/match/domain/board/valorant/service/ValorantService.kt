@@ -7,6 +7,7 @@ import gg.match.controller.error.BusinessException
 import gg.match.controller.error.ErrorCode
 import gg.match.domain.board.valorant.dto.AgentByMatchDTO
 import gg.match.domain.board.valorant.dto.AgentReadDTO
+import gg.match.domain.board.valorant.dto.AgentResponseDTO
 import gg.match.domain.board.valorant.dto.ValorantUserTokenDTO
 import gg.match.domain.board.valorant.entity.Agent
 import gg.match.domain.board.valorant.entity.ValorantCharacters
@@ -321,5 +322,9 @@ class ValorantService (
             }
         }
         throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
+    }
+
+    fun getAgentInfo(username: String, gameModes: ValorantGameModes): AgentResponseDTO{
+        return agentRepository.findByNameAndGameMode(username, gameModes).toAgentResponseDTO()
     }
 }
