@@ -17,6 +17,11 @@ class Valorant (
 
     var oauth2Id: String,
 
+    var tier: Long,
+
+    @Enumerated(EnumType.STRING)
+    var position: ValorantPosition,
+
     @Enumerated(EnumType.STRING)
     var valorantGameModes: ValorantGameModes,
 

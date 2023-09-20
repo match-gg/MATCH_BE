@@ -6,6 +6,7 @@ import gg.match.domain.board.valorant.dto.ReadValorantBoardDTO
 import gg.match.domain.board.valorant.dto.ValorantCodeRequest
 import gg.match.domain.board.valorant.dto.ValorantRequestDTO
 import gg.match.domain.board.valorant.entity.ValorantGameModes
+import gg.match.domain.board.valorant.entity.ValorantPosition
 import gg.match.domain.board.valorant.service.ValorantBoardService
 import gg.match.domain.board.valorant.service.ValorantService
 import gg.match.domain.user.entity.User
@@ -27,8 +28,9 @@ class ValorantController(
     fun getBoards(
         @PageableDefault(size = 10) pageable: Pageable,
         @RequestParam(required = false, defaultValue = "ALL") gameMode: ValorantGameModes,
+        @RequestParam(required = false, defaultValue = "ALL") position: ValorantPosition
     ): PageResult<ReadValorantBoardDTO> {
-        return valorantBoardService.getBoards(pageable, gameMode)
+        return valorantBoardService.getBoards(pageable, gameMode, position)
     }
 
     @GetMapping("/boards/{boardId}")

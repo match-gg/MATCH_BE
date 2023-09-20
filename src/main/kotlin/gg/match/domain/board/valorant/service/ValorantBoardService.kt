@@ -12,6 +12,7 @@ import gg.match.domain.board.valorant.dto.ValorantRequestDTO
 import gg.match.domain.board.valorant.entity.Agent
 import gg.match.domain.board.valorant.entity.Valorant
 import gg.match.domain.board.valorant.entity.ValorantGameModes
+import gg.match.domain.board.valorant.entity.ValorantPosition
 import gg.match.domain.board.valorant.repository.AgentByMatchRepository
 import gg.match.domain.board.valorant.repository.AgentRepository
 import gg.match.domain.board.valorant.repository.ValorantRepository
@@ -46,11 +47,18 @@ class ValorantBoardService (
         return result
     }
 
-    fun getBoards(pageable: Pageable, gameMode: ValorantGameModes): PageResult<ReadValorantBoardDTO> {
-        val boards = if(gameMode == ValorantGameModes.ALL){
+    fun getBoards(pageable: Pageable, gameMode: ValorantGameModes, position: ValorantPosition): PageResult<ReadValorantBoardDTO> {
+
+        val boards = if(gameMode == ValorantGameModes.ALL && position == ValorantPosition.ALL){
             valorantRepository.findAllByOrderByExpiredAscIdDesc(pageable)
         } else{
-            valorantRepository.findAllByValorantGameModesOrderByExpiredAscIdDesc(pageable, gameMode)
+            if(gameMode == ValorantGameModes.ALL){
+                valorantRepository.findAllByValorantGameModesOrderByExpiredAscIdDesc(pageable, gameMode)
+            }
+            else if(position == ValorantPosition.ALL){
+                valorantRepository.findAllByPositionOrderByExpiredAscIdDesc(pageable, position)
+            }
+            valorantRepository.findAllByPositionAndValorantGameModesOrderByExpiredAscIdDesc(pageable, position, gameMode)
         }
         //update expired
         updateExpired()
