@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface AgentRepository: JpaRepository<Agent, Long> {
     fun existsByName(name: String): Boolean
     fun findByNameAndGameMode(name: String, gameMode: ValorantGameModes): Agent
-    fun findByPuuid(puuid: String): Agent?
     fun deleteAllByPuuid(puuid: String)
+    fun findByPuuidAndGameMode(puuid: String, gameMode: ValorantGameModes): Agent
+    fun deleteAllByGameMode(gameMode: ValorantGameModes)
 }

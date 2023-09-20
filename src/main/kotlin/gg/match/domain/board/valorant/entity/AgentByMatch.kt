@@ -17,7 +17,8 @@ class AgentByMatch(
 
     var characterName: String,
 
-    var gameMode: String,
+    @Enumerated(EnumType.STRING)
+    var gameMode: ValorantGameModes,
 
     var avgDmg: Long,
 
