@@ -39,6 +39,8 @@ class Valorant (
             id = id,
             oauth2Id = oauth2Id,
             gameMode = valorantGameModes,
+            tier = tier,
+            position = position,
             voice = voice,
             content = content,
             expire = expire,
