@@ -9,4 +9,5 @@ interface UserRepository: JpaRepository<User, Long> {
     fun findByLol(lol: String): User?
     fun findByPubg(pubg: String): User?
     fun findByOverwatch(overwatch: String): User?
+    fun findByValorant(valorant: String): User?
 }

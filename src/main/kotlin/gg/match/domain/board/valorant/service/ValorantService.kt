@@ -172,20 +172,23 @@ class ValorantService (
             }
             val agentByMatch = agentByMatchRepository.findAllByGameModeAndPuuid(element, puuid)
             if(agentByMatch.isEmpty()){
+                if(element == ValorantGameModes.NONE){
+                    continue
+                }
                 val emptyAgent = AgentReadDTO(
                     name = basicAgent.name,
                     puuid = puuid,
                     idToken = basicAgent.id_token,
                     refreshToken = basicAgent.refreshToken,
                     gameMode = element,
-                    tier = tier,
-                    avgDmg = avgDmg,
-                    kills = kills,
-                    deaths = deaths,
-                    wins = wins,
-                    losses = losses,
-                    heads = heads,
-                    shots = shots,
+                    tier = 0L,
+                    avgDmg = 0L,
+                    kills = 0L,
+                    deaths = 0L,
+                    wins = 0L,
+                    losses = 0L,
+                    heads = 0L,
+                    shots = 0L,
                     most1Agent = "poro",
                     most2Agent = "poro",
                     most3Agent = "poro"

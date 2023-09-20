@@ -54,6 +54,7 @@ class UserService (
             Game.LOL -> userRepository.findByLol(likeRequestDTO.nickname)
             Game.PUBG -> userRepository.findByPubg(likeRequestDTO.nickname)
             Game.OVERWATCH -> userRepository.findByOverwatch(likeRequestDTO.nickname)
+            Game.VALORANT -> userRepository.findByValorant(likeRequestDTO.nickname)
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         } ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         return user
@@ -67,6 +68,7 @@ class UserService (
             Game.LOL -> userData.lol = nickname
             Game.OVERWATCH -> userData.overwatch = nickname
             Game.PUBG -> userData.pubg = nickname
+            Game.VALORANT -> userData.valorant = nickname
             else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
         }
     }
