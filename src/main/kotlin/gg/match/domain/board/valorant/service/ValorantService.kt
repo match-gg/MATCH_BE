@@ -160,7 +160,7 @@ class ValorantService (
         var agent: Agent
         val basicAgent = agentRepository.findByPuuid(puuid) ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
         enumValues<ValorantGameModes>().forEach {
-            val agentByMatch = agentByMatchRepository.findAllByGameMode(it) ?: return
+            val agentByMatch = agentByMatchRepository.findAllByGameMode(it.name) ?: return
             for(i in agentByMatch.indices){
                 avgDmg += agentByMatch[i].avgDmg
                 kills += agentByMatch[i].kills
