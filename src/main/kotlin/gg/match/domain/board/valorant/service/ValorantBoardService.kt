@@ -46,6 +46,10 @@ class ValorantBoardService (
 
     fun getBoards(pageable: Pageable, gameMode: ValorantGameModes, position: ValorantPosition, tier: Long): PageResult<ReadValorantBoardDTO> {
         val boards: Page<Valorant>
+
+        //update expired
+        updateExpired()
+
         if(gameMode == ValorantGameModes.ALL && position == ValorantPosition.ALL && tier == 0L){
             boards = valorantRepository.findAllByOrderByExpiredAscIdDesc(pageable)
         }
@@ -66,8 +70,6 @@ class ValorantBoardService (
                 valorantRepository.findAllByValorantGameModesAndPositionOrderByExpiredAscIdDesc(pageable, gameMode, position)
             } else valorantRepository.findAllByValorantGameModesAndPositionAndTierOrderByExpiredAscIdDesc(pageable, gameMode, position, tier)
         }
-        //update expired
-        updateExpired()
         //get boards
         if(boards.isEmpty)  throw BusinessException(ErrorCode.NO_BOARD_FOUND)
         result = PageResult.ok(boards.map { it.toReadValorantBoardDTO(agentRepository.findByNameAndGameMode(it.name, it.valorantGameModes).toAgentResponseDTO(), getMemberList(it.id, "false"), getMemberList(it.id, "true"))})
