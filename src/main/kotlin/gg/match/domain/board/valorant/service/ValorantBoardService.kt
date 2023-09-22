@@ -136,7 +136,8 @@ class ValorantBoardService (
                 Expire.TWELVE_H -> boards[i].created.plusHours(12)
                 Expire.TWENTY_FOUR_H -> boards[i].created.plusDays(1)
             }
-
+            println("expired time: $expiredTime")
+            println("expired time is before now? : ${expiredTime.isBefore(now)}")
             if(expiredTime.isBefore(now)) {
                 boards[i].update("true")
             }
