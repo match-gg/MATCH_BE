@@ -56,6 +56,8 @@ class Valorant (
     }
 
     fun update(valorantRequestDTO: ValorantRequestDTO){
+        tier = valorantRequestDTO.tier
+        position = valorantRequestDTO.position
         valorantGameModes = valorantRequestDTO.valorantGameModes
         voice = valorantRequestDTO.voice
         content = valorantRequestDTO.content
