@@ -32,32 +32,20 @@ class UserService (
     @Transactional
     fun increaseLike(likeRequestDTO: LikeRequestDTO): Long?{
         val user = getUserByGame(likeRequestDTO)
-        return if(user == null) null
-        else{
-            user.likeCount += 1
-            user.id
-        }
+        user.likeCount += 1
+        return user.id
     }
 
     @Transactional
     fun increaseDislike(likeRequestDTO: LikeRequestDTO): Long?{
         val user = getUserByGame(likeRequestDTO)
-        return if(user == null) null
-        else{
-            user.dislikeCount += 1
-            user.id
-        }
+        user.dislikeCount += 1
+        return user.id
     }
 
-    fun getUserByGame(likeRequestDTO: LikeRequestDTO): User?{
-        val user: User = when(Game.valueOf(likeRequestDTO.game.uppercase())){
-            Game.LOL -> userRepository.findByLol(likeRequestDTO.nickname)
-            Game.PUBG -> userRepository.findByPubg(likeRequestDTO.nickname)
-            Game.OVERWATCH -> userRepository.findByOverwatch(likeRequestDTO.nickname)
-            Game.VALORANT -> userRepository.findByValorant(likeRequestDTO.nickname)
-            else -> throw BusinessException(ErrorCode.INTERNAL_SERVER_ERROR)
-        } ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
-        return user
+    fun getUserByGame(likeRequestDTO: LikeRequestDTO): User {
+        return userRepository.findByOauth2Id(likeRequestDTO.oauth2Id)
+            ?: throw BusinessException(ErrorCode.USER_NOT_FOUND)
     }
 
     @Transactional
